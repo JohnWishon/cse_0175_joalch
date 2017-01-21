@@ -2,13 +2,12 @@
 .PHONY := all build rebuild clean run
 
 PROG_NAME = hello_world
-SRC_DIR = src
 RES_DIR = res
 
 CC = zcc
-CC_FLAGS = +zx -Wall
-
-C_FILES = main.c
+CC_FLAGS = +zx -Wall -O2
+C_FILES =
+ASM_FILES = main.asm
 
 LIBS = -lndos
 
@@ -23,17 +22,15 @@ all : build
 run : build
 	fuse $(PROG_NAME).tap
 
-build : $(OBJ_FILES)
+build :
 	$(call padEcho,linking $(PROG_NAME)...)
-	$(CC) $(CC_FLAGS) $(INCLUDE) $(LIBS) -o $(PROG_NAME) -create-app $(C_FILES)
+	$(CC) $(CC_FLAGS) $(INCLUDE) $(LIBS) -o $(PROG_NAME) -create-app $(ASM_FILES) $(C_FILES)
 	$(call padEcho,done!)
-
 
 rebuild : clean build
 
 clean :
 	$(call padEcho,deleting temporary files...)
-	$(RM) *.o
 	$(RM) *~
 	$(RM) $(PROG_NAME)
 	$(RM) $(PROG_NAME).tap
