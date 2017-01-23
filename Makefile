@@ -7,7 +7,7 @@ RES_DIR = res
 CC = zcc
 CC_FLAGS = +zx -Wall -O2
 C_FILES =
-ASM_FILES = main.asm
+ASM_FILES = main.asm keyboarddisp.asm
 
 LIBS = -lndos
 
