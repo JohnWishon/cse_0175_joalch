@@ -1,0 +1,54 @@
+; MOVE IMAGE 1 FROM ATTRIBUTE FILE TO STORAGE AREA
+;
+; PRESERVED: A
+; EXIT: HL=5B00H, BC=0
+
+ATTSTR:
+	LD		HL, 5800H
+	LD		DE, IMAGE1
+	LD		BC, 300H
+	LDIR
+	RET
+	
+IMAGE1:
+	DEFS	768
+
+	
+; MIX IMAGE 1 FROM STORAGE WITH CURRENT ATTRIBUTES
+;
+; EXIT: DE=5B00H, BC=0, A=0
+;
+BLEND:
+	LD		DE,5B00H
+	LD		HL,IMAGE1
+	LD		BC,300H
+	
+
+
+NXTATT:					
+	LD		A,(HL)		; TAKE BYTE OF IMAGE1
+	AND		78h			; MASK OFF ITS PAPER AND BRIGHT VBALUES
+	LD		(HL),		; STORE IT AGAIN
+	LD		A,(DE)		; TAKE CURRENT ATTRIBUTES
+	RRCA				;;
+	RRCA				;; SHIFT THE PAPER BITS INTO THE INK BITS AND MASK THEM
+	RRCA				;;
+	AND		7			;;
+	OR		(HL)		; BLEND THESE BITS WITH THE PAPER AND BRIGHT BITS OF IMAGE1
+	OR		80H			; SET FLASH 1
+	LD		(DE), A		; STORE COMPLETED BYTE IN ATTRIBUTE FILE
+	
+	INC		DE			;; REPEAT FOR THE NEXT CELL
+	INC		HL
+	DEC		BC
+	LD		A,B
+	OR		C
+	JR		NZ, NXTATT
+	RET
+	
+	;** Once the final image has been created in the attribute file, you can
+	;	either save the bytes direct to tape, using:
+	;		SAVE (NAME) CODE 22528, 768
+	;	or  use ATTSTR to shift into safe memory unaffected by screen and then
+	; 	SAVE them from there.
+	
