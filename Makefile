@@ -7,7 +7,7 @@ RES_DIR = res
 ASM = z80asm
 ASM_FLAGS = -b
 MAIN_FILE = main.asm
-ASM_FILES = defines.asm keyboarddisp.asm
+ASM_FILES = defines.asm keyboarddisp.asm update.asm
 
 APPMAKE = appmake
 APPMAKE_FLAGS = +zx --org 32768

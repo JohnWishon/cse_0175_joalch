@@ -36,6 +36,7 @@ Xbanner:
 footer:
         defb "Should never see this", newline
 Xfooter:
+	include "update.asm"
         include "keyboarddisp.asm"
 
 
