@@ -1,17 +1,17 @@
 .DEFAULT_GOAL := all
 .PHONY := all build rebuild clean run
 
-PROG_NAME = hello_world
+PROG_NAME = catastrophe
 RES_DIR = res
 
-CC = zcc
-CC_FLAGS = +zx -Wall -O2
-C_FILES =
-ASM_FILES = main.asm keyboarddisp.asm
+ASM = z80asm
+ASM_FLAGS = -b
+MAIN_FILE = main.asm
+ASM_FILES = defines.asm keyboarddisp.asm
 
-LIBS = -lndos
+APPMAKE = appmake
+APPMAKE_FLAGS = +zx --org 32768
 
-INCLUDE =
 
 # ----------------------------------------------------------
 # --- Targets ----------------------------------------------
@@ -22,17 +22,26 @@ all : build
 run : build
 	fuse $(PROG_NAME).tap
 
-build :
-	$(call padEcho,linking $(PROG_NAME)...)
-	$(CC) $(CC_FLAGS) $(INCLUDE) $(LIBS) -o $(PROG_NAME) -create-app $(ASM_FILES) $(C_FILES)
+build : $(PROG_NAME).tap
 	$(call padEcho,done!)
+
+$(PROG_NAME).tap : $(PROG_NAME).bin
+	$(call padEcho,Appmaking $(PROG_NAME).tap...)
+	$(APPMAKE) $(APPMAKE_FLAGS) -o $(PROG_NAME).tap -b $(PROG_NAME).bin
+
+$(PROG_NAME).bin : $(MAIN_FILE) $(ASM_FILES)
+	$(call padEcho,Assembling $(PROG_NAME)...)
+	$(ASM) $(ASM_FLAGS) --output=$(PROG_NAME).bin $(MAIN_FILE)
 
 rebuild : clean build
 
 clean :
 	$(call padEcho,deleting temporary files...)
 	$(RM) *~
+	$(RM) *.err
 	$(RM) $(PROG_NAME)
+	$(RM) $(PROG_NAME).o
+	$(RM) $(PROG_NAME).bin
 	$(RM) $(PROG_NAME).tap
 
 # ----------------------------------------------------------

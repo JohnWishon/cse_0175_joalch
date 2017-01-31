@@ -1,18 +1,38 @@
-	module main.asm
+        org $8000
 
-_main:          			; z80asm doesn't like mixed label and code somehow
-	ld	a,2			; upper screen
-	call	$1601			; open channel
+        include "defines.asm"
 
-loop:					; (.cont) It also requires the colon.
-	ld	de,pstring		; address of string
-	ld	bc,eostr-pstring	; length of string to print
-	call	$203c			; print our string
-	jp	loop			; repeat until screen is full
+        ;; defvars 0
+        ;; {
+        ;; test1 ds.p 1
+        ;; test2 ds.p 1
+        ;; }
 
-pstring:
-	defm	"(Name) is cool"	; defm is "define message"
-	defb 13				; 13 for CR
 
-eostr:
-	xdef	_main			; if this isn't defined, z80asm complains
+
+main:
+        ld  a,2                 ; upper screen
+        call    $1601           ; open channel
+
+        ld de,banner
+        ld bc,Xbanner-banner
+        call print
+
+        call pmain
+
+        ld de,footer
+        ld bc,Xfooter-footer
+        call print
+
+endProg:
+        nop
+        jp endProg
+
+banner:
+        defb "Start of main", newline
+Xbanner:
+
+footer:
+        defb "Should never see this", newline
+Xfooter:
+        include "keyboarddisp.asm"

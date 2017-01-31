@@ -1,7 +1,6 @@
-org $8000
+;; org $8000
+
 pmain:
-    ld  a,2                 ; upper screen
-    call    $1601           ; open channel
 loop:
     xor a                   ; clear a
     ld  bc,64510            ; load port number of W
@@ -60,7 +59,7 @@ cycle_closing:
 d_pressed:
     ld  de,estr             ; addr. of "East" string
     ld  bc,Xestr-estr
-    call    $203c           ; print our string
+    call    print           ; print our string
     pop hl
     ld  hl,cycle_closing
     push    hl              ; Modify return addr. for early termination.
@@ -69,7 +68,7 @@ d_pressed:
 s_pressed:
     ld  de,sstr             ; addr. of "South" string
     ld  bc,Xsstr-sstr
-    call    $203c           ; print our string
+    call    print           ; print our string
     pop hl
     ld  hl,cycle_closing
     push    hl              ; Modify return addr. for early termination.
@@ -78,7 +77,7 @@ s_pressed:
 sd_pressed:
     ld  de,sestr             ; addr. of "Southeast" string
     ld  bc,Xsestr-sestr
-    call    $203c           ; print our string
+    call    print           ; print our string
     pop hl
     ld  hl,cycle_closing
     push    hl              ; Modify return addr. for early termination.
@@ -87,7 +86,7 @@ sd_pressed:
 a_pressed:
     ld  de,wstr             ; addr. of "West" string
     ld  bc,Xwstr-wstr
-    call    $203c           ; print our string
+    call    print           ; print our string
     pop hl
     ld  hl,cycle_closing
     push    hl              ; Modify return addr. for early termination.
@@ -96,7 +95,7 @@ a_pressed:
 as_pressed:
     ld  de,swstr             ; addr. of "Southwest" string
     ld  bc,Xswstr-swstr
-    call    $203c           ; print our string
+    call    print           ; print our string
     pop hl
     ld  hl,cycle_closing
     push    hl              ; Modify return addr. for early termination.
@@ -105,45 +104,43 @@ as_pressed:
 w_pressed:
     ld  de,nstr             ; addr. of "North" string
     ld  bc,Xnstr-nstr
-    call    $203c           ; print our string
+    call    print           ; print our string
     ret
 
 wd_pressed:
     ld  de,nestr             ; addr. of "Northeast" string
     ld  bc,Xnestr-nestr
-    call    $203c           ; print our string
+    call    print           ; print our string
     ret
 
 wa_pressed:
     ld  de,nwstr             ; addr. of "Northwest" string
     ld  bc,Xnwstr-nwstr
-    call    $203c           ; print our string
+    call    print           ; print our string
     ret
 
 nstr:
-    defb    "North", 13
+    defb    "North", newline
 Xnstr:
 estr:
-    defb    "East", 13
+    defb    "East", newline
 Xestr:
 wstr:
-    defb    "West", 13
+    defb    "West", newline
 Xwstr:
 sstr:
-    defb    "South", 13
+    defb    "South", newline
 Xsstr:
 
 nestr:
-    defb    "Northeast", 13
+    defb    "Northeast", newline
 Xnestr:
 sestr:
-    defb    "Southeast", 13
+    defb    "Southeast", newline
 Xsestr:
 nwstr:
-    defb    "Northwest", 13
+    defb    "Northwest", newline
 Xnwstr:
 swstr:
-    defb    "Southwest", 13
+    defb    "Southwest", newline
 Xswstr:
-    ;xdef    pmain
-.end
