@@ -1,8 +1,8 @@
-org $8000
+;org $8000
 pmain:
     ld  a,2                 ; upper screen
     call    $1601           ; open channel
-loop:
+ploop:
     xor a                   ; clear a
     ld  bc,64510            ; load port number of W
     in  e,(c)               ; read port value
@@ -55,7 +55,7 @@ d_not_pressed:
 
 cycle_closing:
     halt
-    jp  loop                ; repeat
+    jp  ploop                ; repeat
 
 d_pressed:
     ld  de,estr             ; addr. of "East" string
