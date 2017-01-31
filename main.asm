@@ -2,20 +2,21 @@
 
         include "defines.asm"
 
-        ;; defvars 0
-        ;; {
-        ;; test1 ds.p 1
-        ;; test2 ds.p 1
-        ;; }
-
-
-
 main:
-        ld  a,2                 ; upper screen
-        call    $1601           ; open channel
+        ld a,2                 ; upper screen
+        call openChannel
+
+        ld de,footer
+        ld (global + test1),de
+        ld bc,Xfooter-footer
+        ld (global + test2),bc
 
         ld de,banner
         ld bc,Xbanner-banner
+        call print
+
+        ld de,(global + test1)
+        ld bc,(global + test2)
         call print
 
         call pmain
@@ -36,3 +37,6 @@ footer:
         defb "Should never see this", newline
 Xfooter:
         include "keyboarddisp.asm"
+
+
+global:
