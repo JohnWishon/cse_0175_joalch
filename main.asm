@@ -19,7 +19,7 @@ main:
         ld bc,(global + test2)
         call print
 
-        call pmain
+        call keyboard_main
 
         ld de,footer
         ld bc,Xfooter-footer
