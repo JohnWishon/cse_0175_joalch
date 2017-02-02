@@ -1,6 +1,6 @@
 ;; org $8000
 
-pmain:
+keyboard_main:
 loop:
     xor a                   ; clear a
     ld  bc,64510            ; load port number of W and R
@@ -36,17 +36,15 @@ process_signals:
     ; start processing keyboard signals to strings.
     push    af              ; save a to stack
     and $10                 ; mask out bit for Space
-    jp  z,process_body      ; process case where r is not pressed.
+    jp  z,process_movement  ; process case where r is not pressed.
 punch_pressed:
     pop af
     push    af
     and $0f
     call    z,jump_handler
 
-    ld  de,punchstr         ; addr. of "Punch " string
-    ld  bc,Xpunchstr-punchstr
-    call    print           ; print our string
-process_body:
+    call    punch_handler
+process_movement:
     pop af                  ; retrieve a
     and $0f
     dec a                   ; a--
@@ -84,6 +82,12 @@ jump_handler:
     pop hl
     ld  hl,cycle_closing
     push    hl              ; Modify return addr. for early termination.
+    ret
+
+punch_handler:
+    ld  de,punchstr         ; addr. of "Punch " string
+    ld  bc,Xpunchstr-punchstr
+    call    print           ; print our string
     ret
 
 d_handler:
