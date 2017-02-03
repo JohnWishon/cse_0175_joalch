@@ -20,6 +20,10 @@ smLevelIntro:    equ %0000$0111
 smPlayableLevel: equ %0000$1000
 smGameOver:      equ %0000$1001
 
+airStateGround:  equ %0000$0000
+airStateJumping: equ %0000$0001
+airStateFalling: equ %0000$0010
+
         ;; ---------------------------------------------------------------------
         ;; Globals
         ;; ---------------------------------------------------------------------
@@ -39,8 +43,10 @@ p1MovPosX:        defb 0
 p1MovPosY:        defb 0
 p1MovNegX:        defb 0
 p1MovNegY:        defb 0
+p1AirState:       defb airStateGround
 
 p2MovPosX:        defb 0
 p2MovPosY:        defb 0
 p2MovNegX:        defb 0
 p2MovNegY:        defb 0
+p2AirState:       defb airStateGround
