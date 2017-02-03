@@ -4,8 +4,8 @@
 PROG_NAME = catastrophe
 RES_DIR = res
 
-ASM = z80asm
-ASM_FLAGS = -b
+ASM = pasmo
+ASM_FLAGS = --bin
 MAIN_FILE = main.asm
 ASM_FILES = defines.asm keyboarddisp.asm update.asm
 
@@ -31,7 +31,7 @@ $(PROG_NAME).tap : $(PROG_NAME).bin
 
 $(PROG_NAME).bin : $(MAIN_FILE) $(ASM_FILES)
 	$(call padEcho,Assembling $(PROG_NAME)...)
-	$(ASM) $(ASM_FLAGS) --output=$(PROG_NAME).bin $(MAIN_FILE)
+	$(ASM) $(ASM_FLAGS) $(MAIN_FILE) $(PROG_NAME).bin
 
 rebuild : clean build
 

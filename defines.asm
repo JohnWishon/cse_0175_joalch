@@ -1,23 +1,20 @@
-        ;; The global struct
-
-        ;; ds.b -> byte
-        ;; ds.w -> word
-        ;; ds.p -> "3-byte pointer", whaterver that is
-        ;; ds.l -> double-word
-
-        ;; these lables are the *offsets* past global to be used. so to get a field
-        ;; test1, I do (global + test1)
-
-        defc globalAddr = global
-        defvars globalAddr
-        {
-        test1 ds.p 1
-        test2 ds.p 1
-        }
-
         ;; Functions
-        defc print = $203c
-        defc openChannel = $1601
+print:          equ $203c
+openChannel:    equ $1601
 
         ;; Constants
-        defc newline = 13
+newline:        equ 13
+
+        ;; Globals
+test1:  defw 0
+test2:  defw 0
+
+        ;; define a constant foo = 12 --> foo: equ 12
+
+        ;; create a single word variable: foo: defw 0
+        ;; - the memory location at foo now contains 0
+        ;; - this value can be overwritten with ld (foo),[reg/imm]
+
+        ;; create an array of words: foo: defw 0, 0, ..., 0
+        ;; - the m memory locations at foo now contain 0
+        ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]

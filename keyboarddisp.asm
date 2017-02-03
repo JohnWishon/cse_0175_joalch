@@ -1,5 +1,3 @@
-;; org $8000
-
 pmain:
 loop:
     xor a                   ; clear a
