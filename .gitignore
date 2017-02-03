@@ -3,3 +3,4 @@ zcc_opt.def
 *.bin
 *.o
 *.tap
+*.err
