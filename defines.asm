@@ -20,6 +20,10 @@ smLevelIntro:    equ %0000$0111
 smPlayableLevel: equ %0000$1000
 smGameOver:      equ %0000$1001
 
+airStateGround:  equ %0000$0000
+airStateJumping: equ %0000$0001
+airStateFalling: equ %0000$0010
+
         ;; ---------------------------------------------------------------------
         ;; Globals
         ;; ---------------------------------------------------------------------
@@ -34,3 +38,11 @@ stateMachine:   defb smLoadingScreen
         ;; create an array of words: foo: defw 0, 0, ..., 0
         ;; - the m memory locations at foo now contain 0
         ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]
+
+p1MovX:     defb 0
+p1MovY:     defb 0
+p1AirState: defb airStateGround
+
+p2MovX:     defb 0
+p2MovY:     defb 0
+p2AirState: defb airStateGround
