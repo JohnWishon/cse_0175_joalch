@@ -1,6 +1,4 @@
-;; org $8000
-
-keyboard_main:
+displayKeystate:
 loop:
     xor a                   ; clear a
     ld  bc,64510            ; load port number of W and R
@@ -72,8 +70,7 @@ process_movement:
     call    z,wa_handler    ; if original a = 12, w and a pressed
 
 cycle_closing:
-    halt
-    jp  loop                ; repeat
+    ret
 
 jump_handler:
     ld  de,jumpstr          ; addr. of "Jump" string
