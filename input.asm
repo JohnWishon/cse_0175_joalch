@@ -1,4 +1,4 @@
-pmain:
+displayKeystate:
 loop:
     xor a                   ; clear a
     ld  bc,64510            ; load port number of W
@@ -51,8 +51,7 @@ d_not_pressed:
     call    z,wa_pressed    ; if original a = 12, w and a pressed
 
 cycle_closing:
-    halt
-    jp  loop                ; repeat
+    ret
 
 d_pressed:
     ld  de,estr             ; addr. of "East" string
