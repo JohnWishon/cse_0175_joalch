@@ -1,5 +1,21 @@
 displayKeystate:
 loop:
+    ;   Reset keypress globals
+    ld  hl,p1DirPressed
+    ld  (hl),0
+    inc hl
+    ld  (hl),0
+    inc hl
+    ld  (hl),0
+    inc hl
+    ld  (hl),0
+    inc hl
+    ld  (hl),0
+    inc hl
+    ld  (hl),0
+
+    ; Use register a to store what keys are pressed
+    ; from bit 5 to 1: Jump/Punch, Up, Down, Left, Right
     xor a                   ; clear a
     ld  bc,64510            ; load port number of W and R
     in  e,(c)               ; read port value
@@ -19,15 +35,15 @@ r_not_pressed:
 
     rr  e                   ; A value -> carry
     jp  c,a_not_pressed
-    or 4                    ; mark 3th bit
+    or  2                   ; mark 3th bit
 a_not_pressed:
     rr  e                   ; S value -> carry
     jp  c,s_not_pressed
-    or 2                    ; mark 2th bit
+    or  4                   ; mark 2th bit
 s_not_pressed:
     rr  e                   ; D value -> carry
     jp  c,d_not_pressed
-    or 1                    ; mark 1th bit
+    or  1                   ; mark 1th bit
 d_not_pressed:
 
 process_signals:
@@ -41,144 +57,80 @@ punch_pressed:
     and $0f
     call    z,jump_handler
 
-    call    punch_handler
+handle_punch:
+
+    ld  hl,p1PPressed
+    ld  (hl), 1
+
 process_movement:
     pop af                  ; retrieve a
     and $0f
+    ld  ix,p1DirPressed     ; Preload addr. of state array
+
     dec a                   ; a--
-    call    z,d_handler     ; if original a = 1, only d pressed
+    jp  z,d_handler         ; if original a = 1, only d pressed
 
     dec a
-    call    z,s_handler     ; if original a = 2, only s pressed
-
-    dec a
-    call    z,sd_handler    ; if original a = 3, s and d pressed
-
-    dec a
-    call    z,a_handler     ; if original a = 4, only a pressed
+    jp  z,a_handler         ; if original a = 2, only a pressed
 
     sub 2
-    call    z,as_handler    ; if original a = 6, a and s pressed
-    ; subroutines before this line optimized for early termination
-    sub 2
-    call    z,w_handler     ; if original a = 8, only w pressed
+    jp  z,s_handler         ; if original a = 4, only s pressed
 
     dec a
-    call    z,wd_handler    ; if original a = 9, w and d pressed;
+    jp  z,sd_handler        ; if original a = 5, s and d pressed
 
-    sub 3
-    call    z,wa_handler    ; if original a = 12, w and a pressed
+    dec a
+    jp  z,as_handler        ; if original a = 6, a and s pressed
+
+    sub 2
+    jp  z,w_handler         ; if original a = 8, only w pressed
+
+    dec a
+    jp  z,wd_handler        ; if original a = 9, w and d pressed
+
+    dec a
+    jp  z,wa_handler        ; if original a = 10, w and a pressed
 
 cycle_closing:
     ret
 
 jump_handler:
-    ld  de,jumpstr          ; addr. of "Jump" string
-    ld  bc,Xjumpstr-jumpstr
-    call    print           ; print our string
-    pop hl
-    ld  hl,cycle_closing
-    push    hl              ; Modify return addr. for early termination.
-    ret
-
-punch_handler:
-    ld  de,punchstr         ; addr. of "Punch " string
-    ld  bc,Xpunchstr-punchstr
-    call    print           ; print our string
-    ret
+    ld  hl,p1JPressed
+    ld  (hl),1
+    jp  cycle_closing
 
 d_handler:
-    ld  de,estr             ; addr. of "East" string
-    ld  bc,Xestr-estr
-    call    print           ; print our string
-    pop hl
-    ld  hl,cycle_closing
-    push    hl              ; Modify return addr. for early termination.
-    ret
+    ld  (ix+3),1
+    jp  cycle_closing
 
 s_handler:
-    ld  de,sstr             ; addr. of "South" string
-    ld  bc,Xsstr-sstr
-    call    print           ; print our string
-    pop hl
-    ld  hl,cycle_closing
-    push    hl              ; Modify return addr. for early termination.
-    ret
+    ld  (ix+1),1
+    jp  cycle_closing
 
 sd_handler:
-    ld  de,sestr             ; addr. of "Southeast" string
-    ld  bc,Xsestr-sestr
-    call    print           ; print our string
-    pop hl
-    ld  hl,cycle_closing
-    push    hl              ; Modify return addr. for early termination.
-    ret
+    ld  (ix+1),1
+    ld  (ix+3),1
+    jp  cycle_closing
 
 a_handler:
-    ld  de,wstr             ; addr. of "West" string
-    ld  bc,Xwstr-wstr
-    call    print           ; print our string
-    pop hl
-    ld  hl,cycle_closing
-    push    hl              ; Modify return addr. for early termination.
-    ret
+    ld  (ix+2),1
+    jp  cycle_closing
 
 as_handler:
-    ld  de,swstr             ; addr. of "Southwest" string
-    ld  bc,Xswstr-swstr
-    call    print           ; print our string
-    pop hl
-    ld  hl,cycle_closing
-    push    hl              ; Modify return addr. for early termination.
-    ret
+    ld  (ix+1),1
+    ld  (ix+2),1
+    jp  cycle_closing
 
 w_handler:
-    ld  de,nstr             ; addr. of "North" string
-    ld  bc,Xnstr-nstr
-    call    print           ; print our string
-    ret
+    ld  (ix+0),1
+    jp  cycle_closing
 
 wd_handler:
-    ld  de,nestr             ; addr. of "Northeast" string
-    ld  bc,Xnestr-nestr
-    call    print           ; print our string
-    ret
+    ld  (ix+0),1
+    ld  (ix+3),1
+    jp  cycle_closing
 
 wa_handler:
-    ld  de,nwstr             ; addr. of "Northwest" string
-    ld  bc,Xnwstr-nwstr
-    call    print           ; print our string
-    ret
-
-punchstr:
-    defb    "Punch "
-Xpunchstr:
-jumpstr:
-    defb    "Jump", newline
-Xjumpstr:
-
-nstr:
-    defb    "North", newline
-Xnstr:
-estr:
-    defb    "East", newline
-Xestr:
-wstr:
-    defb    "West", newline
-Xwstr:
-sstr:
-    defb    "South", newline
-Xsstr:
-
-nestr:
-    defb    "Northeast", newline
-Xnestr:
-sestr:
-    defb    "Southeast", newline
-Xsestr:
-nwstr:
-    defb    "Northwest", newline
-Xnwstr:
-swstr:
-    defb    "Southwest", newline
-Xswstr:
+    ld  (ix+0),1
+    ld  (ix+1),1
+    jp  cycle_closing

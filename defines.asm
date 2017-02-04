@@ -39,9 +39,17 @@ stateMachine:   defb smLoadingScreen
         ;; - the m memory locations at foo now contain 0
         ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]
 
+p1DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
+p1JPressed: defb 0
+p1PPressed: defb 0
+
 p1MovX:     defb 0
 p1MovY:     defb 0
 p1AirState: defb airStateGround
+
+p2DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
+p2JPressed: defb 0
+p2PPressed: defb 0
 
 p2MovX:     defb 0
 p2MovY:     defb 0
