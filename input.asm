@@ -1,4 +1,4 @@
-displayKeystate:
+updateKeystate:
     ;   Reset keypress globals
     ld  hl,p1DirPressed
     ld  (hl),0

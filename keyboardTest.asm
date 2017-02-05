@@ -12,7 +12,7 @@ main:
 
         ; Just a main loop. Easy enough to read
 updateIteration:
-    call displayKeystate
+    call updateKeystate
 
     call test_display_key_string
 
