@@ -131,5 +131,5 @@ wd_handler:
 
 wa_handler:
     ld  (ix+0),1
-    ld  (ix+1),1
+    ld  (ix+2),1
     jp  cycle_closing
