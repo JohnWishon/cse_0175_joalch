@@ -1,79 +1,92 @@
-        org $8000
+    org $8000
 
-        include "defines.asm"
+    include "defines.asm"
 
 main:
-        ;; ---------------------------------------------------------------------
-        ;; Setup program state, interrupt handling scheme
-        ;; ---------------------------------------------------------------------
+    ;; ---------------------------------------------------------------------
+    ;; Setup program state, interrupt handling scheme
+    ;; ---------------------------------------------------------------------
 
-        ld a,2                 ; upper screen
-        call openChannel
+    ld a,2                 ; upper screen
+    call openChannel
 
         ; Just a main loop. Easy enough to read
 updateIteration:
-        call displayKeystate
+    call displayKeystate
 
-        call test_display_key_string
+    call test_display_key_string
 
-        halt
-        jp updateIteration
-        jp endProg
+    halt
+    jp updateIteration
+    jp endProg
 
 endProg:
-        nop
-        jp endProg
+    nop
+    jp endProg
 
 test_display_key_string:
-        ld  a,(p1JPressed)
-        add a,0                     ; Apparently ld doesn't set flags, so here we go
-        jp  nz,jump_tester          ; Test jump signal
-        ld  a,(p1PPressed)
-        add a,0
-        call    nz,punch_tester     ; Test punch signal
+    ld  a,(p1JPressed)
+    add a,0                     ; Apparently ld doesn't set flags, so here we go
+    jp  nz,jump_tester          ; Test jump signal
+    ld  a,(p1PPressed)
+    add a,0
+    call    nz,punch_tester     ; Test punch signal
 
-        ld  ix,p1DirPressed         ; Figure out which direction keys are pressed.
-        ; First check if exceeding signals were recorded.
-        ld  a,(ix+0)
-        add a,(ix+1)
-        add a,(ix+2)
-        add a,(ix+3)
-        cp  3
-        jp  z,error_print
-        cp  4
-        jp  z,error_print
+    ld  ix,p1DirPressed         ; Figure out which direction keys are pressed.
+    ; First check if exceeding signals were recorded.
+    ld  a,(ix+0)
+    add a,(ix+1)
+    add a,(ix+2)
+    add a,(ix+3)
+    cp  3
+    jp  z,error_print
+    cp  4
+    jp  z,error_print
 
-        ld  a,(ix+0)
-        add a,0
-        jp  z,test_not_w
+    ; Then check conflicting key pairs (Up+Down, and Left+Right)
+    xor a
+    ld  a,(ix+0)
+    add a,(ix+1)
+    cp  2
+    jp  z,error_print
 
-        ld  a,(ix+2)
-        add a,0
-        jp  nz,wa_tester
-        ld  a,(ix+3)
-        add a,0
-        jp  nz,wd_tester
-        jp  w_tester
+    xor a
+    ld  a,(ix+2)
+    add a,(ix+3)
+    cp  2
+    jp  z,error_print
+
+    ld  a,(ix+0)
+    add a,0
+    jp  z,test_not_w
+
+    ld  a,(ix+2)
+    add a,0
+    jp  nz,wa_tester
+    ld  a,(ix+3)
+    add a,0
+    jp  nz,wd_tester
+    jp  w_tester
 test_not_w:
-        ld  a,(ix+1)
-        add a,0
-        jp  z,test_not_s
+    ld  a,(ix+1)
+    add a,0
+    jp  z,test_not_s
 
-        ld  a,(ix+2)
-        add a,0
-        jp  nz,sa_tester
-        ld  a,(ix+3)
-        add a,0
-        jp  nz,sd_tester
-        jp  s_tester
+    ld  a,(ix+2)
+    add a,0
+    jp  nz,sa_tester
+    ld  a,(ix+3)
+    add a,0
+    jp  nz,sd_tester
+    jp  s_tester
 test_not_s:
-        ld  a,(ix+2)
-        add a,0
-        jp nz,a_tester
-        ld  a,(ix+3)
-        add a,0
-        jp nz,d_tester
-        ;call empty_print
+    ld  a,(ix+2)
+    add a,0
+    jp nz,a_tester
+    ld  a,(ix+3)
+    add a,0
+    jp nz,d_tester
+    ;call empty_print
 test_closing_cycle:
         ret
 
