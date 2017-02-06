@@ -8,52 +8,51 @@ phys_p2_entry_point:
     ;
     ;        We can sacrifice code size if it proves too cycle costly.
 phys_routine_body:
+        ;; left/right
     xor a
     add a,(ix+2)
-    jp  nz,phys_setNegX  ; Left pressed
-    xor a
-    add a,(ix+3)
-    jp  nz,phys_setPosX  ; Right pressed
-
-phys_pp:
+    call nz,phys_setNegX   ; Left pressed
+    xor a                  ; no need for if/then/else since left and right
+    add a,(ix+3)           ; should cancel each other
+    call nz,phys_setPosX   ; Right pressed
+        ;; punch
     ld  a,(p1PPressed)
     add a,0                     ; ld doesn't set flag
-    call    nz,phys_setPunch    ; Punch pressed.
-
-phys_pj:
+    call nz,phys_setPunch    ; Punch pressed.
+        ;; jump
     ld  ix,p1MovY
     ld  a,(p1JPressed)
     add a,0                     ; ld doesn't set flag
-    jp  nz,phys_handle_jump  ; Jump pressed.
-
-phys_pdown:
+    call nz,phys_handle_jump  ; Jump pressed.
+        ;; down
     ld  ix,(p1DirPressed)
     xor a
     add a,(ix+1)
     ld  ix,p1MovY
-    jp  nz,phys_handle_fall  ; Down pressed
-
-phys_airstate:
+    call nz,phys_handle_fall  ; Down pressed
+        ;; jumping?
     ld  a,(p1AirState)
     cp  airStateJumping
-    jp  z,phys_handle_jumpstate  ; Since the handler would potentially change the
-                                    ; air state, strictly PROHIBITED to return to
-                                    ; this line from the handler.
-
+    jp nz,not_jumping
+    call phys_handle_jumpstate  ; Since the handler would potentially change the
+                                ; air state, strictly PROHIBITED to return to
+                                ; this line from the handler.
+    ret
+        ;; falling?
+not_jumping:
     cp  airStateFalling
-    jp  z,phys_handle_fallstate
-phys_routine_end:
+    call z,phys_handle_fallstate
     ret
 
 ;; BEFORE call, hl shall contain the addr. of P*MovX
 phys_setPosX:
     ld  (hl),1
-    jp  phys_pp
+    ret
 
 ;; BEFORE call, hl shall contain the addr. of P*MovX
 phys_setNegX:
     ld  (hl),-1
-    jp  phys_pp
+    ret
 
 ;; BEFORE call, ix shall contain the addr. of P*MovY
 phys_handle_jump:
@@ -63,7 +62,7 @@ phys_handle_jump:
 
     ld  (ix+0),8    ; Set initial upward speed.
     ld  (ix+1),airStateJumping
-    jp  phys_pdown
+    ret
 
 ;; BEFORE call, ix shall contain the addr. of P*MovY
 phys_handle_fall:
@@ -73,7 +72,7 @@ phys_handle_fall:
 
     ld  (ix+0),0                ; Set initial downward speed
     ld  (ix+1),airStateFalling
-    jp  phys_airstate
+    ret
 
 ;; BEFORE call, ix shall contain the addr. of P*MovY
 phys_handle_jumpstate:
@@ -81,15 +80,14 @@ phys_handle_jumpstate:
     jp  nz,phys_js_nochange     ; Change to falling state if v-speed hits 0
     ld  (ix+1),airStateFalling
 phys_js_nochange:
-    jp  phys_routine_end
+    ret
 
 ;; BEFORE call, ix shall contain the addr. of P*MovY
 phys_handle_fallstate:
     dec (ix+0)                  ; Just decelerate the cat vertically
-    jp  phys_routine_end
+    ret
 
 phys_setPunch:
     ;ld  (hl),0
     ; Last line TBD by whether we want in-air flying punch
     ret
-
