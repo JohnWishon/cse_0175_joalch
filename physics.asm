@@ -58,7 +58,7 @@ phys_setNegX:
 phys_handle_jump:
     ld  a,(ix+1)    ; Read air state
     cp  airStateGround
-    ret nz,phys_pdown   ; If not on the ground, jump is NOP
+    ret nz          ; If not on the ground, jump is NOP
 
     ld  (ix+0),8    ; Set initial upward speed.
     ld  (ix+1),airStateJumping
@@ -68,7 +68,7 @@ phys_handle_jump:
 phys_handle_fall:
     ld  a,(ix+1)                ; Read air state
     cp  airStateGround
-    ret nz,phys_airstate        ; If not on the ground, fall is NOP
+    ret nz                      ; If not on the ground, fall is NOP
 
     ld  (ix+0),0                ; Set initial downward speed
     ld  (ix+1),airStateFalling
@@ -77,7 +77,7 @@ phys_handle_fall:
 ;; BEFORE call, ix shall contain the addr. of P*MovY
 phys_handle_jumpstate:
     dec (ix+0)                  ; Decelerate the cat vertically
-    ret nz,phys_js_nochange     ; Change to falling state if v-speed hits 0
+    ret nz                      ; Change to falling state if v-speed hits 0
     ld  (ix+1),airStateFalling
     ret
 
