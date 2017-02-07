@@ -2,13 +2,13 @@
 .PHONY := all build rebuild clean run
 
 PROG_NAME = catastrophe
-TEST_PROG_NAME = keyboardTest
+TEST_PROG_TAP = keyboardTest.tap physicsTest.tap
+TEST_PROG_BIN = keyboardTest.bin physicsTest.bin
 RES_DIR = res
 
 ASM = pasmo
 ASM_FLAGS = --bin
 MAIN_FILE = main.asm
-TEST_MAIN_FILE = keyboardTest.asm
 ASM_FILES = defines.asm input.asm physics.asm ai.asm collision.asm draw.asm
 
 APPMAKE = appmake
@@ -27,7 +27,7 @@ run : build
 build : $(PROG_NAME).tap
 	$(call padEcho,done!)
 
-build_test : $(TEST_PROG_NAME).tap
+build_test : keyboardTest.tap physicsTest.tap
 	$(call padEcho,done!)
 
 $(PROG_NAME).tap : $(PROG_NAME).bin
@@ -38,13 +38,13 @@ $(PROG_NAME).bin : $(MAIN_FILE) $(ASM_FILES)
 	$(call padEcho,Assembling $(PROG_NAME)...)
 	$(ASM) $(ASM_FLAGS) $(MAIN_FILE) $(PROG_NAME).bin
 
-$(TEST_PROG_NAME).tap : $(TEST_PROG_NAME).bin
-	$(call padEcho,Appmaking $(TEST_PROG_NAME).tap...)
-	$(APPMAKE) $(APPMAKE_FLAGS) -o $(TEST_PROG_NAME).tap -b $(TEST_PROG_NAME).bin
+$(TEST_PROG_TAP): %.tap : %.bin
+	$(call padEcho,Appmaking $@...)
+	$(APPMAKE) $(APPMAKE_FLAGS) -o $@ -b $<
 
-$(TEST_PROG_NAME).bin : $(TEST_MAIN_FILE) $(ASM_FILES)
-	$(call padEcho,Assembling $(TEST_PROG_NAME)...)
-	$(ASM) $(ASM_FLAGS) $(TEST_MAIN_FILE) $(TEST_PROG_NAME).bin
+$(TEST_PROG_BIN): %.bin : %.asm $(ASM_FILES)
+	$(call padEcho,Assembling $<...)
+	$(ASM) $(ASM_FLAGS) $< $@
 
 rebuild : clean build
 
@@ -58,6 +58,8 @@ clean :
 	$(RM) $(PROG_NAME).o
 	$(RM) $(PROG_NAME).bin
 	$(RM) $(PROG_NAME).tap
+	$(RM) $(TEST_PROG_TAP)
+	$(RM) $(TEST_PROG_BIN)
 
 # ----------------------------------------------------------
 # --- Functions --------------------------------------------
