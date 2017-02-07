@@ -19,7 +19,7 @@ updateIteration:
 
 
         ;; Read input, update player state
-        call displayKeystate    ; TODO: real key update routine
+        call updateKeystate    ; TODO: real key update routine
 
 
         ;; Update: physics simulation, ai, collision detection
