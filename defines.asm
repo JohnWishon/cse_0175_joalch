@@ -117,7 +117,8 @@ tileShelf:          defb 0, 0, 0, 0, 0, 0, 0, 0, 0, (tgaStandable | tgaPassable)
 gameLevel:      defs (30 * 18)  ; should zero-fill 30 * 18 bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
-fuNoUpdate:     equ #FF
+fuNoUpdateB:    equ #FF
+fuNoUpdateW:    equ #FFFF
         ;; - This is the updates array produced at the end of an update frame.
         ;; The data layout looks like this:
         ;; |cat1 new|cat2 new|mouse1 new|...|mouseN new|tile1 new|tile2 new|
@@ -148,6 +149,9 @@ fuNoUpdate:     equ #FF
         ;; The tile at that location can be found in the gameLevel array
         ;; - tileN old: This is an index into tileInstanceBase to get the
         ;; old tile if needed.
+
+        ;; If any of these have the value fuNoUpdateB or fuNoUpdateW (for byte
+        ;; or word) then there is no update and should be skipped
 
 
 fuNewState: defs numCats
