@@ -103,7 +103,7 @@ tileShelf:          defb 0, 0, 0, 0, 0, 0, 0, 0, 0, (tgaStandable | tgaPassable)
         ;; and the 2 rows immediately beneath the UI are guaranteed to be
         ;; empty since the cats need to be able to get to the top of the
         ;; level. This means the array of interactable blocks needs to be
-        ;; 20 * 18 tiles.
+        ;; 30 * 18 tiles.
 
-gameLevel:      defs (20 * 18)  ; should zero-fill 20 * 18 bytes
+gameLevel:      defs (30 * 18)  ; should zero-fill 30 * 18 bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
