@@ -1,12 +1,11 @@
 updatePhysics:
+    ld  d,2
 phys_p1_entry_point:
     ld  ix,p1DirPressed
     jp  phys_routine_body
 phys_p2_entry_point:
-    ; TODO - Save p1/2MovX to some where so that we can move it to ix
-    ;        when needed and use offset to access all move states.
-    ;
-    ;        We can sacrifice code size if it proves too cycle costly.
+    ld  ix,p2DirPressed
+
 phys_routine_body:
     ;; left/right
     ld  (ix+6),0            ; First clear horizontal speed
@@ -33,12 +32,16 @@ phys_routine_body:
     cp  airStateJumping
     jp  nz,not_in_jumping_state
     call phys_handle_jumpstate
-    ret
+    jp  phys_cycle_closing
     ;; falling?
 not_in_jumping_state:
     cp  airStateFalling
     call z,phys_handle_fallstate
-    ret
+
+phys_cycle_closing
+    dec d
+    ret z
+    jp  phys_p2_entry_point
 
 ;;==== SUBROUTINES ====
 ;; BEFORE call, ix shall contain the addr. of P*DirPressed
@@ -76,6 +79,9 @@ phys_handle_jumpstate:
     ret
 
 phys_handle_fallstate:
+    ld  a,(ix+7)
+    cp  -12
+    ret z
     dec (ix+7)                  ; Just decelerate the cat vertically
     ret
 

@@ -27,7 +27,7 @@ endProg:
 test_display_key_string:
     ld  a,(p1JPressed)
     add a,0                     ; Apparently ld doesn't set flags, so here we go
-    jp  nz,jump_tester          ; Test jump signal
+    call    nz,jump_tester      ; Test jump signal
     ld  a,(p1PPressed)
     add a,0
     call    nz,punch_tester     ; Test punch signal
@@ -95,7 +95,7 @@ jump_tester:
     ld  de,jumpstr          ; addr. of "Jump" string
     ld  bc,Xjumpstr-jumpstr
     call    print           ; print our string
-    jp  test_closing_cycle
+    ret
 
 punch_tester:
     ld  de,punchstr         ; addr. of "Punch " string
