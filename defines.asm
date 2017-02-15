@@ -208,7 +208,10 @@ fuNoUpdateW:    equ #FFFF
 
 fuNewState: defs numCats
             defs numMice
-            defs (numCats * 2) ; These are pointers to tile graphics data
+            defs (numCats * 4) ; layout: | tile ptr high byte |
+                               ;         | tile ptr low byte  |
+                               ;         | x coord | y coord  |
+
 
 fuOldState: defs numCats
             defs numMice
