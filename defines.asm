@@ -185,7 +185,7 @@ fuNoUpdateW:    equ #FFFF
 
         ;; ld ix,fuNewState
 
-        ;; To load the index tile2 idx:
+        ;; To load the address of tile2:
         ;; ld a, (ix + (numCats + numMice + 1))
 
         ;; To load the old state of tile2:
@@ -198,10 +198,7 @@ fuNoUpdateW:    equ #FFFF
         ;; TODO: determine what new and old mean
 
         ;; For Tiles:
-        ;; - tileN new: This is an index into the gameLevel array. This index
-        ;; tells you what <x,y> coordinate the block is at subject to the
-        ;; constraints specified in the docuemnation for the gameLevel array.
-        ;; The tile at that location can be found in the gameLevel array
+        ;; - tileN new: This is a pointer to tile data.
         ;; - tileN old: This is an index into tileInstanceBase to get the
         ;; old tile if needed.
 
@@ -211,8 +208,8 @@ fuNoUpdateW:    equ #FFFF
 
 fuNewState: defs numCats
             defs numMice
-            defs (numCats * 2) ; These need to be words because 30 * 18 > 255
-                               ; and this is an index into gameLevel
+            defs (numCats * 2) ; These are pointers to tile graphics data
+
 fuOldState: defs numCats
             defs numMice
             defs (numCats) ; These do not need to be words because there are
