@@ -75,7 +75,7 @@ p2AirState: defb airStateGround
         ;; layout: |b0|b1|b2|b3|b4|b5|b6|b7|
         ;;         |attr|gameplay attribute|pad 0|pad 1|pad 2|pad 3|pad 4|pad 5|
 
-IF (LOW($) & %1111$0000) != 0
+IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & %1111$0000)
 ENDIF
 
