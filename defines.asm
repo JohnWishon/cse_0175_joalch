@@ -76,7 +76,7 @@ p2AirState: defb airStateGround
         ;;         |attr|gameplay attribute|pad 0|pad 1|pad 2|pad 3|pad 4|pad 5|
 
 IF (LOW($) & %0000$1111) != 0
-        org (($ + 16) & %1111$0000)
+        org (($ + 16) & #FFF0)
 ENDIF
 
 tileInstanceBase:
