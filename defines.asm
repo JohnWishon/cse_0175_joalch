@@ -69,40 +69,90 @@ p2MovX:     defb 0
 p2MovY:     defb 0
 p2AirState: defb airStateGround
 
-        ;; Static tile data
-        ;; TODO: add correct bitmap data
-        ;; TODO: add all tile types
-        ;; layout: |b0|b1|b2|b3|b4|b5|b6|b7|
-        ;;         |attr|gameplay attribute|pad 0|pad 1|pad 2|pad 3|pad 4|pad 5|
+
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
 ENDIF
 
-tileInstanceBase:
-tileEmpty:          defb 0, 0, 0, 0, 0, 0, 0, 0, 0, tgaPassable
-                    defb 0, 0, 0, 0, 0, 0 ; Padding to 16 bytes
-tileFloor:          defb 0, 0, 0, 0, 0, 0, 0, 0, 0, tgaStandable
-                    defb 0, 0, 0, 0, 0, 0 ; Padding to 16 bytes
-tileWall:           defb 0, 0, 0, 0, 0, 0, 0, 0, 0, tgaNone
-                    defb 0, 0, 0, 0, 0, 0 ; Padding to 16 bytes
-tileCouch:          defb 0, 0, 0, 0, 0, 0, 0, 0, 0, (tgaStandable | tgaClimbable | 1)
-                    defb 0, 0, 0, 0, 0, 0 ; Padding to 16 bytes
-tileCouchDamaged:   defb 0, 0, 0, 0, 0, 0, 0, 0, 0, (tgaStandable | tgaClimbable | 2)
-                    defb 0, 0, 0, 0, 0, 0 ; Padding to 16 bytes
-tileCouchDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0, (tgaStandable | tgaClimbable)
-                    defb 0, 0, 0, 0, 0, 0 ; Padding to 16 bytes
-tileShelf:          defb 0, 0, 0, 0, 0, 0, 0, 0, 0, (tgaStandable | tgaPassable)
+        ;; Instances of changable tiles
+        ;; TODO: all bitmap data
+        ;; layout:
+        ;;   |b0|b1|b2|b3|b4|b5|b6|b7| -> graphics pixel data
+        ;;   |attr| -> graphics attribute
+        ;;   |gameplay attribute| -> gameplay attribute
+        ;;   |next tile|next tile| -> tile to transition to if this one is
+        ;;                            destroyed. This should be placed in the
+        ;;                            graphics update array
+        ;;   |next game level index| -> next gameLevel index, to be placed in
+        ;;                              the gameLevel array. This is potentially
+        ;;                              not the same as next tile.
+        ;;   |pad 1|pad 2|pad3| -> padding to ensure word alignment
+
+dynamicTileInstanceBase:
+couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
+        defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
+        defw couchTopDamaged               ; graphics tile next
+        defb HIGH(couchTopDamaged)         ; gameLevel index next
+        defb 0, 0, 0                       ; Padding to 16 bytes
+couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+        defb tgaStandable | tgaPassable | 3
+        defw couchTopDestroyed
+        defb tgaStandable | tgaPassable
+        defb 0, 0, 0
+couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+        defb tgaStandable | tgaPassable | 1
+        defw couchCushionDamaged
+        defb HIGH(couchCushionDamaged)
+        defb 0, 0, 0
+couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+        defb tgaStandable | tgaPassable | 3
+        defw couchCushionDestroyed
+        defb tgaStandable | tgaPassable
+        defb 0, 0, 0
+couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+        defb tgaStandable | tgaClimbable | tgaPassable | 1
+        defw couchCushionDamaged
+        defb HIGH(couchCushionDamaged)
+        defb 0, 0, 0
+couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+        defb tgaStandable | tgaClimbable | tgaPassable | 3
+        defw couchCushionDestroyed
+        defb tgaStandable | tgaClimbable | tgaPassable
+        defb 0, 0, 0
+
         ;; ... etc ...
+
+        ;; Static tiles
+
+        ;; Static tile data that needs to be available to draw, but doesn't
+        ;; represent a tile that can be changed
+        ;;   |b0|b1|b2|b3|b4|b5|b6|b7| -> graphics pixel data
+        ;;   |attr| -> graphics attribute
+staticTileInstanceBase:
+couchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+couchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 
         ;; Game state
 
-        ;; - This is a 2 dimensional array of indices into the instances area.
-        ;; state[n][m] is 1 byte, where the lower 4 bits represent the damage of
-        ;; the tile at level location <n + 1, m + 1>, and the upper 4 bits
-        ;; represent an address of one of the tile instances. Tile instances are
-        ;; paddedto 16 bytes. This means that we can represent exactly 16 types
-        ;; of tiles in the environment!
+        ;; This is a 2 dimensional array of indices into the instances area.
+        ;; state[x][y] is 1 byte, and can represent one of two things:
+
+        ;; - If the lower four bits are not all zero, then this tile can be
+        ;; damaged. In this case, the lower 4 bits represent the damage of
+        ;; the tile at level location <x, y>, and the upper 4 bits represent
+        ;; an address of one of the tile instances. Tile instances are padded
+        ;; to 16 bytes. This means that we can represent exactly 16 types of
+        ;; damageable tiles in the environment!
+
+        ;; - If the lower four bits are all zero, then this tile cannot be
+        ;; damaged. In this case, there is no reason to store any graphics
+        ;; data as what is at this screen location will stay there for the
+        ;; rest of the life of this level. In this case, the upper four
+        ;; bits are the gameplay attributes of this tile. This tile can
+        ;; never appear in the frame updates array. The entire range of
+        ;; possible gameplay attributes can be represented here
 
         ;; Less than the actual entire screen is represented here. The bottom
         ;; row of tiles is guaranteed to be "floor" and the left and right
