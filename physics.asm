@@ -29,13 +29,13 @@ phys_routine_body:
     call nz,phys_handle_fall  ; Down pressed
     ;; jumping?
     ld  a,(ix+8)
-    cp  airStateJumping
+    cp  movementStateJumping
     jp  nz,not_in_jumping_state
     call phys_handle_jumpstate
     jp  phys_cycle_closing
     ;; falling?
 not_in_jumping_state:
-    cp  airStateFalling
+    cp  movementStateFalling
     call z,phys_handle_fallstate
 
 phys_cycle_closing
@@ -55,27 +55,27 @@ phys_setNegX:
     ret
 
 phys_handle_jump:
-    ld  a,(ix+8)    ; Read air state
-    cp  airStateGround
+    ld  a,(ix+8)    ; Read movement state
+    cp  movementStateGround
     ret nz          ; If not on the ground, jump is NOP
 
     ld  (ix+7),8    ; Set initial upward speed.
-    ld  (ix+8),airStateJumping
+    ld  (ix+8),movementStateJumping
     ret
 
 phys_handle_fall:
-    ld  a,(ix+8)                ; Read air state
-    cp  airStateGround
+    ld  a,(ix+8)                ; Read movement state
+    cp  movementStateGround
     ret nz                      ; If not on the ground, fall is NOP
 
     ld  (ix+7),0                ; Set initial downward speed
-    ld  (ix+8),airStateFalling
+    ld  (ix+8),movementStateFalling
     ret
 
 phys_handle_jumpstate:
     dec (ix+7)                  ; Decelerate the cat vertically
     ret nz                      ; Change to falling state if v-speed hits 0
-    ld  (ix+8),airStateFalling
+    ld  (ix+8),movementStateFalling
     ret
 
 phys_handle_fallstate:

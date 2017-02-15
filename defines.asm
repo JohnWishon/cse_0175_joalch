@@ -21,10 +21,11 @@ smLevelIntro:    equ %0000$0111
 smPlayableLevel: equ %0000$1000
 smGameOver:      equ %0000$1001
 
-        ;; air states
-airStateGround:  equ %0000$0000
-airStateJumping: equ %0000$0001
-airStateFalling: equ %0000$0010
+        ;; movement states
+movementStateGround:   equ %0000$0000
+movementStateJumping:  equ %0000$0001
+movementStateFalling:  equ %0000$0010
+movementStateClimbing: equ %0000$0100
 
         ;; tile gameplay attributes
 tgaNone:            equ %0000$0000
@@ -59,7 +60,7 @@ p1PPressed: defb 0
 
 p1MovX:     defb 0
 p1MovY:     defb 0
-p1AirState: defb airStateGround
+p1MovementState: defb movementStateGround
 
 p2DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p2JPressed: defb 0
@@ -67,7 +68,7 @@ p2PPressed: defb 0
 
 p2MovX:     defb 0
 p2MovY:     defb 0
-p2AirState: defb airStateGround
+p2MovementState: defb movementStateGround
 
 
 
