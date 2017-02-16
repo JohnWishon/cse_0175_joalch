@@ -68,17 +68,17 @@ phys_cycle_closing:
 ;; BEFORE call, ix shall contain the addr. of P*DirPressed
 
 phys_setPosX:
-    ld  (ix+6),1
+    ld  (ix+6),phys_cat_hori_speed
     ret
 phys_setNegX:
-    ld  (ix+6),-1
+    ld  (ix+6),-phys_cat_hori_speed
     ret
 
 phys_setPosY:
-    ld  (ix+7),1
+    ld  (ix+7),phys_cat_vert_speed
     ret
 phys_setNegY:
-    ld  (ix+7),-1
+    ld  (ix+7),-phys_cat_vert_speed
     ret
 
 phys_handle_jump:
@@ -88,7 +88,7 @@ phys_handle_jump:
     cp  movementStateClimbing
     ret nz          ; If not on the ground, nor climbing, jump is NOP
 phys_set_jumping_state:
-    ld  (ix+7),8    ; Set initial upward speed.
+    ld  (ix+7),phys_jump_init_speed    ; Set initial upward speed.
     ld  (ix+8),movementStateJumping
     ret
 
@@ -109,7 +109,7 @@ phys_handle_jumpstate:
 
 phys_handle_fallstate:
     ld  a,(ix+7)
-    cp  -12
+    cp  phys_fall_max_speed
     ret z
     dec (ix+7)                  ; Just decelerate the cat vertically
     ret
@@ -118,3 +118,7 @@ phys_setPunch:
     ;ld  (hl),0
     ; Last line TBD by whether we want in-air flying punch
     ret
+phys_jump_init_speed:   equ 8
+phys_fall_max_speed:    equ -12
+phys_cat_hori_speed:    equ 1
+phys_cat_vert_speed:    equ 1
