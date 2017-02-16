@@ -27,7 +27,7 @@ run : build
 build : $(PROG_NAME).tap
 	$(call padEcho,done!)
 
-build_test : keyboardTest.tap physicsTest.tap
+build_test : $(TEST_PROG_TAP)
 	$(call padEcho,done!)
 
 $(PROG_NAME).tap : $(PROG_NAME).bin
