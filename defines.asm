@@ -3,6 +3,8 @@
         ;; ---------------------------------------------------------------------
 print:          equ $203c
 openChannel:    equ $1601
+        ;; HL = HL * DE
+multiply:       equ $30A9
 
         ;; ---------------------------------------------------------------------
         ;; Constants
@@ -39,7 +41,9 @@ numCats:        equ 2
 numMice:        equ 4           ; TODO: Amanda
 
 catWidth:       equ 2           ; in tiles
+catPixelWidth:  equ (catWidth << 3)
 catHeight:      equ 2           ; in tiles
+catPixelHeight: equ (catHeight << 3)
 
 catPoseFacingLeft:  equ %0000$0001
 catPoseFacingRight: equ %0000$0010
@@ -54,6 +58,9 @@ levelTopmostRow:      equ 5
 levelTopmostPixel:    equ (levelTopmostRow << 3)
 levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
+
+levelDummyTileMask:   equ %0000$1111
+levelTileIndexMask:   equ %1111$0000
 
         ;; ---------------------------------------------------------------------
         ;; Globals
