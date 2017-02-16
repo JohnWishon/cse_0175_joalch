@@ -38,6 +38,22 @@ tgaDestroyableMask: equ %0000$1111
 numCats:        equ 2
 numMice:        equ 4           ; TODO: Amanda
 
+catWidth:       equ 2           ; in tiles
+catHeight:      equ 2           ; in tiles
+
+catPoseFacingLeft:  equ %0000$0001
+catPoseFacingRight: equ %0000$0010
+catPoseHighPunch:   equ %0000$0100
+catPoseLowPunch:    equ %0000$1000
+
+levelLeftmostCol:     equ 1
+levelRightmostPixel:  equ (levelRightmostCol << 3)
+levelRightmostCol:    equ 30
+levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
+levelTopmostRow:      equ 5
+levelTopmostPixel:    equ (levelTopmostRow << 3)
+levelBottommostRow:   equ 22
+levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
 
         ;; ---------------------------------------------------------------------
         ;; Globals
@@ -54,7 +70,8 @@ stateMachine:   defb smLoadingScreen
         ;; - the m memory locations at foo now contain 0
         ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]
 
-p1DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
+p1StateBase:
+p1DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p1JPressed: defb 0
 p1PPressed: defb 0
 
@@ -62,13 +79,22 @@ p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
 
-p2DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
+p1PosX: defb 0
+p1PosY: defb 0
+p1Pose: defb catFacingRight
+
+p2StateBase:
+p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p2JPressed: defb 0
 p2PPressed: defb 0
 
 p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
+
+p2PosX: defb 0
+p2PosY: defb 0
+p2Pose: defb catFacingLeft
 
 
 
@@ -170,7 +196,9 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel:      defs (30 * 18)  ; should zero-fill 30 * 18 bytes
+gameLevel: defs ((levelRightmostCol - levelLeftmostCol)
+                 * (levelBottommostRow - levelTopmostRow))
+        ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
 fuNoUpdateB:    equ #FF
