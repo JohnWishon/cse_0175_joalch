@@ -173,51 +173,51 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 gameLevel:      defs (30 * 18)  ; should zero-fill 30 * 18 bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
-fuNoUpdateB:    equ #FF
-fuNoUpdateW:    equ #FFFF
-        ;; - This is the updates array produced at the end of an update frame.
-        ;; The data layout looks like this:
-        ;; |cat1 new|cat2 new|mouse1 new|...|mouseN new|tile1 new|tile2 new|
-        ;; |cat2 old|cat2 old|mouse1 old|...|mouseN old|tile1 old|tile2 old|
 
-        ;; - For any frame, 1 .. 2 can move, 1 .. numMice can move, and since
-        ;; each cat can attack 1 block per frame, up to 2 blocks can change in a
-        ;; frame. To use this, one could load fuNewState into IX:
+        ;; Frame updates produced by the update frame. In a frame, a cat can:
+        ;; - move: For players 1 and 2, an old/new x and y position are given
+        ;;         in pixels. If old == new, then no movement happened
+        ;; - change its pose: Based on things like air state and if the cat
+        ;;                    is violencing something, its pose may change.
+        ;;                    Values this bitfield can take on are in
+        ;;                    catPose*. If the catPoseFaceLeft bit is not
+        ;;                    set then it is facing right. If old == new,
+        ;;                    then the pose is unchanged from last frame
+        ;; - damage a block: if a cat damages a block, then the tile pointer
+        ;;                   will not be 0. In this case, tileChangeX/Y are in
+        ;;                   units of screen tiles
 
-        ;; ld ix,fuNewState
+                ;; cat poses
+catPoseJump:     equ %0000$0001
+catPoseClimb:    equ %0000$0010
+catPoseWalk:     equ %0000$0100
+catPoseAttack:   equ %0000$1000
+        ;; ...
+catPoseFaceLeft: equ %1000$0000
 
-        ;; To load the address of tile2:
-        ;; ld a, (ix + (numCats + numMice + 1))
+fuP1Updates:
+fuP1UpdatesOldPosX:       defb 0
+fuP1UpdatesNewPosX:       defb 0
+fuP1UpdatesOldPosY:       defb 0
+fuP1UpdatesNewPosY:       defb 0
+fuP1UpdatesOldPose:       defb 0
+fuP1UpdatesNewPose:       defb 0
+fuP1UpdatesTileChangeX:   defb 0
+fuP1UpdatesTileChangeY:   defb 0
+fuP1UpdatesTileChangePtr: defw 0
 
-        ;; To load the old state of tile2:
-        ;; ld a, (ix + (fuOldStateOffset + numCats + numMice + 1))
+fuP2Updates:
+fuP2UpdatesOldPosX:       defb 0
+fuP2UpdatesNewPosX:       defb 0
+fuP2UpdatesOldPosY:       defb 0
+fuP2UpdatesNewPosY:       defb 0
+fuP2UpdatesOldPose:       defb 0
+fuP2UpdatesNewPose:       defb 0
+fuP2UpdatesTileChangeX:   defb 0
+fuP2UpdatesTileChangeY:   defb 0
+fuP2UpdatesTileChangePtr: defw 0
 
-        ;; For Cats:
-        ;; TODO: determine what new and old mean
+        ;; In a frame, a mouse can:
+        ;; TODO: amanda
 
-        ;; For Mice:
-        ;; TODO: determine what new and old mean
-
-        ;; For Tiles:
-        ;; - tileN new: This is a pointer to tile data.
-        ;; - tileN old: This is an index into tileInstanceBase to get the
-        ;; old tile if needed.
-
-        ;; If any of these have the value fuNoUpdateB or fuNoUpdateW (for byte
-        ;; or word) then there is no update and should be skipped
-
-
-fuNewState: defs numCats
-            defs numMice
-            defs (numCats * 4) ; layout: | tile ptr high byte |
-                               ;         | tile ptr low byte  |
-                               ;         | x coord | y coord  |
-
-
-fuOldState: defs numCats
-            defs numMice
-            defs (numCats) ; These do not need to be words because there are
-                           ; only 16 kinds of tiles, and this is an index into
-                           ; tileInstanceBase
-
-fuOldStateOffset:       equ fuOldState - fuNewState
+fuMouseUpdate:                  ; TODO: amanda
