@@ -195,7 +195,7 @@ catPoseAttack:   equ %0000$1000
         ;; ...
 catPoseFaceLeft: equ %1000$0000
 
-fuP1Updates:
+fuP1UpdatesBase:
 fuP1UpdatesOldPosX:       defb 0
 fuP1UpdatesNewPosX:       defb 0
 fuP1UpdatesOldPosY:       defb 0
@@ -206,7 +206,7 @@ fuP1UpdatesTileChangeX:   defb 0
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
 
-fuP2Updates:
+fuP2UpdatesBase:
 fuP2UpdatesOldPosX:       defb 0
 fuP2UpdatesNewPosX:       defb 0
 fuP2UpdatesOldPosY:       defb 0
