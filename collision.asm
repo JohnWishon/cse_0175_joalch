@@ -3,12 +3,12 @@ collisionPNMovY:        equ 7
 collisionPNPosX:        equ 9
 collisionPNPosY:        equ 10
 
+collisionTileFirstMask:  equ %1111$1000
+collisionTilePixelsMask: equ %0000$0111
+
 collisionGameplayAttrOffset:    equ 10
 
 updateCollision:
-        ;; ld  de,collisionStr
-        ;; ld  bc,XcollisionStr-collisionStr
-        ;; call    print
         ld ix, p1StateBase
         ld c, 1
         call updateCollisionBody
@@ -43,7 +43,20 @@ collisionHandleHorizontal:
         cp 0
         jp z handleHorizontalNoMovement ; return if deltaX = 0
 
+        ld a, (IX + collisionPNPosX)  ; a contains posX
+        add a, (IX + collisionPNMovX) ; a contains posX + movX
+        and collisionTileFirstMask    ; a contains the leftmost pixel column
+                                      ; of the tile we would be in
+        ld b, a                       ; save it into b
+
+        ld a, (IX + collisionPNPosX) ; a contains posX
+        and collisionTileFirstMask   ; a contains the leftmost pixel column
+                                     ; of the tile we are in
+
+
+
         ;; Are we aligned to a tile boundary?
+        ld a, (IX + collisionPNPosX) ; load posX
         and %0000$0111 ; We are tile aligned IFF the lower 3 bits are 0
         jp z handleHorizontalEndMovement ; If we aren't on a tile boundary, then
         ;; there is no possibility of a horizontal collision. Commit the move
