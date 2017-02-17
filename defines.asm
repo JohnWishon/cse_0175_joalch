@@ -3,6 +3,8 @@
         ;; ---------------------------------------------------------------------
 print:          equ $203c
 openChannel:    equ $1601
+        ;; HL = HL * DE
+multiply:       equ $30A9
 
         ;; ---------------------------------------------------------------------
         ;; Constants
@@ -38,6 +40,22 @@ tgaDestroyableMask: equ %0000$1111
 numCats:        equ 2
 numMice:        equ 4           ; TODO: Amanda
 
+catWidth:       equ 2           ; in tiles
+catPixelWidth:  equ (catWidth << 3)
+catHeight:      equ 2           ; in tiles
+catPixelHeight: equ (catHeight << 3)
+
+levelLeftmostCol:     equ 1
+levelLeftmostPixel:   equ (levelRightmostCol << 3)
+levelRightmostCol:    equ 30
+levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
+levelTopmostRow:      equ 5
+levelTopmostPixel:    equ (levelTopmostRow << 3)
+levelBottommostRow:   equ 22
+levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
+
+levelDummyTileMask:   equ %0000$1111
+levelTileIndexMask:   equ %1111$0000
 
         ;; ---------------------------------------------------------------------
         ;; Globals
@@ -54,7 +72,8 @@ stateMachine:   defb smLoadingScreen
         ;; - the m memory locations at foo now contain 0
         ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]
 
-p1DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
+p1StateBase:
+p1DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p1JPressed: defb 0
 p1PPressed: defb 0
 
@@ -62,15 +81,14 @@ p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
 
-p2DirPressed:   defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
+p2StateBase:
+p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p2JPressed: defb 0
 p2PPressed: defb 0
 
 p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
-
-
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -170,7 +188,8 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel:      defs (30 * 18)  ; should zero-fill 30 * 18 bytes
+gameLevel: defs ((levelRightmostCol - levelLeftmostCol) * (levelBottommostRow - levelTopmostRow))
+        ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
 
@@ -188,10 +207,11 @@ gameLevel:      defs (30 * 18)  ; should zero-fill 30 * 18 bytes
         ;;                   units of screen tiles
 
                 ;; cat poses
-catPoseJump:     equ %0000$0001
-catPoseClimb:    equ %0000$0010
-catPoseWalk:     equ %0000$0100
-catPoseAttack:   equ %0000$1000
+catPoseJump:      equ %0000$0001
+catPoseClimb:     equ %0000$0010
+catPoseWalk:      equ %0000$0100
+catPoseAttack:    equ %0000$1000
+catPoseAttackLow: equ %0001$0000
         ;; ...
 catPoseFaceLeft: equ %1000$0000
 
