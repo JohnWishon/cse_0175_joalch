@@ -1,20 +1,30 @@
 collisionPNMovX:        equ 6
 collisionPNMovY:        equ 7
-collisionPNPosX:        equ 9
-collisionPNPosY:        equ 10
 
 collisionTileFirstMask:  equ %1111$1000
 collisionTilePixelsMask: equ %0000$0111
 
 collisionGameplayAttrOffset:    equ 10
 
+collisionPNUpdatesOldX:    equ 0
+collisionPNUpdatesNewX:    equ 1
+collisionPNUpdatesOldY:    equ 2
+collisionPNUpdatesNewY:    equ 3
+collisionPNUpdatesOldPose: equ 4
+collisionPNUpdatesNewPose: equ 5
+collisionPNUpdatesTileX:   equ 6
+collisionPNUpdatesTileY:   equ 7
+collisionPNUpdatesTilePtr: equ 8
+
 updateCollision:
         ld ix, p1StateBase
-        ld c, 1
+        ld iy, fuP1UpdatesBase
+        call collisionPrepareUpdates
         call updateCollisionBody
-        ld c, 2
         ld ix, p2StateBase
-        call updateCollisonBody
+        ld iy, fuP2UpdatesBase
+        call collisionPrepareUpdates
+        call updateCollisionBody
         ret
 
         ;; ---------------------------------------------------------------------
@@ -22,59 +32,107 @@ updateCollision:
         ;; ---------------------------------------------------------------------
         ;; PRE: N is the player number
         ;;      pNStateBase is in IX register
-        ;;      N is in C register
+        ;;      fuPNUpdatesBase in IY register
         ;; POST: collision detection done for player N including output writing
 updateCollisionBody:
+        call collisionHandleHorizontal
         ret
 
+        ;; ---------------------------------------------------------------------
+        ;; prepareUpdates
+        ;; ---------------------------------------------------------------------
+        ;; Pre: N is the player number
+        ;;      fuPNUpdatesBase in IY register
+        ;; POST: fuPNUpdatesBase cleared to 'no-updates' state
+collisionPrepareUpdates:
+        ld a, (iy + collisionPNUpdatesNewX)
+        ld (iy + collisionPNUpdatesOldX), a
+
+        ld a, (iy + collisionPNUpdatesNewY)
+        ld (iy + collisionPNUpdatesOldY), a
+
+        ld a, (iy + collisionPNUpdatesNewPose)
+        ld (iy + collisionPNUpdatesOldPose), a
+
+        ld (iy + collisionPNUpdatesTilePtr), 0
+        ret
 
         ;; ---------------------------------------------------------------------
         ;; handleHorizontal
         ;; ---------------------------------------------------------------------
         ;; PRE: N is the player number
         ;;      pNStateBase is in IX register
-        ;;      N is in C register
+        ;;      fuPNUpdatesBase in IY register
         ;; Post: x movement resolved
-        ;;       c register preserved
+        ;;       new X position updated in frame updates
         ;;       IX regester preserved
+        ;;       IY register preserved
 collisionHandleHorizontal:
-        ;; did we even try to move?
-        ld a, (IX + collisionPNMovX) ; load moveX
+        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
+        add a, (IX + collisionPNMovX)       ; a contains posX + movX
+        ld e, a                 ; We're going to use this a lot,
+                                ; save it in e
+
+        ;; Are we moving to a location in this same tile?
+        ;; a contains posX + movX
+        and collisionTileFirstMask
+        ld d, a                 ; d contains first column of the tile
+                                ; we'd like to move to
+        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
+        and collisionTileFirstMask          ; a contains the first column of
+                                            ; this tile
+        cp d                                ; Are these the same tiles?
+        jp nz, collisionHandleHorizontalStepOne ; If not, do more work
+        ;; If we're here, then we're trying to move to a location in this tile
+        ;; Just commit the move and return since there is no possiblity of
+        ;; collision
+        ld (IY + collisionPNUpdatesNewX), e ; e contains posX + movX
+        ret
+
+collisionHandleHorizontalStepOne:
+        ld a, (IX + collisionPNMovX)
         cp 0
-        jp z handleHorizontalNoMovement ; return if deltaX = 0
+        jp p, collisionHandleHorizontalMovementPos ; did we move right?
+        ;; if we're here, then movement was negative
 
-        ld a, (IX + collisionPNPosX)  ; a contains posX
-        add a, (IX + collisionPNMovX) ; a contains posX + movX
-        and collisionTileFirstMask    ; a contains the leftmost pixel column
-                                      ; of the tile we would be in
-        ld b, a                       ; save it into b
+        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
+        and collisionTileFirstMask          ; a contains the furthest left pixel
+                                            ; column that we can move to safely
+        jp collisionHandleHorizontalMovementPosNegEnd
+collisionHandleHorizontalMovementPos:
+        ;; if we're here, then movement was positive
 
-        ld a, (IX + collisionPNPosX) ; a contains posX
-        and collisionTileFirstMask   ; a contains the leftmost pixel column
-                                     ; of the tile we are in
+        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
+        or collisionTilePixelsMask    ; a contains the furthest right pixel
+                                      ; column that we can move to safely
+collisionHandleHorizontalMovementPosNegEnd:
+        ;; a contains destination column in this tile
+
+        ld (IY + collisionPNUpdatesNewX), a ; Go ahead and move to the edge of
+                                            ; the tile
+        sub (IY + collisionPNUpdatesOldX)   ; a contains dest - pos = deltaX
+        ld b, a                              ; b contains deltaX
+        ld a, (IX + collisionPNMovX)         ; a contains movX
+        sub b                                ; a contains movX - deltaX
+        ld (IX + collisionPNMovX), a          ; movX = movX - deltaX
+
+        ;; prepare to loop and check each row of the player N for collisions
+        ld b, catHeight                      ; b contains the cat's height
 
 
+collisionHandleHorizontalCollisionLoop:
 
-        ;; Are we aligned to a tile boundary?
-        ld a, (IX + collisionPNPosX) ; load posX
-        and %0000$0111 ; We are tile aligned IFF the lower 3 bits are 0
-        jp z handleHorizontalEndMovement ; If we aren't on a tile boundary, then
-        ;; there is no possibility of a horizontal collision. Commit the move
+        ld a, (IY + collisionPNUpdatesNewX) ; a contains X position
+        ld d, (IY + collisionPNUpdatesOldY) ; d contains Y position
+        add a, (IX + collisionPNMovX)       ; a contains desired X position
+        ld c, a                             ; c contains desired X position
+        ld h, 0                             ; not checking a tile offset in X
+        ld a, catHeight                     ; a contains the height of the cat
+        sub b                               ; a contains current row - catheight
+                                            ; 2-2 = 0, 2-1 = 1, etc...
+        ld l, a                             ; l contains the row of the cat to
+                                            ; check
 
-        ;; Are we trying to move left or right?
-
-        cp 0                             ; a contains moveX
-        jp p handleHorizontalMovingRight ; if positive, we're moving right
-
-        ;; If we're here, that means we're moving left
-
-        ld a, (IX + collisionPNPosX) ; load posX
-        cp levelLeftmostPixel        ; Is P1 in the leftmost pixel column?
-        jp z handleHorizontalNoMovement ; If yes, do not move
-
-        ld a, (IX + collisionPNPosY)
-        ld b, a                      ; b contains pixel row we are in
-        add (IX + collisionPNMovX) ; a contains pixel column we want to move to
         call collisionCalculateGameLevelPtr ; HL now contains pointer to tile
                                             ; index that we want to move to
 
@@ -82,15 +140,19 @@ collisionHandleHorizontal:
                                            ; attribute of the tile we want to
                                            ; move to
 
+        and tgaPassable                    ; a contains 0 IFF passable bit is
+                                           ; not set
 
+        ret z                   ; if tile we are trying to move into is not
+                                ; passable, then do not move
 
-        jp handleHorizontalEndMovement ; unconditionally jump over handle right
-handleHorizontalMovingRight:
+        djnz collisionHandleHorizontalCollisionLoop ; iterate if rows remain
 
+        ;; If we made it this far, then no tiles blocked us. Commit the move
 
-handleHorizontalEndMovement:
-        ret
-handleHorizontalNoMovement:
+        ld a, (IY + collisionPNUpdatesNewX) ; a contains the current new posX
+        add a, (IX + collisionPNMovX)       ; add remaining movement distance
+        ld (IY + collisionPNUpdatesNewX), a ; x movement complete
         ret
 
 
@@ -104,7 +166,7 @@ handleHorizontalNoMovement:
         ;; PRE: HL contains a pointer into gameLevel to query
         ;; POST: a contains the gameplay attribute of the tile
         ;;       IX is preserved
-        ;;       C is preserved
+        ;;       IY is preserved
 collisionGetGameplayAttribute:
         ld a, (HL)              ; a contains tile data
         and levelDummyTileMask  ; a contains 0 IFF this is a dummy tile
@@ -119,40 +181,51 @@ collisionGetGameplayAttribute:
         ret
 collisionGetGameplayAttributeDeref:
         ld a, (HL)              ; restore tile data to a
-        ld iy, dynamicTileInstanceBase ; IY contains pointer to start of dynamic
+        ld hl, dynamicTileInstanceBase ; IY contains pointer to start of dynamic
                                        ; instances area
-        and a, levelTileIndexMask ; a contains an index into the dynamic
+        and levelTileIndexMask    ; a contains an index into the dynamic
                                   ; instances area
+        add a, collisionGameplayAttrOffset ; a contains index into the dynamic
+                                           ; instances area offset to the
+                                           ; gameplay attribute
         ld d, 0
         ld e, a
-        add iy, hl              ; IY contains a pointer to a dynamic instance
-        ld a, (iy + collisionGameplayAttrOffset) ; a contains gameplay attribute
-                                                 ; of this dynamic tile
+        add hl, de              ; hl contains a pointer to a gameplay attribute
+        ld a, (hl)              ; a contains gameplay attribute
+                                ; of this dynamic tile
         ret
 
         ;; ---------------------------------------------------------------------
         ;; calculateGameLevelPtr
         ;; ---------------------------------------------------------------------
-        ;; PRE: a contains the x pixel coordinate
-        ;;      b contains the y pixel coordinate
+        ;; PRE: c contains the x pixel coordinate
+        ;;      d contains the y pixel coordinate
+        ;;      h contains a tile offset to add to x
+        ;;      l contains a tile offset to add to y
         ;;      <x, y> is in range
         ;; POST: HL contains a pointer to the gameLevel index that
         ;;       <x, y> falls in
+        ;;       b is preserved
         ;;       IX preserved
-        ;;       C preserved
+        ;;       IY is preserved
 collisionCalculateGameLevelPtr:
-        sra
-        sra
-        sra                     ; a contains the tile column we want to move to
-        ld d, 0
-        ld e, a                 ; DE now contains column index
+        ld a, c
+        srl a
+        srl a
+        srl a
+        add a, h                ; a contains the tile column we want to move to
 
-        ld a, b
-        sra
-        sra
-        sra                     ; a contains the tile row we are in
+        ld e, a                 ; e now contains column index
+
+        ld a, d
+        srl a
+        srl a
+        srl a
+        add a, l                ; a contains the tile row we are in
+
         ld h, 0
         ld l, a                 ; HL now contains row index
+        ld d, 0                 ; DE now contains the column index
 
         call multiply           ; HL now contains offset of the tile we want to
                                 ; move to
