@@ -10,12 +10,17 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
+        ld hl, gameLevel + 3
+        ld (hl), 0
+
+        call displayPos
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
 
         ;; TODO: this section
         ;; TODO: multiple update iteration types
+
 
 
         ;; Read input, update player state
@@ -43,14 +48,16 @@ displayAttemptedMove:
         ld a, (hl)
         cp 0
         call nz, displayMovX
+        ret
 
 displayCollisionState:
         ld HL, fuP1UpdatesOldPosX
         ld a, (HL)
         ld HL, fuP1UpdatesNewPosX
-        ld a, (HL)
+        ld b, (HL)
         cp b
-        call nz, displayPosX
+        ret z
+        call displayPos
 
         ;; TODO: more as I get to them
         ret
@@ -66,13 +73,20 @@ displayMovX:
         ld hl, p1MovX
         ld c, (hl)
         call printNumber
+        ret
 
 movXStr:         defb newline, "Player wants to move:", newline
 XmovXStr:
 
-displayPosX:
-        ld de, posXStr
-        ld bc, XposXStr - posXStr
+displayPos:
+        ld de, posStrPrelude
+        ld bc, XposStrPrelude - posStrPrelude
+        call print
+
+        ;; top left corner
+
+        ld de, posStrOpen
+        ld bc, XposStrOpen - posStrOpen
         call print
 
         ld b, 0
@@ -80,8 +94,74 @@ displayPosX:
         ld c, (hl)
         call printNumber
 
-posXStr:         defb newline, "New X position:", newline
-XposXStr:
+        ld de, posStrMid
+        ld bc, XposStrMid - posStrMid
+        call print
+
+        ld b, 0
+        ld hl, fuP1UpdatesNewPosY
+        ld c, (hl)
+        call printNumber
+
+        ld de, posStrEnd
+        ld bc, XposStrEnd - posStrEnd
+        call print
+
+        ;; bottom right corner
+
+        ld de, posStrOpen
+        ld bc, XposStrOpen - posStrOpen
+        call print
+
+        ld b, 0
+        ld hl, fuP1UpdatesNewPosX
+        ld a, (hl)
+        add a, catPixelWidth
+        ld c, a
+        call printNumber
+
+        ld de, posStrMid
+        ld bc, XposStrMid - posStrMid
+        call print
+
+        ld b, 0
+        ld hl, fuP1UpdatesNewPosY
+        ld a, (hl)
+        add a, catPixelHeight
+        ld c, a
+        call printNumber
+
+        ld de, posStrEnd
+        ld bc, XposStrEnd - posStrEnd
+        call print
+
+        ret
+
+posStrPrelude:         defb newline, "New position = "
+XposStrPrelude:
+
+posStrOpen:     defb "<"
+XposStrOpen:
+
+posStrMid:      defb ", "
+XposStrMid:
+
+posStrEnd:      defb ">", newline
+XposStrEnd:
+
+displayFailX:
+        ld de, failXStr
+        ld bc, XfailXStr - failXStr
+        call print
+
+        ld b, 0
+        ld hl, fuP1UpdatesNewPosX
+        ld c, (hl)
+        call printNumber
+        ret
+
+failXStr:         defb newline, "Failed to move in X. Position:", newline
+XfailXStr:
 
 
         ;; ---------------------------------------------------------------------

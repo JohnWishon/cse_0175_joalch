@@ -53,6 +53,10 @@ levelTopmostRow:      equ 5
 levelTopmostPixel:    equ (levelTopmostRow << 3)
 levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
+levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
+levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
+levelColumnWidth:     equ levelRightmostCol - levelLeftmostCol
+levelColumnHeight:    equ levelBottommostRow - levelTopmostRow
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
@@ -188,7 +192,7 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs ((levelRightmostCol - levelLeftmostCol) * (levelBottommostRow - levelTopmostRow))
+gameLevel: defs (levelColumnWidth * levelColumnHeight), tgaPassable
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
@@ -214,6 +218,7 @@ catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
         ;; ...
 catPoseFaceLeft: equ %1000$0000
+catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
 fuP1UpdatesOldPosX:       defb 0
