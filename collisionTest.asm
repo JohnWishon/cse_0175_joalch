@@ -10,7 +10,7 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
-        ld hl, gameLevel + 4
+        ld hl, gameLevel + (1 * levelColumnWidth) + 4
         ld (hl), 0
 
         call displayPos
