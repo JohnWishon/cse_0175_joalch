@@ -77,25 +77,20 @@ collisionHandleHorizontal:
         ld e, a                 ; We're going to use this a lot,
                                 ; save it in e
 
-        ;; Are we moving to a location in this same tile?
-        ;; a contains posX + movX
-        and collisionTileFirstMask
-        ld d, a                 ; d contains first column of the tile
-                                ; we'd like to move to
-        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
-        and collisionTileFirstMask          ; a contains the first column of
-                                            ; this tile
-        cp d                                ; Are these the same tiles?
-        jp nz, collisionHandleHorizontalStepOne ; If not, do more work
-        ;; If we're here, then we're trying to move to a location in this tile
-        ;; Just commit the move and return since there is no possiblity of
-        ;; collision
-        ld (IY + collisionPNUpdatesNewX), e ; e contains posX + movX
-        ret
-
-collisionHandleHorizontalStepOne:
+        ;; Did we even try to move?
         ld a, (IX + collisionPNMovX)
         cp 0
+        ret z                   ; if movX == 0, return, do not move
+
+        and collisionTileFirstMask ; Are we in the first column of this tile?
+        cp (IX + collisionPNUpdatesOldX)
+        jp z, collisionHandleHorizontalStepTwo ; If so, there's no move that is
+                                               ; "safe". Jump to step two
+
+;; collisionHandleHorizontalStepOne:
+        ;; Did we move left or right?
+        ;; ld a, (IX + collisionPNMovX)
+        ;; cp 0
         jp p, collisionHandleHorizontalMovementPos ; did we move right?
         ;; if we're here, then movement was negative
 
@@ -106,6 +101,10 @@ collisionHandleHorizontalStepOne:
         ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
         and collisionTileFirstMask          ; a contains the furthest left pixel
                                             ; column that we can move to safely
+        cp e                                ; is canMove < wantToMove?
+        jp p, collisionHandleHorizontalMovementPosNegEnd
+        ;;  If we're here, then wantToMove < canMove
+        ld a, e
         jp collisionHandleHorizontalMovementPosNegEnd
 collisionHandleHorizontalMovementPos:
         ;; if we're here, then movement was positive
@@ -117,8 +116,12 @@ collisionHandleHorizontalMovementPos:
         ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
         or collisionTilePixelsMask    ; a contains the furthest right pixel
                                       ; column that we can move to safely
+        cp e                          ; is canMove < wantToMove?
+        jp m, collisionHandleHorizontalMovementPosNegEnd
+        ;;  If we're here, then wantToMove < canMove
+        ld a, e
 collisionHandleHorizontalMovementPosNegEnd:
-        ;; a contains destination column in this tile
+        ;; a contains the furthest we can move in this tile
 
         ld (IY + collisionPNUpdatesNewX), a ; Go ahead and move to the edge of
                                             ; the tile
@@ -128,6 +131,11 @@ collisionHandleHorizontalMovementPosNegEnd:
         sub b                                ; a contains movX - deltaX
         ld (IX + collisionPNMovX), a          ; movX = movX - deltaX
 
+        ;; Are we done?
+        cp 0
+        ret z                   ; If movX - deltaX = 0, then we're done
+
+collisionHandleHorizontalStepTwo:
 
         ;; Make sure we aren't trying to walk off the screen
         ld a, (IX + collisionPNMovX)        ; a contains movX
@@ -257,6 +265,7 @@ collisionCalculateGameLevelPtr:
         srl a
         srl a
         srl a
+
         add a, h                ; a contains the tile column we want to move to
 
         push bc

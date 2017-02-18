@@ -10,7 +10,7 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
-        ld hl, gameLevel + 3
+        ld hl, gameLevel + 4
         ld (hl), 0
 
         call displayPos
@@ -116,7 +116,7 @@ displayPos:
         ld b, 0
         ld hl, fuP1UpdatesNewPosX
         ld a, (hl)
-        add a, catPixelWidth
+        add a, catPixelWidth - 1
         ld c, a
         call printNumber
 
@@ -127,7 +127,7 @@ displayPos:
         ld b, 0
         ld hl, fuP1UpdatesNewPosY
         ld a, (hl)
-        add a, catPixelHeight
+        add a, catPixelHeight - 1
         ld c, a
         call printNumber
 
