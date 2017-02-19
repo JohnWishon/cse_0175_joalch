@@ -47,7 +47,13 @@ displayAttemptedMove:
         ld hl, p1MovX
         ld a, (hl)
         cp 0
-        call nz, displayMovX
+        jp nz, displayAttemptedMoveDoIt
+        ld hl, p1MovY
+        ld a, (hl)
+        cp 0
+        ret z
+displayAttemptedMoveDoIt:
+        call displayMov
         ret
 
 displayCollisionState:
@@ -56,7 +62,14 @@ displayCollisionState:
         ld HL, fuP1UpdatesNewPosX
         ld b, (HL)
         cp b
+        jp nz, displayCollisionStateDoIt
+        ld HL, fuP1UpdatesOldPosY
+        ld a, (HL)
+        ld HL, fuP1UpdatesNewPosY
+        ld b, (HL)
+        cp b
         ret z
+displayCollisionStateDoIt:
         call displayPos
 
         ;; TODO: more as I get to them
@@ -64,19 +77,47 @@ displayCollisionState:
 
 printNumber:    equ 6683
 
-displayMovX:
-        ld de, movXStr
-        ld bc, XmovXStr - movXStr
+displayMov:
+        ld de, movStrPrelude
+        ld bc, XmovStrPrelude - movStrPrelude
+        call print
+
+        ld de, movStrOpen
+        ld bc, XmovStrOpen - movStrOpen
         call print
 
         ld b, 0
         ld hl, p1MovX
         ld c, (hl)
         call printNumber
+
+        ld de, movStrMid
+        ld bc, XmovStrMid - movStrMid
+        call print
+
+        ld b, 0
+        ld hl, p1MovY
+        ld c, (hl)
+        call printNumber
+
+        ld de, movStrEnd
+        ld bc, XmovStrEnd - movStrEnd
+        call print
+
         ret
 
-movXStr:         defb newline, "Player wants to move:", newline
-XmovXStr:
+
+movStrPrelude:         defb newline, "Movement = "
+XmovStrPrelude:
+
+movStrOpen:     defb "<"
+XmovStrOpen:
+
+movStrMid:      defb ", "
+XmovStrMid:
+
+movStrEnd:      defb ">", newline
+XmovStrEnd:
 
 displayPos:
         ld de, posStrPrelude
