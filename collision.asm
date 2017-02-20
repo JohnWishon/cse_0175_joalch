@@ -1,5 +1,13 @@
 collisionHandleVerticalMovY: defb 0
 
+        ;; TODO: make all this work
+
+collisionInternalStateBlockedUp:        equ %0000$0001
+collisionInternalStateBlockedDown:      equ %0000$0010
+collisionInternalStateBlockedLeft:      equ %0000$0100
+collisionInternalStateBlockedRight:     equ %0000$1000
+collisionInternalState: equ 0
+
 collisionPNMovX:        equ 6
 collisionPNMovY:        equ 7
 collisionPNMoveState:   equ 8
