@@ -9,6 +9,18 @@ main:
 
         ld a,2                 ; upper screen
         call openChannel
+        di                      ; disable interrupts
+        ld hl, interrupt        ; interrupt handler addr
+        ld ix, $fff0            ; addr to stick code
+        ld (ix+04h), $c3        ; c3 = opcode for jp xx
+        ld (ix+05h), l          ; where to jp to
+        ld (ix+06h), h
+        ld (ix+0fh), $18        ; 18 = opcode for jr x
+        ld a, $39               ; high byte addr of vector table -- get the FF from $3900
+        ld i, a                 ; set interrupt register
+        im 2                    ; interrupt mode 2
+        ei                      ; enable interrupts again
+        jp endProg
 
 
 updateIteration:
@@ -17,6 +29,9 @@ updateIteration:
         ;; TODO: this section
         ;; TODO: multiple update iteration types
 
+        ld  de,updateStr
+        ld  bc,XupdateStr-updateStr
+        call    print
 
         ;; Read input, update player state
         call updateKeystate    ; TODO: real key update routine
@@ -32,10 +47,10 @@ updateIteration:
         ;; End of iteration
         ;; Transition the sate machine if needed, halt
 
-        halt
-        jp drawIteration        ; TODO: interrupt handler should handle this
-        jp endProg              ; Never return to basic
-
+        ; halt
+        ; jp drawIteration        ; TODO: interrupt handler should handle this
+        ; jp endProg              ; Never return to basic
+        ret
 
 drawIteration:
         ;; Read state machine, jump to correct iteration type
@@ -48,12 +63,79 @@ drawIteration:
         call drawFrame
 
         ;; End of iteration
-        halt
-        jp updateIteration      ; TODO: interrupt handler should handle this
-        jp endProg              ; Never return to basic
+        ; halt
+        ; jp updateIteration      ; TODO: interrupt handler should handle this
+        ; jp endProg              ; Never return to basic
+        ret
 
+interrupt:
+        di                      ; disable interrupts
+        push af                 ; save all registers
+        push bc
+        push de
+        push hl
+        push ix
+        exx
+        ex af, af'
+        push af
+        push bc
+        push de
+        push hl
+        push iy
 
+        ld hl, pretim           ; previous counter
+        ld a, ($5c78)           ; frame counter
+        sub (hl)                ; difference
+        cp 2                    ; 2 frames?
+        jr nc, drawSkip
+        call updateIteration    ; call update
+        jr endCheck
+drawSkip:
+        call drawIteration      ; call draw
+        ld hl, pretim
+        ld a, ($5c78)           ; current frame
+        ld (hl), a              ; store counter
+endCheck:
+        ld bc, ($5c78)          ; frame counter
+        call $2d2b              ; print number
+        call $2de3
+        ld de, teststr
+        ld bc, Xteststr - teststr
+        call print
 
+        ld hl, $5c78            ; increment frame counter
+        inc (hl)
+
+        pop iy                  ; restore all registers
+        pop hl
+        pop de
+        pop bc
+        pop af
+        exx
+        ex af, af'
+        pop ix
+        pop hl
+        pop de
+        pop bc
+        pop af
+        ei                      ; enable interrupts
+        reti                    ; return from interrupt
+
+; checkIteration:
+;
+;         jr nc, drawIteration    ; yes, go to draw
+;         jp updateIteration      ; no, go to update
+;
+;
+;         ld bc, ($5c78)          ; frame counter
+;         call $2d2b              ; print number
+;         call $2de3
+;         ld de, teststr
+;         ld bc, Xteststr - teststr
+;         call print
+        ; ld hl, $5c78            ; increment frame counter
+        ; inc (hl)
+        ; ret
 
         ;; ---------------------------------------------------------------------
         ;; We never return to basic. If execution gets here, just spin forever
@@ -62,7 +144,17 @@ endProg:
         nop
         jp endProg
 
+pretim:
+        defb 0
 
+teststr:
+        defb " "
+Xteststr:
+
+
+updateStr:
+    defb    "updateFrame", newline
+XupdateStr:
 
 	include "input.asm"
         include "physics.asm"
