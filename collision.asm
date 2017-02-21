@@ -1,16 +1,9 @@
 collisionHandleVerticalMovY: defb 0
 
-        ;; TODO: make all this work
-
-collisionInternalStateBlockedUp:        equ %0000$0001
-collisionInternalStateBlockedDown:      equ %0000$0010
-collisionInternalStateBlockedLeft:      equ %0000$0100
-collisionInternalStateBlockedRight:     equ %0000$1000
-collisionInternalState: equ 0
-
-collisionPNMovX:        equ 6
-collisionPNMovY:        equ 7
-collisionPNMoveState:   equ 8
+collisionPNMovX:           equ 6
+collisionPNMovY:           equ 7
+collisionPNMoveState:      equ 8
+collisionPNCollisionState: equ 9
 
 collisionTileFirstMask:  equ %1111$1000
 collisionTilePixelsMask: equ %0000$0111
@@ -59,7 +52,9 @@ updateCollisionBody:
         ;; ---------------------------------------------------------------------
         ;; Pre: N is the player number
         ;;      fuPNUpdatesBase in IY register
+        ;;      pNStateBase is in the IX register
         ;; POST: fuPNUpdatesBase cleared to 'no-updates' state
+        ;;       pNCollisionState cleared to 0
 collisionPrepareUpdates:
         ld a, (iy + collisionPNUpdatesNewX)
         ld (iy + collisionPNUpdatesOldX), a
@@ -71,6 +66,8 @@ collisionPrepareUpdates:
         ld (iy + collisionPNUpdatesOldPose), a
 
         ld (iy + collisionPNUpdatesTilePtr), 0
+
+        ld (ix + collisionPNCollisionState), 0
         ret
 
         ;; ---------------------------------------------------------------------
@@ -94,20 +91,34 @@ collisionHandleHorizontal:
         cp 0
         ret z                   ; if movX == 0, return, do not move
 
-        and collisionTileFirstMask ; Are we in the first column of this tile?
-        cp (IX + collisionPNUpdatesOldX)
-        jp z, collisionHandleHorizontalStepTwo ; If so, there's no move that is
-                                               ; "safe". Jump to step two
-
-;; collisionHandleHorizontalStepOne:
-        ;; Did we move left or right?
-
-        jp p, collisionHandleHorizontalMovementPos ; did we move right?
-        ;; if we're here, then movement was negative
+        ;; Determine facing
+        jp p, collisionHandleHorizontalFacingRight ; Trying to move right?
+        ;; if we're here, then we're facing left
 
         ld a, (IY + collisionPNUpdatesOldPose) ; a contains old cat pose
         or catPoseFaceLeft                     ; cat facing left
         ld (IY + collisionPNUpdatesOldPose), a ; new cat pose facing left
+        jp collisionHandleHorizontalStepOne
+
+collisionHandleHorizontalFacingRight:
+        ;;  If we're here, then we're facing right
+        ld a, (IY + collisionPNUpdatesOldPose) ; a contains old cat pose
+        and catPoseFaceLeftClearMask           ; cat facing right
+        ld (IY + collisionPNUpdatesOldPose), a ; new cat pose facing right
+
+
+collisionHandleHorizontalStepOne:
+        ld a, (IY + collisionPNUpdatesOldX) ; a contains horizontal position
+        and collisionTileFirstMask ; Are we in the first column of this tile?
+        cp (IY + collisionPNUpdatesOldX)
+        jp z, collisionHandleHorizontalStepTwo ; If so, there's no move that is
+                                               ; "safe". Jump to step two
+
+        ;; Did we move left or right?
+        ld a, (IX + collisionPNMovX)
+        cp 0
+        jp p, collisionHandleHorizontalMovementPos ; did we move right?
+        ;; if we're here, then movement was negative
 
         ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
         and collisionTileFirstMask          ; a contains the furthest left pixel
@@ -120,10 +131,6 @@ collisionHandleHorizontal:
 collisionHandleHorizontalMovementPos:
         ;; if we're here, then movement was positive
 
-        ld a, (IY + collisionPNUpdatesOldPose) ; a contains old cat pose
-        and catPoseFaceLeftClearMask           ; cat facing right
-        ld (IY + collisionPNUpdatesOldPose), a ; new cat pose facing right
-
         ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
         or collisionTilePixelsMask    ; a contains the furthest right pixel
                                       ; column that we can move to safely
@@ -132,7 +139,8 @@ collisionHandleHorizontalMovementPos:
         ;;  If we're here, then wantToMove < canMove
         ld a, e
 collisionHandleHorizontalMovementPosNegEnd:
-        ;; a contains the furthest we can move in this tile
+        ;; a contains the furthest we can move in this tile, or the desired
+        ;; move itself it is in the safe range
 
         ld (IY + collisionPNUpdatesNewX), a ; Go ahead and move to the edge of
                                             ; the tile
@@ -140,7 +148,7 @@ collisionHandleHorizontalMovementPosNegEnd:
         ld b, a                              ; b contains deltaX
         ld a, (IX + collisionPNMovX)         ; a contains movX
         sub b                                ; a contains movX - deltaX
-        ld (IX + collisionPNMovX), a          ; movX = movX - deltaX
+        ld (IX + collisionPNMovX), a         ; movX = movX - deltaX
 
         ;; Are we done?
         cp 0
@@ -156,7 +164,7 @@ collisionHandleHorizontalStepTwo:
 
         ld a, (IY + collisionPNUpdatesNewX) ; a contains X position
         cp 0                                ; Are we in the leftmost pixel?
-        ret z                               ; If we are, return, do not move
+        jp z, collisionHandleHorizontalCollisionLeft
         jp collisionHandleHorizontalLeftRightEdgeEnd
 collisionHandleHorizontalRightEdge:
         ;; If we're here, then we're walking right
@@ -165,8 +173,7 @@ collisionHandleHorizontalRightEdge:
 
         ;; TODO: pixelWidth or pixelWidth - 1?
         cp levelPixelWidth      ; Are we in the rightmost pixel?
-        ret z                   ; If we are, return, do not move
-
+        jp z, collisionHandleHorizontalHandleCollisionRight
 collisionHandleHorizontalLeftRightEdgeEnd:
         ;; prepare to loop and check each row of the player N for collisions
         ld b, catHeight                      ; b contains the cat's height
@@ -202,8 +209,9 @@ collisionHandleHorizontalCatWidthEnd:
         and tgaPassable                    ; a contains 0 IFF passable bit is
                                            ; not set
 
-        ret z                   ; if tile we are trying to move into is not
-                                ; passable, then do not move
+        jp z, collisionHandleHorizontalCollision       ; if tile we are trying
+                                                       ; to move into is not
+                                                       ; passable, then collide
 
         djnz collisionHandleHorizontalCollisionLoop ; iterate if rows remain
 
@@ -213,6 +221,23 @@ collisionHandleHorizontalCatWidthEnd:
         add a, (IX + collisionPNMovX)       ; add remaining movement distance
         ld (IY + collisionPNUpdatesNewX), a ; x movement complete
         ret
+collisionHandleHorizontalCollision:
+        ;; If we're here, then we bumped into something. Set the collision
+        ;; state and return without moving
+        ld a, (IX + collisionPNMovX) ; a contains movement vector
+        cp 0                         ; left or right
+        jp p collisionHandleHorizontalHandleCollisionRight
+collisionHandleHorizontalCollisionLeft:
+        ;; If we're here, then we're moving left
+        ld a, (IX + collisionPNCollisionState) ; a contains collision state
+        or collisionStateBlockedLeft           ; collide left
+        ld (IX + collisionPNCollisionState)    ; update collision state
+        ret                                    ; return, do not move
+collisionHandleHorizontalHandleCollisionRight:
+        ld a, (IX + collisionPNCollisionState) ; a contains collision state
+        or collisionStateBlockedRight          ; collide right
+        ld (IX + collisionPNCollisionState)    ; update collision state
+        ret                                    ; return, do not move
 
         ;; ---------------------------------------------------------------------
         ;; handleVertical
@@ -229,14 +254,16 @@ collisionHandleVertical:
         ld a, (IX + collisionPNMovY)
         cp 0
         jp nz, collisionHandleVerticalYesWereMoving ; if not zero, then yes
-        ld a, (IX + collisionPNMoveState)           ; a contains movemetn state
-        cp movementStateGround                      ; are we on the "ground"
+        ;; If we're here, then we're not moving in Y. Verify there are no
+        ;; wile-e-coyote situations occuring
+        ld a, (IX + collisionPNMoveState)           ; a contains movement state
+        cp movementStateGround                      ; are we on the "ground"?
         ret nz                                      ; if not on ground, return
                                                     ; let physics do its thing
         ld (IX + collisionPNMoveState), movementStateFalling
         ld a, -1
         ld (IX + collisionPNMovY), a ; Try to slowly fall, let ground
-        ;;  stop us if really it's there. This prevents wile e coyote situations
+        ;;  stop us if really it's there. This prevents wile-e-coyote situations
 collisionHandleVerticalYesWereMoving:
 
         ld a, (IY + collisionPNUpdatesOldY) ; a contains posY
@@ -247,9 +274,9 @@ collisionHandleVerticalYesWereMoving:
         ld (collisionHandleVerticalMovY), a ; localMovY contains MovY
 
 
-
+        ld (IY + collisionPNUpdatesOldY)
         and collisionTileFirstMask ; Are we in the first row of this tile?
-        cp (IX + collisionPNUpdatesOldY)
+        cp (IY + collisionPNUpdatesOldY)
         jp z, collisionHandleVerticalStepTwo ; If so, there's no move that is
                                              ; "safe". Jump to step two
 
@@ -277,11 +304,12 @@ collisionHandleVerticalMovementPos:
         ;;  If we're here, then wantToMove < canMove
         ld a, e
 collisionHandleVerticalMovementPosNegEnd:
-        ;; a contains the furthest we can move in this tile
+        ;; a contains the furthest we can move in this tile, or the desired
+        ;; move itself it is in the safe range
 
         ld (IY + collisionPNUpdatesNewY), a ; Go ahead and move to the edge of
                                             ; the tile
-        sub (IY + collisionPNUpdatesOldY)   ; a contains dest - pos = deltaX
+        sub (IY + collisionPNUpdatesOldY)   ; a contains dest - pos = deltaY
         ld b, a                              ; b contains deltaY
         ld a, (collisionHandleVerticalMovY)  ; a contains movY
         sub b                                ; a contains movY - deltaY
@@ -292,7 +320,6 @@ collisionHandleVerticalMovementPosNegEnd:
         ret z                   ; If movY - deltaY = 0, then we're done
 
 collisionHandleVerticalStepTwo:
-
         ;; Make sure we aren't trying to move off the screen
         ld a, (collisionHandleVerticalMovY) ; a contains movY
         cp 0                                ; are we going up or down?
@@ -302,25 +329,17 @@ collisionHandleVerticalStepTwo:
         ld a, (IY + collisionPNUpdatesNewY) ; a contains Y position
 
         cp 0                                ; Are we in the bottommost pixel?
-        jp nz, collisionHandleVerticalTopBottomEdgeEnd
-        ld (IX + collisionPNMovY), 0
-        ld (IX + collisionPNMoveState), movementStateGround
-        ret                               ; If we are, return, do not move
-        ;; set move state = ground, and MovY = 0
+        jp z, collisionHandleVerticalCollisionDown ; If we are, collide down
+        jp collisionHandleVerticalTopBottomEdgeEnd
 collisionHandleVerticalTopEdge:
         ;; If we're here, then we're moving up
         ld a, (IY + collisionPNUpdatesNewY) ; a contains Y position
-        add a, catPixelHeight                ; a contains Y + cat height
+        add a, catPixelHeight               ; a contains Y + cat height
 
         cp levelPixelHeight      ; Are we in the topmost pixel?
-        jp nz, collisionHandleVerticalTopBottomEdgeEnd
-        ld (IX + collisionPNMovY), 0
-        ld (IX + collisionPNMoveState), movementStateFalling
-        ret                    ; If we are, return, do not move. Set MovY = 0
-        ;;  and moveState = falling
-
+        jp z, collisionHandleVerticalCollisionUp ; If we are, collide up
 collisionHandleVerticalTopBottomEdgeEnd:
-        ;; prepare to loop and check each row of the player N for collisions
+        ;; prepare to loop and check each col of the player N for collisions
         ld b, catWidth                      ; b contains the cat's width
 
 collisionHandleVerticalCollisionLoop:
@@ -356,23 +375,40 @@ collisionHandleVerticalCatHeightEnd:
         and tgaPassable                    ; a contains 0 IFF passable bit is
                                            ; not set
 
-        jp z, collisionHandleVerticalLand
+        jp z, collisionHandleVerticalCollision ; handle potential collision
 
-        djnz collisionHandleVerticalCollisionLoop ; iterate if rows remain
+        djnz collisionHandleVerticalCollisionLoop ; iterate if cols remain
 
         ;; If we made it this far, then no tiles blocked us. Commit the move
 
         ld a, (IY + collisionPNUpdatesNewY) ; a contains the current new posY
         ld hl, collisionHandleVerticalMovY
         add a, (hl)                         ; add remaining movement distance
-        ld (IY + collisionPNUpdatesNewY), a ; x movement complete
+        ld (IY + collisionPNUpdatesNewY), a ; y movement complete
         ret
-collisionHandleVerticalLand:
-        ld (IX + collisionPNMovY), 0
-        ld (IX + collisionPNMoveState), movementStateGround
-        ;; if tile we are trying to move into is not passable, then do not move.
-        ;; set MovY = 0 and moveState = ground
-        ret
+collisionHandleVerticalCollision:
+        ;; If we're here, then we bumped into something. Set the collision
+        ;; state, update the movement vector, and return without moving
+        ld a, (IX + collisionPNMovX) ; a contains movement vector
+        cp 0                         ; up or down
+        jp p collisionHandleHorizontalHandleCollisionUp
+collisionHandleVerticalCollisionDown:
+        ;; If we're here, then we're moving down
+        ld a, (IX + collisionPNCollisionState) ; a contains collision state
+        or collisionStateBlockedDown           ; collide down
+        ld (IX + collisionPNCollisionState)    ; update collision state
+        ld (IX + collisionPNMovY), 0           ; Set vertical movement = 0
+        ld (IX + collisionPNMoveState), movementStateGround ; set ground state
+        ret                                    ; return, do not move
+collisionHandleVerticalHandleCollisionUp:
+        ld a, (IX + collisionPNCollisionState) ; a contains collision state
+        or collisionStateBlockedUp             ; collide up
+        ld (IX + collisionPNCollisionState)    ; update collision state
+        ld (IX + collisionPNMovY), 0           ; Set vertical movement = 0
+        ret                                    ; return, do not move
+
+
+
         ;; ---------------------------------------------------------------------
         ;; Subroutines
         ;; ---------------------------------------------------------------------

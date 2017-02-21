@@ -24,10 +24,10 @@ smPlayableLevel: equ %0000$1000
 smGameOver:      equ %0000$1001
 
         ;; movement states
-movementStateGround:   equ %0000$0000
-movementStateJumping:  equ %0000$0001
-movementStateFalling:  equ %0000$0010
-movementStateClimbing: equ %0000$0100
+movementStateGround:   equ %0000$0001
+movementStateJumping:  equ %0000$0010
+movementStateFalling:  equ %0000$0100
+movementStateClimbing: equ %0000$1000
 
         ;; collision states
 collisionStateBlockedUp:        equ %0000$0001
