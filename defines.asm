@@ -29,6 +29,12 @@ movementStateJumping:  equ %0000$0001
 movementStateFalling:  equ %0000$0010
 movementStateClimbing: equ %0000$0100
 
+        ;; collision states
+collisionStateBlockedUp:        equ %0000$0001
+collisionStateBlockedDown:      equ %0000$0010
+collisionStateBlockedLeft:      equ %0000$0100
+collisionStateBlockedRight:     equ %0000$1000
+
         ;; tile gameplay attributes
 tgaNone:            equ %0000$0000
 tgaPassable:        equ %0001$0000
@@ -84,6 +90,7 @@ p1PPressed: defb 0
 p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
+p1CollisionState: defb 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
@@ -93,6 +100,7 @@ p2PPressed: defb 0
 p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
+p2CollisionState: defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
