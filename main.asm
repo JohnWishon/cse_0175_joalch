@@ -10,6 +10,7 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
+	call setupGraphics
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
