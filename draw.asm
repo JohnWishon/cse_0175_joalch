@@ -5,12 +5,12 @@ drawFrame:
         ;; ld  bc,XdrawStr-drawStr
         ;; call    print
 		;;	Next, prepare the screen.
-CLEAR_DISPLAY_FILE:
-	LD HL,$4000	;Clear the entire display file
-	LD DE,$4001
-	LD BC,$17FF
-	LD (HL),$00
-	LDIR
+;CLEAR_DISPLAY_FILE:
+;	LD HL,$4000	;Clear the entire display file
+;	LD DE,$4001
+;	LD BC,$17FF
+;	LD (HL),$00
+;	LDIR
 
 SET_DISPLAY_FILE:
 	LD HL,MainLevelPixels	;Copy the graphic data at A000 to the top two-thirds of the display file
