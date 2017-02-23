@@ -121,25 +121,6 @@ endCheck:
         ei                      ; enable interrupts
         reti                    ; return from interrupt
 
-; checkIteration:
-;
-;         jr nc, drawIteration    ; yes, go to draw
-;         jp updateIteration      ; no, go to update
-;
-;
-;         ld bc, ($5c78)          ; frame counter
-;         call $2d2b              ; print number
-;         call $2de3
-;         ld de, teststr
-;         ld bc, Xteststr - teststr
-;         call print
-        ; ld hl, $5c78            ; increment frame counter
-        ; inc (hl)
-        ; ret
-
-        ;; ---------------------------------------------------------------------
-        ;; We never return to basic. If execution gets here, just spin forever
-        ;; ---------------------------------------------------------------------
 endProg:
         nop
         jp endProg
@@ -150,7 +131,6 @@ pretim:
 teststr:
         defb " "
 Xteststr:
-
 
 updateStr:
     defb    "updateFrame", newline

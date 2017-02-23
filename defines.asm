@@ -151,7 +151,7 @@ couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileInstanceBase:
 couchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0 
 
         ;; Game state
 
@@ -208,7 +208,7 @@ gameLevel: defs ((levelRightmostCol - levelLeftmostCol) * (levelBottommostRow - 
 
                 ;; cat poses
 catPoseJump:      equ %0000$0001
-catPoseClimb:     equ %0000$0010
+catPoseClimb:     equ %0000$001 0
 catPoseWalk:      equ %0000$0100
 catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
@@ -241,3 +241,16 @@ fuP2UpdatesTileChangePtr: defw 0
         ;; TODO: amanda
 
 fuMouseUpdate:                  ; TODO: amanda
+; Mouse data tables
+; ix = direction - 0 = up, 1 = right, 2 = down, 3 = left
+; ix + 1 = current x
+; ix + 2 = current y
+; ix + 3 = old x
+; ix + 4 = old y
+mouseMove: defb 0,229,190,0,0
+
+
+; 3 mouse poses
+; 3 exit paths -- door on right, below couch middle (maybe any part under couch), mouse hole on left
+; if cat gets close enough- move 8 pixels/s ?
+; mouse holes spawn randomly on wall - change x y position on wall - lasts x seconds
