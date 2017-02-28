@@ -22,7 +22,6 @@ updateIteration:
         ;; Read input, update player state
         call updateKeystate    ; TODO: real key update routine
 
-
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
 
@@ -63,8 +62,9 @@ endProg:
         nop
         jp endProg
 
-
-
+        include "graphics-loadingScreen.asm"
+        include "graphics-mainScreen.asm"
+        include "graphics-sprites.asm"
 	include "input.asm"
         include "physics.asm"
         include "ai.asm"
