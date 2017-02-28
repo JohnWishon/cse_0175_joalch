@@ -1,5 +1,12 @@
+setupGraphics:
+
+	;; TODO: John
+	;; setup the initial screen.
+
+	ret
+
 drawFrame:
-        ;; Draw Entity state
+
 
         ;; ld  de,drawStr
         ;; ld  bc,XdrawStr-drawStr
@@ -32,6 +39,16 @@ SET_ATTRIBUTE_FILE:
 		
 		
 		
+
+	;; TODO: John
+
+	;; read all data from fuP1UpdatesBase
+	;; update screen based on data in fuP1UpdateBase
+
+
+	;; read all data from fuMouseUpdate
+	;; update screen based on data in fuMouseUpdates
+
         ret
 
 drawStr:
