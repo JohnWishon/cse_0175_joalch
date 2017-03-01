@@ -10,6 +10,7 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
+	call setupGraphics
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
@@ -20,7 +21,6 @@ updateIteration:
 
         ;; Read input, update player state
         call updateKeystate    ; TODO: real key update routine
-
 
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
@@ -62,8 +62,9 @@ endProg:
         nop
         jp endProg
 
-
-
+        include "graphics-loadingScreen.asm"
+        include "graphics-mainScreen.asm"
+        include "graphics-sprites.asm"
 	include "input.asm"
         include "physics.asm"
         include "ai.asm"
