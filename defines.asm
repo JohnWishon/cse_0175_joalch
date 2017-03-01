@@ -24,10 +24,16 @@ smPlayableLevel: equ %0000$1000
 smGameOver:      equ %0000$1001
 
         ;; movement states
-movementStateGround:   equ %0000$0000
-movementStateJumping:  equ %0000$0001
-movementStateFalling:  equ %0000$0010
-movementStateClimbing: equ %0000$0100
+movementStateGround:   equ %0000$0001
+movementStateJumping:  equ %0000$0010
+movementStateFalling:  equ %0000$0100
+movementStateClimbing: equ %0000$1000
+
+        ;; collision states
+collisionStateBlockedUp:        equ %0000$0001
+collisionStateBlockedDown:      equ %0000$0010
+collisionStateBlockedLeft:      equ %0000$0100
+collisionStateBlockedRight:     equ %0000$1000
 
         ;; tile gameplay attributes
 tgaNone:            equ %0000$0000
@@ -53,6 +59,10 @@ levelTopmostRow:      equ 5
 levelTopmostPixel:    equ (levelTopmostRow << 3)
 levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
+levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
+levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
+levelColumnWidth:     equ levelRightmostCol - levelLeftmostCol
+levelColumnHeight:    equ levelBottommostRow - levelTopmostRow
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
@@ -80,6 +90,7 @@ p1PPressed: defb 0
 p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
+p1CollisionState: defb 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
@@ -89,6 +100,7 @@ p2PPressed: defb 0
 p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
+p2CollisionState: defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -188,7 +200,7 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs ((levelRightmostCol - levelLeftmostCol) * (levelBottommostRow - levelTopmostRow))
+gameLevel: defs (levelColumnWidth * levelColumnHeight), tgaPassable
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
@@ -214,6 +226,7 @@ catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
         ;; ...
 catPoseFaceLeft: equ %1000$0000
+catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
 fuP1UpdatesOldPosX:       defb 0
