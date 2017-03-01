@@ -226,17 +226,17 @@ collisionHandleHorizontalCollision:
         ;; state and return without moving
         ld a, (IX + collisionPNMovX) ; a contains movement vector
         cp 0                         ; left or right
-        jp p collisionHandleHorizontalHandleCollisionRight
+        jp p, collisionHandleHorizontalHandleCollisionRight
 collisionHandleHorizontalCollisionLeft:
         ;; If we're here, then we're moving left
         ld a, (IX + collisionPNCollisionState) ; a contains collision state
         or collisionStateBlockedLeft           ; collide left
-        ld (IX + collisionPNCollisionState)    ; update collision state
+        ld (IX + collisionPNCollisionState), a ; update collision state
         ret                                    ; return, do not move
 collisionHandleHorizontalHandleCollisionRight:
         ld a, (IX + collisionPNCollisionState) ; a contains collision state
         or collisionStateBlockedRight          ; collide right
-        ld (IX + collisionPNCollisionState)    ; update collision state
+        ld (IX + collisionPNCollisionState), a ; update collision state
         ret                                    ; return, do not move
 
         ;; ---------------------------------------------------------------------
@@ -274,7 +274,7 @@ collisionHandleVerticalYesWereMoving:
         ld (collisionHandleVerticalMovY), a ; localMovY contains MovY
 
 
-        ld (IY + collisionPNUpdatesOldY)
+        ld a, (IY + collisionPNUpdatesOldY)
         and collisionTileFirstMask ; Are we in the first row of this tile?
         cp (IY + collisionPNUpdatesOldY)
         jp z, collisionHandleVerticalStepTwo ; If so, there's no move that is
@@ -391,19 +391,19 @@ collisionHandleVerticalCollision:
         ;; state, update the movement vector, and return without moving
         ld a, (IX + collisionPNMovX) ; a contains movement vector
         cp 0                         ; up or down
-        jp p collisionHandleHorizontalHandleCollisionUp
+        jp p, collisionHandleVerticalCollisionUp
 collisionHandleVerticalCollisionDown:
         ;; If we're here, then we're moving down
         ld a, (IX + collisionPNCollisionState) ; a contains collision state
         or collisionStateBlockedDown           ; collide down
-        ld (IX + collisionPNCollisionState)    ; update collision state
+        ld (IX + collisionPNCollisionState), a ; update collision state
         ld (IX + collisionPNMovY), 0           ; Set vertical movement = 0
         ld (IX + collisionPNMoveState), movementStateGround ; set ground state
         ret                                    ; return, do not move
-collisionHandleVerticalHandleCollisionUp:
+collisionHandleVerticalCollisionUp:
         ld a, (IX + collisionPNCollisionState) ; a contains collision state
         or collisionStateBlockedUp             ; collide up
-        ld (IX + collisionPNCollisionState)    ; update collision state
+        ld (IX + collisionPNCollisionState), a ; update collision state
         ld (IX + collisionPNMovY), 0           ; Set vertical movement = 0
         ret                                    ; return, do not move
 
