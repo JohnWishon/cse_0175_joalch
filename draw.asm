@@ -74,12 +74,12 @@ drawFrame:
         ld IX, fuP1UpdatesBase
         ld (IX + drawPNUpdatesTileX), 0
         ld (IX + drawPNUpdatesTileY), 0
-        ld (IX + drawPNUpdatesTilePtr), HIGH(staticTileBackground)
-        ld (IX + drawPNUpdatesTilePtr + 1), LOW(staticTileBackground)
+        ld (IX + drawPNUpdatesTilePtr), HIGH(couchSideDamaged)
+        ld (IX + drawPNUpdatesTilePtr + 1), LOW(couchSideDamaged)
 
         ld IX, fuP2UpdatesBase
-        ld (IX + drawPNUpdatesTileX), 6
-        ld (IX + drawPNUpdatesTileY), 6
+        ld (IX + drawPNUpdatesTileX), 1
+        ld (IX + drawPNUpdatesTileY), 1
         ld (IX + drawPNUpdatesTilePtr), HIGH(staticTileTestImpassableDestroyed)
         ld (IX + drawPNUpdatesTilePtr + 1), LOW(staticTileTestImpassableDestroyed)
 

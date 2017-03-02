@@ -1,5 +1,5 @@
         org $8000
-
+        call main
         include "defines.asm"
 
 main:
@@ -63,6 +63,15 @@ drawIteration:
         ;; We never return to basic. If execution gets here, just spin forever
         ;; ---------------------------------------------------------------------
 endProg:
+
+dieLoop:
+        ld de, dieLoopStr
+        ld bc, XdieLoopStr - dieLoopStr
+        call print
+        jp dieLoop
+
+dieLoopStr:     defb newline, "die"
+XdieLoopStr:
         nop
         jp endProg
 

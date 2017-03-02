@@ -149,7 +149,7 @@ couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defw couchCushionDamaged
         defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
-couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
         defb tgaStandable | tgaClimbable | tgaPassable | 3
         defw staticTileCouchCushionDestroyed
         defb tgaStandable | tgaClimbable | tgaPassable
@@ -173,7 +173,7 @@ staticTileCouchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileCouchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileCouchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileBackground: defb 0, 0, 0, 0, 0, 0, 0, 0, %01$111$111
-staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $0E, $0F, %00$010$001
+staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$010$001
 
         ;; Game state
 
