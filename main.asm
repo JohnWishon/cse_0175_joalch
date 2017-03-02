@@ -1,5 +1,5 @@
         org $8000
-
+        call main
         include "defines.asm"
 
 main:
@@ -9,6 +9,8 @@ main:
 
         ld a,2                 ; upper screen
         call openChannel
+
+        call setupGameLogic
 
 	call setupGraphics
 
@@ -28,6 +30,8 @@ updateIteration:
         call updateAI
 
         call updateCollision
+
+        call updateGameLogic
 
         ;; End of iteration
         ;; Transition the sate machine if needed, halt
@@ -59,14 +63,21 @@ drawIteration:
         ;; We never return to basic. If execution gets here, just spin forever
         ;; ---------------------------------------------------------------------
 endProg:
+
+dieLoop:
+        ld de, dieLoopStr
+        ld bc, XdieLoopStr - dieLoopStr
+        call print
+        jp dieLoop
+
+dieLoopStr:     defb newline, "die"
+XdieLoopStr:
         nop
         jp endProg
 
-        include "graphics-loadingScreen.asm"
-        include "graphics-mainScreen.asm"
-        include "graphics-sprites.asm"
 	include "input.asm"
         include "physics.asm"
         include "ai.asm"
         include "collision.asm"
+        include "gameLogic.asm"
         include "draw.asm"
