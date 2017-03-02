@@ -483,7 +483,7 @@ collisionCalculateGameLevelPtr:
         ld d, 0
         ld e, a                 ; DE now contains row index
         ld h, 0
-        ld l, levelColumnWidth  ; HL now contains the column width
+        ld l, levelTileWidth  ; HL now contains the column width
 
         call multiply           ; HL now contains column Width * row Index
 

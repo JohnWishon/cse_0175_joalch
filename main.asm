@@ -10,6 +10,8 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
+        call setupGameLogic
+
 	call setupGraphics
 
 updateIteration:
@@ -28,6 +30,8 @@ updateIteration:
         call updateAI
 
         call updateCollision
+
+        call updateGameLogic
 
         ;; End of iteration
         ;; Transition the sate machine if needed, halt
@@ -62,11 +66,9 @@ endProg:
         nop
         jp endProg
 
-        include "graphics-loadingScreen.asm"
-        include "graphics-mainScreen.asm"
-        include "graphics-sprites.asm"
 	include "input.asm"
         include "physics.asm"
         include "ai.asm"
         include "collision.asm"
+        include "gameLogic.asm"
         include "draw.asm"

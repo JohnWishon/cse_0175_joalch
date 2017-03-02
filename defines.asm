@@ -53,7 +53,7 @@ catPixelHeight: equ (catHeight << 3)
 
 levelLeftmostCol:     equ 1
 levelLeftmostPixel:   equ (levelRightmostCol << 3)
-levelRightmostCol:    equ 30
+levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 5
 levelTopmostPixel:    equ (levelTopmostRow << 3)
@@ -61,11 +61,14 @@ levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
 levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
 levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
-levelColumnWidth:     equ levelRightmostCol - levelLeftmostCol
-levelColumnHeight:    equ levelBottommostRow - levelTopmostRow
+levelTileWidth:     equ levelRightmostCol - levelLeftmostCol
+levelTileHeight:    equ levelBottommostRow - levelTopmostRow
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
+
+screenTileWidth:    equ 32
+screenTileHeight:   equ 24
 
         ;; ---------------------------------------------------------------------
         ;; Globals
@@ -124,32 +127,37 @@ dynamicTileInstanceBase:
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
-        defb HIGH(couchTopDamaged)         ; gameLevel index next
+        defb HIGH(couchTopDamaged) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
-        defw couchTopDestroyed
+        defw staticTileCouchTopDestroyed
         defb tgaStandable | tgaPassable
         defb 0, 0, 0
 couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged)
+        defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
 couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
-        defw couchCushionDestroyed
+        defw staticTileCouchCushionDestroyed
         defb tgaStandable | tgaPassable
         defb 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaClimbable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged)
+        defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
 couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaClimbable | tgaPassable | 3
-        defw couchCushionDestroyed
+        defw staticTileCouchCushionDestroyed
         defb tgaStandable | tgaClimbable | tgaPassable
+        defb 0, 0, 0
+dynamicTileTestImpassableOneHealth: defb 255, 127, 63, 31, 15, 7, 3, 1, %00$100$010
+        defb tgaStandable | 1
+        defw staticTileTestImpassableDestroyed
+        defb tgaStandable
         defb 0, 0, 0
 
         ;; ... etc ...
@@ -161,9 +169,11 @@ couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;;   |b0|b1|b2|b3|b4|b5|b6|b7| -> graphics pixel data
         ;;   |attr| -> graphics attribute
 staticTileInstanceBase:
-couchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-couchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileBackground: defb 0, 0, 0, 0, 0, 0, 0, 0, %01$111$111
+staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $0E, $0F, %00$010$001
 
         ;; Game state
 
@@ -200,7 +210,8 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs (levelColumnWidth * levelColumnHeight), tgaPassable
+gameLevel: defs (levelTileWidth * levelTileHeight), tgaPassable
+gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
