@@ -1,24 +1,136 @@
-
-
 setupGraphics:
 
-	;; TODO: John
-	;; setup the initial screen.
-	;call MainLevelPixels
-	;call MainLevelAttributes
-SET_DISPLAY_FILE:
-	LD HL,MainLevelPixels	;Copy the graphic data at A000 to the top two-thirds of the display file
-	LD DE,$4000
-	LD BC,$2400 ;CHANGED FROM $1000 (16) TO (24)
-	LDIR
-	
-SET_ATTRIBUTE_FILE:
-	LD HL,MainLevelAttributes	;Copy the attribute bytes from FC00 to the top third of the attribute file
-	LD DE,$5800
-	LD BC,$0300
+	call CLEAR_DISPLAY_FILE
+
+
+	call drawWindowCurtain
+	LD DE, $409B
+	LD HL, MainScreen_CurtainTile
+	CALL SET_CHARACTER_CELL_WITH_HL
+	;RET
+	SET_ATTRIBUTE_FILE:
+	LD HL, MainLevelAttributes	;Copy the attribute bytes from FC00 to the top third of the attribute file
+	LD DE, $5800
+	LD BC, $0300
 	LDIR
 
+
+
+
+	;LD B,29
+	;LD C,4
+	;CALL GET_CHARACTER_CELL_ADDRESS_IN_DE
+	;RET
+
+; Return character cell address of block at (b, c).
+GET_CHARACTER_CELL_ADDRESS_INTO_DE:
+	ld a,b              ; vertical position.
+       	and 24              ; which segment, 0, 1 or 2?
+       	add a,64            ; 64*256 = 16384, Spectrum's screen memory.
+       	ld d,a              ; this is our high byte.
+       	ld a,b              ; what was that vertical position again?
+       	and 7               ; which row within segment?
+       	rrca                ; multiply row by 32.
+       	rrca
+       	rrca
+       	ld e,a              ; low byte.
+       	ld a,c              ; add on y coordinate.
+       	add a,e             ; mix with low byte.
+       	ld e,a              ; address of screen position in de.
+       	ret
+
+; Display character hl at (b, c).
+SET_CHARACTER_CELL_WITH_HL:
+
+;char   call chadd          ; find screen address for char.
+       ld b,8              ; number of pixels high.
+char0:  ld a,(hl)           ; source graphic.
+       ld (de),a           ; transfer to screen.
+       inc hl              ; next piece of data.
+       inc d               ; next pixel line.
+       djnz char0          ; repeat
+       ret
+
+
+drawWindowCurtain:
+	LD DE, $409B
+	LD HL, MainScreen_CurtainTile
+	CALL SET_CHARACTER_CELL_WITH_HL
 	ret
+
+
+
+	
+
+
+
+;       ld hl,udgs      ; UDGs.
+;       ld (23675),hl   ; set up UDG system variable.
+;       ld a,1          ; 2 = upper screen.
+;       call 5633       ; open channel.
+;       ld a,21         ; row 21 = bottom of screen.
+;       ld (xcoord),a   ; set initial x coordinate.
+;loop   call setxy      ; set up our x/y coords.
+;       ld a,144        ; show UDG instead of asterisk.
+ ;      rst 16          ; display it.
+ ;      call delay      ; want a delay.
+ ;      call setxy      ; set up our x/y coords.
+;       ld a,32         ; ASCII code for space.
+ ;      rst 16          ; delete old asterisk.
+;       call setxy      ; set up our x/y coords.
+;       ld hl,xcoord    ; vertical position.
+;       dec (hl)        ; move it up one line.
+;       ld a,(xcoord)   ; where is it now?
+;       cp 255          ; past top of screen yet?
+;       jr nz,loop      ; no, carry on.
+;       ret
+;delay  ld b,10         ; length of delay.
+;delay0 halt            ; wait for an interrupt.
+;       djnz delay0     ; loop.
+ ;      ret             ; return.
+;setxy  ld a,22         ; ASCII control code for AT.
+;       rst 16          ; print it.
+;       ld a,(xcoord)   ; vertical position.
+;       rst 16          ; print it.
+;       ld a,(ycoord)   ; y coordinate.
+;       rst 16          ; print it.
+;       ret
+;xcoord defb $40
+;ycoord defb $9D
+;udgs   defb $FF, $FF, $00, $00, $00, $00, $00, $00
+
+
+
+;	LD HL,MainScreen_CurtainTile_1x1	;Copy the graphic data at A000 to the top two-thirds of the display file
+;	LD DE,$409D
+;	LD BC,$0001 
+;	LDIR
+
+drawShelves:
+
+drawEntertainmentCenter:
+
+drawWallHole:
+
+drawCouch:
+
+drawLightSocket:
+
+
+
+;SET_DISPLAY_FILE:
+;	LD HL,MainLevelPixels	;Copy the graphic data at A000 to the top two-thirds of the display file
+;	LD DE,$4000
+;	LD BC,$2400 ;CHANGED FROM $1000 (16) TO (24)
+;	LDIR
+	
+;SET_ATTRIBUTE_FILE:
+;	LD HL,MainLevelAttributes	;Copy the attribute bytes from FC00 to the top third of the attribute file
+;;	LD DE,$5800
+;	LD BC,$0300
+;	LDIR
+
+;	ret
 
 
 drawSprite:
@@ -80,12 +192,12 @@ drawFrame:
 ;	LDIR
 
 whichSprite:
-	LD DE, CAT_RIGHT_STANDING ;;DE	Address of sprite graphic data
+;	LD DE, CAT_RIGHT_STANDING ;;DE	Address of sprite graphic data
 
 whereSpriteGoes:
-	LD HL, $4806;;HL	Address to draw at
+;	LD HL, $4806;;HL	Address to draw at
 
-	call drawSprite;; 16 PIXELS HIGH!
+;	call drawSprite;; 16 PIXELS HIGH!
 
 ;;	LD DE,CAT_LEFT_STANDING ;	Point DE at the graphic data for the boot (at BAE0)
 ;;;873A	LD C,$00	C=0 (overwrite mode)
@@ -96,12 +208,13 @@ whereSpriteGoes:
         ;; ld  bc,XdrawStr-drawStr
         ;; call    print
 		;;	Next, prepare the screen.
-;CLEAR_DISPLAY_FILE:
-;	LD HL,$4000	;Clear the entire display file
-;	LD DE,$4001
-;	LD BC,$17FF
-;	LD (HL),$00
-;	LDIR
+CLEAR_DISPLAY_FILE:
+	LD HL,$4000	; Clear the entire display file
+	LD DE,$4001
+	LD BC,$17FF
+	LD (HL),$00
+	LDIR
+	RET
 	
 
 ;SET_DISPLAY_FILE:
