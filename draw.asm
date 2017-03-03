@@ -1,3 +1,4 @@
+
 drawPNUpdatesTileX:   equ 6
 drawPNUpdatesTileY:   equ 7
 drawPNUpdatesTilePtr: equ 8
@@ -6,23 +7,22 @@ drawWriteTileX: equ 0
 drawWriteTileY: equ 1
 drawWriteTilePtr: equ 2
 
+
 setupGraphics:
         ld a,2              ; 2 is the code for red.
         out (254),a         ; write to port 254.
 
         ld b, screenTileHeight
-        ld IX, fuP1UpdatesBase
-        ld (IX + drawPNUpdatesTileX), 0
-        ld (IX + drawPNUpdatesTileY), 0
-        ld (IX + drawPNUpdatesTilePtr), HIGH(staticTileBackground)
-        ld (IX + drawPNUpdatesTilePtr + 1), LOW(staticTileBackground)
+        ld hl, staticTileBackground
 setupGraphicsBackgroundYLoop:
         ld c, screenTileWidth
 setupGraphicsBackgroundXLoop:
         dec c
         push bc
         dec b
+        push hl
         call drawFrameWriteTile
+        pop hl
         pop bc
         ld a, c
         cp 0
@@ -48,14 +48,18 @@ setupGraphicsLevelXLoop:
         ld d, 0
         ld e, a
         add hl, de
-        ld (IX + drawPNUpdatesTilePtr), h
-        ld (IX + drawPNUpdatesTilePtr + 1), l
+        ;; ld (IX + drawPNUpdatesTilePtr), h
+        ;; ld (IX + drawPNUpdatesTilePtr + 1), l
         push bc
-        ld (IX + drawPNUpdatesTileX), c
+        ;; ld (IX + drawPNUpdatesTileX), c
         dec b
-        ld (IX + drawPNUpdatesTileY), b
-        ld c, levelLeftmostCol
-        ld b, levelTopmostRow
+        ;; ld (IX + drawPNUpdatesTileY), b
+        ld a, levelLeftmostCol
+        add a, c
+        ld c, a
+        ld a, levelTopmostRow
+        add a, b
+        ld b, a
         call drawFrameWriteTile
         pop bc
         pop hl
@@ -65,12 +69,10 @@ setupGraphicsLevelSkip:
         jp nz, setupGraphicsLevelXLoop
         djnz setupGraphicsLevelYLoop
 
-        ret
-
 drawFrame:
         ;; TODO: delete me
         ;; manual create an update for testing purposes
-
+        ret
         ld IX, fuP1UpdatesBase
         ld (IX + drawPNUpdatesTileX), 0
         ld (IX + drawPNUpdatesTileY), 0
@@ -99,31 +101,24 @@ drawFrameCat:
         ld b, levelTopmostRow
         call drawFrameWriteTile
 
+
         ;; TODO: sprite stuff
         ret
 
         ;; ---------------------------------------------------------------------
         ;; writeTile
         ;; ---------------------------------------------------------------------
-        ;; PRE: IX contains pointer to updateBase
+        ;; PRE: HL contains pointer to tile to draw
         ;;      c contains x offset
         ;;      b contains y offset
         ;; POST: tile written to screen at (x + offsetX, y + offsetY)
         ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
 drawFrameWriteTile:
-        ld a, (IX + drawPNUpdatesTileY)
-        add a, b
-        ld b, a
-        ld a, (IX + drawPNUpdatesTileX)
-        add a, c
-        ld c, a
         call drawFrameTileAddress ; DE contains pointer to top row of tile
 
         push bc
         ld b,8              ; number of pixels high.
 
-        ld h, (IX + drawPNUpdatesTilePtr)
-        ld l, (IX + (drawPNUpdatesTilePtr + 1))
 char0:  ld a,(hl)           ; source graphic.
         ld (de),a           ; transfer to screen.
         inc hl              ; next piece of data.
@@ -138,6 +133,7 @@ char0:  ld a,(hl)           ; source graphic.
         pop af
         ld (hl), a
         ret
+
 
 
         ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
