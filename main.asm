@@ -1,5 +1,5 @@
         org $8000
-        call main
+        jp main
         include "defines.asm"
 
 main:
@@ -9,6 +9,11 @@ main:
 
         ld a,2                 ; upper screen
         call openChannel
+
+        call setupGameLogic
+
+	call setupGraphics
+
         di                      ; disable interrupts
         ld hl, interrupt        ; interrupt handler addr
         ld ix, $fff0            ; addr to stick code
@@ -22,9 +27,7 @@ main:
         ei                      ; enable interrupts again
         jp endProg
 
-        call setupGameLogic
 
-	call setupGraphics
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
@@ -112,21 +115,11 @@ endCheck:
         reti                    ; return from interrupt
 
 endProg:
-
+        nop
+        jp endProg
 
 pretim:
         defb 0
-
-dieLoop:
-        ld de, dieLoopStr
-        ld bc, XdieLoopStr - dieLoopStr
-        call print
-        jp dieLoop
-
-dieLoopStr:     defb newline, "die"
-XdieLoopStr:
-        nop
-        jp endProg
 
         include "input.asm"
         include "physics.asm"
