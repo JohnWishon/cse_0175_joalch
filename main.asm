@@ -10,7 +10,7 @@ main:
         ld a,2                 ; upper screen
         call openChannel
 
-        call setupGameLogic
+    ;    call setupGameLogic
 
 	call setupGraphics
 
@@ -75,6 +75,8 @@ XdieLoopStr:
         nop
         jp endProg
 
+        include "graphics-mainScreen.asm"
+       ; include "graphics-sprites"
 	include "input.asm"
         include "physics.asm"
         include "ai.asm"

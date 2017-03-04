@@ -7,172 +7,143 @@ drawWriteTileX: equ 0
 drawWriteTileY: equ 1
 drawWriteTilePtr: equ 2
 
+screenAddress: equ $4000
+;screenCellsLength: equ 768
+;screenAttributes: equ MainScreen_Attributes
+;screenAttributesLength: equ 768
 
 setupGraphics:
-        ld a,2              ; 2 is the code for red.
-        out (254),a         ; write to port 254.
 
-        ld b, screenTileHeight
-        ld IX, fuP1UpdatesBase
-        ld (IX + drawPNUpdatesTileX), 0
-        ld (IX + drawPNUpdatesTileY), 0
-        ld (IX + drawPNUpdatesTilePtr), HIGH(staticTileBackground)
-        ld (IX + drawPNUpdatesTilePtr + 1), LOW(staticTileBackground)
-setupGraphicsBackgroundYLoop:
-        ld c, screenTileWidth
-setupGraphicsBackgroundXLoop:
-        dec c
-        push bc
-        dec b
-        call drawFrameWriteTile
-        pop bc
-        ld a, c
-        cp 0
-        jp nz, setupGraphicsBackgroundXLoop
-        djnz setupGraphicsBackgroundYLoop
+clearFile:
+	ld hl,$4000	; Clear the entire display file
+	ld de,$4001
+	ld bc,$17FF
+	ld (hl),$00
+	ldir
 
-        ;; background drawn, now draw level
+setAttributeFile:
+	ld hl, MainScreen_Attributes	;Copy the attribute bytes from FC00 to the top third of the attribute file
+	ld de, $5800
+	ld bc, $0300
+	ldir
 
-        ld b, levelTileHeight
-        ld hl, gameLevelEnd
-setupGraphicsLevelYLoop:
-        ld c, levelTileWidth
-setupGraphicsLevelXLoop:
-        dec c
-        dec hl
-        ld a, (HL)
-        and levelDummyTileMask
-        jp z, setupGraphicsLevelSkip
-        ld a, (HL)
-        and levelTileIndexMask
-        push hl
-        ld hl, dynamicTileInstanceBase
-        ld d, 0
-        ld e, a
-        add hl, de
-        ld (IX + drawPNUpdatesTilePtr), h
-        ld (IX + drawPNUpdatesTilePtr + 1), l
-        push bc
-        ld (IX + drawPNUpdatesTileX), c
-        dec b
-        ld (IX + drawPNUpdatesTileY), b
-        ld c, levelLeftmostCol
-        ld b, levelTopmostRow
-        call drawFrameWriteTile
-        pop bc
-        pop hl
-setupGraphicsLevelSkip:
-        ld a, c
-        cp 0
-        jp nz, setupGraphicsLevelXLoop
-        djnz setupGraphicsLevelYLoop
+drawTopScreen:
+  ld hl,MainScreen_Attributes_TOP
+  ld de,$4000
+  ld bc,256
+  call drawScreen
+drawMidScreen:
+  ld hl,MainScreen_Attributes_MID
+  ld de,$4800
+  ld bc,256
+  call drawScreen
+drawBotScreen:
+  ld hl,MainScreen_Attributes_BOT
+  ld de,$5000
+  ld bc,256
+  call drawScreen
+
+  RET
+
+drawScreen: 
+Repeat:     
+  ld a,b
+  or c
+  jr z,Finish
+  
+  ld a,$30                     
+  cp (hl)                        
+  jr z,Shelf            
+
+  ld a,$28                     
+  cp (hl)                        
+  jr z,Curtain  
+
+  ld a,$4B                     
+  cp (hl)                        
+  jr z,Fish   
+
+  ld a,$0F                     
+  cp (hl)                        
+  jr z,Fish_Tank 
+
+
+
+  ld a,$30                     
+  cp (hl)                        
+  jr z,Shelf 
+
+  inc hl                         
+  inc de
+  dec bc
+
+  ld a,b
+  or c
+  jr z, Finish
+
+  jr Repeat
+
+drawTile:
+  ld a, (ix)
+  ld (de),a
+  inc d
+  ld a, (ix+1)
+  ld (de),a
+  inc d
+  ld a, (ix+2)
+  ld (de),a
+  inc d
+  ld a, (ix+3)
+  ld (de),a
+  inc d
+  ld a, (ix+4)
+  ld (de),a
+  inc d
+  ld a, (ix+5)
+  ld (de),a
+  inc d
+  ld a, (ix+6)
+  ld (de),a
+  inc d
+  ld a, (ix+7)
+  ld (de),a
+
+  ld a, d
+  and %11111000
+  ld d, a
+
+  inc hl                         
+  inc de
+  dec bc
+
+  jr Repeat
+
+Curtain:
+  ld ix, MainScreen_CurtainTile
+  jr drawTile	
+
+Shelf:
+  ld ix, MainScreen_ShelfTile
+  jr drawTile	
+
+Fish:
+  ld ix, MainScreen_Fish
+  jr drawTile	
+
+Fish_Tank:
+  ld ix, MainScreen_Fish_Tank
+  jr drawTile	
+
+Light_Socket:
+  ld ix, MainScreen_LightSocketTile
+  jr drawTile	
+
+
+
+Finish:  
+  RET
+
 
 drawFrame:
-        ;; TODO: delete me
-        ;; manual create an update for testing purposes
 
-        ld IX, fuP1UpdatesBase
-        ld (IX + drawPNUpdatesTileX), 0
-        ld (IX + drawPNUpdatesTileY), 0
-        ld (IX + drawPNUpdatesTilePtr), HIGH(couchSideDamaged)
-        ld (IX + drawPNUpdatesTilePtr + 1), LOW(couchSideDamaged)
-
-        ld IX, fuP2UpdatesBase
-        ld (IX + drawPNUpdatesTileX), 1
-        ld (IX + drawPNUpdatesTileY), 1
-        ld (IX + drawPNUpdatesTilePtr), HIGH(staticTileTestImpassableDestroyed)
-        ld (IX + drawPNUpdatesTilePtr + 1), LOW(staticTileTestImpassableDestroyed)
-
-        ;; draw cat 1
-        ld IX, fuP1UpdatesBase
-        call drawFrameCat
-        ;; draw cat 2
-        ld IX, fuP2UpdatesBase
-        call drawFrameCat
-        ;; TODO: draw mice
-        ret
-
-drawFrameCat:
-        ;; first update tiles
-
-        ld c, levelLeftmostCol
-        ld b, levelTopmostRow
-        call drawFrameWriteTile
-
-
-        ;; TODO: sprite stuff
-        ret
-
-        ;; ---------------------------------------------------------------------
-        ;; writeTile
-        ;; ---------------------------------------------------------------------
-        ;; PRE: IX contains pointer to updateBase
-        ;;      c contains x offset
-        ;;      b contains y offset
-        ;; POST: tile written to screen at (x + offsetX, y + offsetY)
-        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
-drawFrameWriteTile:
-        ld a, (IX + drawPNUpdatesTileY)
-        add a, b
-        ld b, a
-        ld a, (IX + drawPNUpdatesTileX)
-        add a, c
-        ld c, a
-        call drawFrameTileAddress ; DE contains pointer to top row of tile
-
-        push bc
-        ld b,8              ; number of pixels high.
-
-        ld h, (IX + drawPNUpdatesTilePtr)
-        ld l, (IX + (drawPNUpdatesTilePtr + 1))
-char0:  ld a,(hl)           ; source graphic.
-        ld (de),a           ; transfer to screen.
-        inc hl              ; next piece of data.
-        inc d               ; next pixel line.
-        djnz char0          ; repeat
-
-        pop bc
-
-        ld a, (hl)              ; a contains attribute
-        push af
-        call drawFrameTileAttrAddress ; HL contains pointer to attribute
-        pop af
-        ld (hl), a
-        ret
-
-
-
-        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
-drawFrameTileAddress:
-        ld a,b              ; vertical position.
-        and 24              ; which segment, 0, 1 or 2?
-        add a,64            ; 64*256 = 16384, Spectrum's screen memory.
-        ld d,a              ; this is our high byte.
-        ld a,b              ; what was that vertical position again?
-        and 7               ; which row within segment?
-        rrca                ; multiply row by 32.
-        rrca
-        rrca
-        ld e,a              ; low byte.
-        ld a,c              ; add on y coordinate.
-        add a,e             ; mix with low byte.
-        ld e,a              ; address of screen position in de.
-        ret
-
-        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
-drawFrameTileAttrAddress:
-        ld a,b              ; x position.
-        rrca                ; multiply by 32.
-        rrca
-        rrca
-        ld l,a              ; store away in l.
-        and 3               ; mask bits for high byte.
-        add a,88            ; 88*256=22528, start of attributes.
-        ld h,a              ; high byte done.
-        ld a,l              ; get x*32 again.
-        and 224             ; mask low byte.
-        ld l,a              ; put in l.
-        ld a,c              ; get y displacement.
-        add a,l             ; add to low byte.
-        ld l,a              ; hl=address of attributes.
         ret

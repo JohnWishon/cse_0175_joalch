@@ -1,3 +1,49 @@
+;; SEARCH ALGORITHM  ;;
+
+;Start:
+;  ld hl,(TextAddress)
+;  ld de,(StringAddress)
+;  ld bc,(StringLength)
+;Repeat:                          ; This loop verifies if the text from the current byte
+;  ld a,(de)                      ; matches the string given, character by character. If
+;  cp (hl)                        ; it does, then the zero flag is set. Execution is
+;  jr nz,EndRepeat                ; continued from EndRepeat, regardless of the success of
+;  inc hl                         ; the search.
+;  inc de
+;  dec bc
+;  ld a,b
+;  or c
+;  jr nz,Repeat
+;EndRepeat:
+;  ld hl,(TextAddress)            ; Note that LD preserves the flags
+;  jr z,Finish
+;  inc hl                         ; The text pointer is advanced
+;  ld (TextAddress),hl
+;  ld bc,(TextLength)
+;  dec bc                         ; Total byte count is decreased
+;  ld (TextLength),bc
+;  ld a,b
+;  or c
+;  jr nz,Start
+;  ld hl,0                        ; This part is executed in case of failure (BC=0)
+;Finish:
+;  ...                            ; There should be some code following here, otherwise
+                                 ; execution would continue in the data part...
+;TextAddress:
+;  .word $1000
+;TextLength:
+;  .word 500
+;StringAddress:
+;  .word $2000
+;StringLength:
+;  .word 20
+
+
+
+
+
+
+
 ; Return character cell address of block at (b, c).
 
 chadd  ld a,b              ; vertical position.
