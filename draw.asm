@@ -44,7 +44,6 @@ drawMouseLeftSprites:     equ $CED0
 drawMouseRightSprites:    equ $CF30
 
 
-
 setupGraphics:
         ld a,2              ; 2 is the code for red.
         out (254),a         ; write to port 254.
@@ -213,6 +212,7 @@ drawFrameTileAttrAddress:
         add a,l             ; add to low byte.
         ld l,a              ; hl=address of attributes.
         ret
+
 
         ;; Some random blocks, used for testing
 cat1SpritesBase:
