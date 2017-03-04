@@ -2,8 +2,8 @@
 .PHONY := all build rebuild clean run
 
 PROG_NAME = catastrophe
-TEST_PROG_TAP = keyboardTest.tap physicsTest.tap collisionTest.tap aiTest.tap
-TEST_PROG_BIN = keyboardTest.bin physicsTest.bin collisionTest.bin aiTest.bin
+TEST_PROG_TAP = keyboardTest.tap physicsTest.tap aiTest.tap
+TEST_PROG_BIN = keyboardTest.bin physicsTest.bin aiTest.bin
 RES_DIR = res
 
 ASM = pasmo
