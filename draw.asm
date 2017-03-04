@@ -49,7 +49,7 @@ setupGraphics:
         ld a,2              ; 2 is the code for red.
         out (254),a         ; write to port 254.
 
-        call drawPrecomputeSprites
+        ;; call drawPrecomputeSprites
 
         ld b, screenTileHeight
         ld hl, staticTileBackground
