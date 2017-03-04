@@ -2,8 +2,8 @@
 .PHONY := all build rebuild clean run
 
 PROG_NAME = catastrophe
-TEST_PROG_TAP = keyboardTest.tap physicsTest.tap
-TEST_PROG_BIN = keyboardTest.bin physicsTest.bin
+TEST_PROG_TAP = keyboardTest.tap physicsTest.tap aiTest.tap
+TEST_PROG_BIN = keyboardTest.bin physicsTest.bin aiTest.bin
 RES_DIR = res
 
 ASM = pasmo
@@ -27,7 +27,7 @@ run : build
 build : $(PROG_NAME).tap
 	$(call padEcho,done!)
 
-build_test : keyboardTest.tap physicsTest.tap
+build_test : keyboardTest.tap physicsTest.tap aiTest.tap
 	$(call padEcho,done!)
 
 $(PROG_NAME).tap : $(PROG_NAME).bin

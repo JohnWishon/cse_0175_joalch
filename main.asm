@@ -1,7 +1,5 @@
         org $8000
 
-        include "defines.asm"
-
 main:
         ;; ---------------------------------------------------------------------
         ;; Setup program state, interrupt handling scheme
@@ -28,20 +26,13 @@ updateIteration:
 
         ;; TODO: this section
         ;; TODO: multiple update iteration types
-
-        ld  de,updateStr
-        ld  bc,XupdateStr-updateStr
-        call    print
-
         ;; Read input, update player state
         call updateKeystate    ; TODO: real key update routine
 
 
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
-
         call updateAI
-
         call updateCollision
 
         ;; End of iteration
@@ -96,13 +87,6 @@ drawSkip:
         ld a, ($5c78)           ; current frame
         ld (hl), a              ; store counter
 endCheck:
-        ld bc, ($5c78)          ; frame counter
-        call $2d2b              ; print number
-        call $2de3
-        ld de, teststr
-        ld bc, Xteststr - teststr
-        call print
-
         ld hl, $5c78            ; increment frame counter
         inc (hl)
 
@@ -128,15 +112,9 @@ endProg:
 pretim:
         defb 0
 
-teststr:
-        defb " "
-Xteststr:
 
-updateStr:
-    defb    "updateFrame", newline
-XupdateStr:
-
-	include "input.asm"
+        include "defines.asm"
+        include "input.asm"
         include "physics.asm"
         include "ai.asm"
         include "collision.asm"

@@ -46,7 +46,7 @@ catHeight:      equ 2           ; in tiles
 catPixelHeight: equ (catHeight << 3)
 
 levelLeftmostCol:     equ 1
-levelLeftmostPixel:   equ (levelRightmostCol << 3)
+levelLeftmostPixel:   equ (levelLeftmostCol << 3)
 levelRightmostCol:    equ 30
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 5
@@ -151,7 +151,7 @@ couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileInstanceBase:
 couchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0 
+couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 
         ;; Game state
 
@@ -208,7 +208,7 @@ gameLevel: defs ((levelRightmostCol - levelLeftmostCol) * (levelBottommostRow - 
 
                 ;; cat poses
 catPoseJump:      equ %0000$0001
-catPoseClimb:     equ %0000$001 0
+catPoseClimb:     equ %0000$0010
 catPoseWalk:      equ %0000$0100
 catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
@@ -240,15 +240,14 @@ fuP2UpdatesTileChangePtr: defw 0
         ;; In a frame, a mouse can:
         ;; TODO: amanda
 
-fuMouseUpdate:                  ; TODO: amanda
+mouseUpdatesBase:
 ; Mouse data tables
-; ix = direction - 0 = up, 1 = right, 2 = down, 3 = left
-; ix + 1 = current x
-; ix + 2 = current y
-; ix + 3 = old x
-; ix + 4 = old y
-mouseMove: defb 0,229,190,0,0
-
+; direction - 0 = up, 1 = right, 2 = down, 3 = left
+mouseUpdatesDirection:  defb 2      ; ix
+mouseUpdatesOldPosX:    defb 0      ; ix + 1
+mouseUpdatesNewPosX:    defb levelRightmostPixel - 4    ; ix + 2
+mouseUpdatesOldPosY:    defb 0      ; ix + 3
+mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
 
 ; 3 mouse poses
 ; 3 exit paths -- door on right, below couch middle (maybe any part under couch), mouse hole on left
