@@ -7,6 +7,8 @@ main:
         ;; Setup program state, interrupt handling scheme
         ;; ---------------------------------------------------------------------
 
+        ld SP, $FFEF
+
         ;; TODO: do we need this?
         ld a,2                 ; upper screen
         call openChannel
