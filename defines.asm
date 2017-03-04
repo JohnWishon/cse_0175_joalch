@@ -11,6 +11,9 @@ multiply:       equ $30A9
         ;; ---------------------------------------------------------------------
 newline:        equ 13
 
+        ;; 8 contiguous bytes of %0000$0000
+zeroTile:       equ $3D00
+
         ;; state machine states
 smLoadingScreen: equ %0000$0000
 smGreetzChris:   equ %0000$0001
