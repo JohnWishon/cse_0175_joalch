@@ -24,10 +24,16 @@ smPlayableLevel: equ %0000$1000
 smGameOver:      equ %0000$1001
 
         ;; movement states
-movementStateGround:   equ %0000$0000
-movementStateJumping:  equ %0000$0001
-movementStateFalling:  equ %0000$0010
-movementStateClimbing: equ %0000$0100
+movementStateGround:   equ %0000$0001
+movementStateJumping:  equ %0000$0010
+movementStateFalling:  equ %0000$0100
+movementStateClimbing: equ %0000$1000
+
+        ;; collision states
+collisionStateBlockedUp:        equ %0000$0001
+collisionStateBlockedDown:      equ %0000$0010
+collisionStateBlockedLeft:      equ %0000$0100
+collisionStateBlockedRight:     equ %0000$1000
 
         ;; tile gameplay attributes
 tgaNone:            equ %0000$0000
@@ -47,15 +53,22 @@ catPixelHeight: equ (catHeight << 3)
 
 levelLeftmostCol:     equ 1
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
-levelRightmostCol:    equ 30
+levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 5
 levelTopmostPixel:    equ (levelTopmostRow << 3)
 levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
+levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
+levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
+levelTileWidth:     equ levelRightmostCol - levelLeftmostCol
+levelTileHeight:    equ levelBottommostRow - levelTopmostRow
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
+
+screenTileWidth:    equ 32
+screenTileHeight:   equ 24
 
         ;; ---------------------------------------------------------------------
         ;; Globals
@@ -80,6 +93,7 @@ p1PPressed: defb 0
 p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
+p1CollisionState: defb 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
@@ -89,6 +103,7 @@ p2PPressed: defb 0
 p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
+p2CollisionState: defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -112,32 +127,37 @@ dynamicTileInstanceBase:
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
-        defb HIGH(couchTopDamaged)         ; gameLevel index next
+        defb HIGH(couchTopDamaged) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
-        defw couchTopDestroyed
+        defw staticTileCouchTopDestroyed
         defb tgaStandable | tgaPassable
         defb 0, 0, 0
 couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged)
+        defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
 couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
-        defw couchCushionDestroyed
+        defw staticTileCouchCushionDestroyed
         defb tgaStandable | tgaPassable
         defb 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaClimbable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged)
+        defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
-couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
         defb tgaStandable | tgaClimbable | tgaPassable | 3
-        defw couchCushionDestroyed
+        defw staticTileCouchCushionDestroyed
         defb tgaStandable | tgaClimbable | tgaPassable
+        defb 0, 0, 0
+dynamicTileTestImpassableOneHealth: defb 255, 127, 63, 31, 15, 7, 3, 1, %00$100$010
+        defb tgaStandable | 1
+        defw staticTileTestImpassableDestroyed
+        defb tgaStandable
         defb 0, 0, 0
 
         ;; ... etc ...
@@ -149,9 +169,11 @@ couchSideDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;;   |b0|b1|b2|b3|b4|b5|b6|b7| -> graphics pixel data
         ;;   |attr| -> graphics attribute
 staticTileInstanceBase:
-couchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-couchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileBackground: defb 0, 0, 0, 0, 0, 0, 0, 0, %01$111$111
+staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$010$001
 
         ;; Game state
 
@@ -188,7 +210,8 @@ couchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs ((levelRightmostCol - levelLeftmostCol) * (levelBottommostRow - levelTopmostRow))
+gameLevel: defs (levelTileWidth * levelTileHeight), tgaPassable
+gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
 
@@ -214,6 +237,7 @@ catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
         ;; ...
 catPoseFaceLeft: equ %1000$0000
+catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
 fuP1UpdatesOldPosX:       defb 0

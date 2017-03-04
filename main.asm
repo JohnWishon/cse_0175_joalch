@@ -1,4 +1,6 @@
         org $8000
+        call main
+        include "defines.asm"
 
 main:
         ;; ---------------------------------------------------------------------
@@ -20,6 +22,9 @@ main:
         ei                      ; enable interrupts again
         jp endProg
 
+        call setupGameLogic
+
+	call setupGraphics
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
@@ -29,11 +34,12 @@ updateIteration:
         ;; Read input, update player state
         call updateKeystate    ; TODO: real key update routine
 
-
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
         call updateAI
         call updateCollision
+
+        call updateGameLogic
 
         ;; End of iteration
         ;; Transition the sate machine if needed, halt
@@ -106,16 +112,25 @@ endCheck:
         reti                    ; return from interrupt
 
 endProg:
-        nop
-        jp endProg
+
 
 pretim:
         defb 0
 
+dieLoop:
+        ld de, dieLoopStr
+        ld bc, XdieLoopStr - dieLoopStr
+        call print
+        jp dieLoop
 
-        include "defines.asm"
+dieLoopStr:     defb newline, "die"
+XdieLoopStr:
+        nop
+        jp endProg
+
         include "input.asm"
         include "physics.asm"
         include "ai.asm"
         include "collision.asm"
+        include "gameLogic.asm"
         include "draw.asm"
