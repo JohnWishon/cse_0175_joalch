@@ -7,11 +7,12 @@ main:
         ;; Setup program state, interrupt handling scheme
         ;; ---------------------------------------------------------------------
 
+        ;; TODO: do we need this?
         ld a,2                 ; upper screen
         call openChannel
+        ;; TODO: do we need the above?
 
         call setupGameLogic
-
 	call setupGraphics
 
         di                      ; disable interrupts
@@ -35,7 +36,7 @@ updateIteration:
         ;; TODO: this section
         ;; TODO: multiple update iteration types
         ;; Read input, update player state
-        call updateKeystate    ; TODO: real key update routine
+        call updateKeystate
 
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
@@ -45,27 +46,13 @@ updateIteration:
         call updateGameLogic
 
         ;; End of iteration
-        ;; Transition the sate machine if needed, halt
 
-        ; halt
-        ; jp drawIteration        ; TODO: interrupt handler should handle this
-        ; jp endProg              ; Never return to basic
         ret
 
 drawIteration:
-        ;; Read state machine, jump to correct iteration type
-
-        ;; TODO: this section
-        ;; TODO: potentially multiple draw iteration types (with/without music)
-
 
         ;; Draw the frame
         call drawFrame
-
-        ;; End of iteration
-        ; halt
-        ; jp updateIteration      ; TODO: interrupt handler should handle this
-        ; jp endProg              ; Never return to basic
         ret
 
 interrupt:
