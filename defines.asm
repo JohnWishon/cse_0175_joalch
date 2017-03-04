@@ -52,7 +52,7 @@ catHeight:      equ 2           ; in tiles
 catPixelHeight: equ (catHeight << 3)
 
 levelLeftmostCol:     equ 1
-levelLeftmostPixel:   equ (levelRightmostCol << 3)
+levelLeftmostPixel:   equ (levelLeftmostCol << 3)
 levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 5
