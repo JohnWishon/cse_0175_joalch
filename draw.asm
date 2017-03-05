@@ -1,17 +1,4 @@
 
-drawPNUpdatesTileX:   equ 6
-drawPNUpdatesTileY:   equ 7
-drawPNUpdatesTilePtr: equ 8
-
-drawWriteTileX: equ 0
-drawWriteTileY: equ 1
-drawWriteTilePtr: equ 2
-
-screenAddress: equ $4000
-;screenCellsLength: equ 768
-;screenAttributes: equ MainScreen_Attributes
-;screenAttributesLength: equ 768
-
 setupGraphics:
 
 clearFile:
@@ -49,7 +36,7 @@ drawScreen:
 Repeat:     
   ld a,b
   or c
-  jr z,Finish
+  jp z,Finish
   
   ld a,$30                     
   cp (hl)                        
@@ -59,7 +46,7 @@ Repeat:
   cp (hl)                        
   jr z,Curtain  
 
-  ld a,$4B                     
+  ld a,$0B                     
   cp (hl)                        
   jr z,Fish   
 
@@ -67,11 +54,21 @@ Repeat:
   cp (hl)                        
   jr z,Fish_Tank 
 
-
-
-  ld a,$30                     
+  ld a,$78                     
   cp (hl)                        
-  jr z,Shelf 
+  jr z,Light_Socket 
+
+  ld a,$53                     
+  cp (hl)                        
+  jr z,CouchP
+  
+  ld a,$13                     
+  cp (hl)                        
+  jr z,CouchP
+
+  ld a,$20                     
+  cp (hl)                        
+  jp z,CouchLeg
 
   inc hl                         
   inc de
@@ -79,7 +76,7 @@ Repeat:
 
   ld a,b
   or c
-  jr z, Finish
+  jp z, Finish
 
   jr Repeat
 
@@ -138,7 +135,118 @@ Light_Socket:
   ld ix, MainScreen_LightSocketTile
   jr drawTile	
 
+CouchP:
+  
+  ld a, c
+  cp 246
+  ld ix, couch246
+  jp z, drawTile
+  
+  ld a, 241
+  cp c
+  ld ix, couchSingleLine
+  jp c, drawTile
 
+  ld a, c
+  cp 241
+  ld ix, couch241
+  jp z, drawTile
+
+  ld a, 236
+  cp c
+  ld ix, couchSingleLine
+  jp c, drawTile
+
+  ld a, c
+  cp 236
+  ld ix, couch236
+  jp z, drawTile
+
+  ld a, c
+  cp 215
+  ld ix, couch215
+  jp z, drawTile
+
+  ld a, c
+  cp 209
+  ld ix, couch209
+  jp z, drawTile
+
+  ld a, c
+  cp 203
+  ld ix, couch203
+  jp z, drawTile
+
+  ld a, c
+  cp 183
+  ld ix, couch183
+  jp z, drawTile
+
+  ld a, 177
+  cp c
+  ld ix, couchDoubleLine
+  jp c, drawTile
+
+  ld a, c
+  cp 177
+  ld ix, couch177
+  jp z, drawTile
+
+  ld a, 171
+  cp c
+  ld ix, couchDoubleLine
+  jp c, drawTile
+
+  ld a, c
+  cp 171
+  ld ix, couch171
+  jp z, drawTile
+
+  ld a, c
+  cp 151
+  ld ix, couch151
+  jp z, drawTile
+
+  ld a, 145
+  cp c
+  ld ix, couchDoubleLine
+  jp c, drawTile
+
+  ld a, c
+  cp 145
+  ld ix, couch145
+  jp z, drawTile
+
+  ld a, 139
+  cp c
+  ld ix, couchDoubleLine
+  jp c, drawTile
+
+  ld a, c
+  cp 139
+  ld ix, couch139
+  jp z, drawTile
+
+  inc hl                         
+  inc de
+  dec bc
+  jp Repeat
+
+CouchLeg:
+  ld a, c
+  cp 119
+  ld ix, lpeg
+  jp z, drawTile
+
+  ld a, c
+  cp 107
+  ld ix, rpeg
+  jp z, drawTile
+
+  inc hl                         
+  inc de
+  dec bc
+  jp Repeat
 
 Finish:  
   RET
