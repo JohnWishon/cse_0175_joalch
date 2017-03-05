@@ -83,3 +83,4 @@ XdieLoopStr:
         include "collision.asm"
         include "gameLogic.asm"
         include "draw.asm"
+		include "utilities.asm"
