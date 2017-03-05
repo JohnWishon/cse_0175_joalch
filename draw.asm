@@ -33,6 +33,7 @@ drawBotScreen:
   RET
 
 drawScreen: 
+
 Repeat:     
   ld a,b
   or c
@@ -40,36 +41,54 @@ Repeat:
   
   ld a,$30                     
   cp (hl)                        
-  jr z,Shelf            
+  jp z,Shelf            
 
   ld a,$28                     
   cp (hl)                        
-  jr z,Curtain  
+  jp z,Curtain  
 
   ld a,$0B                     
   cp (hl)                        
-  jr z,Fish   
+  jp z,Fish   
 
   ld a,$0F                     
   cp (hl)                        
-  jr z,Fish_Tank 
+  jp z,Fish_Tank 
 
   ld a,$78                     
   cp (hl)                        
-  jr z,Light_Socket 
+  jp z,Light_Socket 
 
   ld a,$53                     
   cp (hl)                        
-  jr z,CouchP
-  
-  ld a,$13                     
-  cp (hl)                        
-  jr z,CouchP
+  jp z,CouchP
 
   ld a,$20                     
   cp (hl)                        
   jp z,CouchLeg
 
+  ld a, $38
+  cp (hl)
+  jp z,TVCenter
+
+  ld a, $60
+  cp (hl)
+  jp z,TVCenterBase
+
+  ld a, $82
+  cp (hl)
+  jp z,TVCenterBlinker
+  
+  ld a, $40
+  cp d
+  jp z,botf
+  ld a, $48
+  cp d
+  jp z,botf
+  ld a, $70
+  cp (hl)
+  jp z,WallHole
+  botf
   inc hl                         
   inc de
   dec bc
@@ -78,7 +97,7 @@ Repeat:
   or c
   jp z, Finish
 
-  jr Repeat
+  jp Repeat
 
 drawTile:
   ld a, (ix)
@@ -113,27 +132,27 @@ drawTile:
   inc de
   dec bc
 
-  jr Repeat
+  jp Repeat
 
 Curtain:
   ld ix, MainScreen_CurtainTile
-  jr drawTile	
+  jp drawTile	
 
 Shelf:
   ld ix, MainScreen_ShelfTile
-  jr drawTile	
+  jp drawTile	
 
 Fish:
   ld ix, MainScreen_Fish
-  jr drawTile	
+  jp drawTile	
 
 Fish_Tank:
   ld ix, MainScreen_Fish_Tank
-  jr drawTile	
+  jp drawTile	
 
 Light_Socket:
   ld ix, MainScreen_LightSocketTile
-  jr drawTile	
+  jp drawTile	
 
 CouchP:
   
@@ -232,7 +251,7 @@ CouchP:
   dec bc
   jp Repeat
 
-CouchLeg:
+  CouchLeg:
   ld a, c
   cp 119
   ld ix, lpeg
@@ -247,6 +266,201 @@ CouchLeg:
   inc de
   dec bc
   jp Repeat
+
+  TVCenter:
+
+  ld a, c
+  cp 253
+  ld ix, tv253
+  jp z, drawTile
+
+  ld a, c
+  cp 222
+  ld ix, tv222
+  jp z, drawTile
+
+  ld a, c
+  cp 221
+  ld ix, tv221
+  jp z, drawTile
+
+  ld a, c
+  cp 220
+  ld ix, tv220
+  jp z, drawTile
+
+  ld a, c
+  cp 190
+  ld ix, tv190
+  jp z, drawTile
+
+  ld a, c
+  cp 189
+  ld ix, tv189
+  jp z, drawTile
+
+  ld a, c
+  cp 188
+  ld ix, tv188
+  jp z, drawTile
+
+  ld a, c
+  cp 160
+  ld ix, tv160
+  jp z, drawTile
+
+  ld a, c
+  cp 159
+  ld ix, tv159
+  jp z, drawTile
+
+  ld a, c
+  cp 157
+  ld ix, tv157
+  jp z, drawTile
+
+  ld a, c
+  cp 156
+  ld ix, tv156
+  jp z, drawTile
+
+  ld a, c
+  cp 128
+  ld ix, tv128
+  jp z, drawTile
+
+  ld a, c
+  cp 127
+  ld ix, tv127
+  jp z, drawTile
+
+  ld a, c
+  cp 126
+  ld ix, tv126
+  jp z, drawTile
+
+  ld a, c
+  cp 125
+  ld ix, tv125
+  jp z, drawTile
+
+  ld a, c
+  cp 96
+  ld ix, tv96
+  jp z, drawTile
+
+  ld a, c
+  cp 95
+  ld ix, tv95
+  jp z, drawTile
+
+  ld a, c
+  cp 94
+  ld ix, tv94
+  jp z, drawTile
+
+  ld a, c
+  cp 93
+  ld ix, tv93
+  jp z, drawTile
+
+  ld a, c
+  cp 64
+  ld ix, tv64
+  jp z, drawTile
+
+  ld a, c
+  cp 63
+  ld ix, tv63
+  jp z, drawTile
+
+  inc hl                         
+  inc de
+  dec bc
+  jp Repeat
+
+TVCenterBase:
+  ld a, c
+  cp 124
+  ld ix, tv124
+  jp z, drawTile
+
+  ld a, c
+  cp 93
+  ld ix, tv93
+  jp z, drawTile
+
+  ld a, c
+  cp 62
+  ld ix, tv62
+  jp z, drawTile
+
+  ld a, c
+  cp 61
+  ld ix, tv61
+  jp z, drawTile
+
+  ld a, c
+  cp 32
+  ld ix, tv32
+  jp z, drawTile
+
+  ld a, c
+  cp 31
+  ld ix, tv31
+  jp z, drawTile
+
+
+  inc hl                         
+  inc de
+  dec bc
+  jp Repeat
+
+TVCenterBlinker:
+
+  ld a, c
+  cp 158
+  ld ix, tv158
+  jp z, drawTile
+
+
+  inc hl                         
+  inc de
+  dec bc
+  jp Repeat
+
+WallHole:
+
+  ld a, c
+  cp 250
+  ld ix, mh250
+  jp z, drawTile
+
+  cp 218
+  ld ix, mh218
+  jp z, drawTile
+  ld a, c
+
+  ld a, c
+  cp 217
+  ld ix, mh217
+  jp z, drawTile
+
+  ld a, c
+  cp 186
+  ld ix, mh186
+  jp z, drawTile
+  
+  ld a, c
+  cp 185
+  ld ix, mh185
+  jp z, drawTile
+
+  inc hl                         
+  inc de
+  dec bc
+  jp Repeat
+
 
 Finish:  
   RET

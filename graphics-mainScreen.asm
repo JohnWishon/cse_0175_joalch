@@ -23,81 +23,83 @@ MainScreen_LightSocketTile:
 
 MainScreen_WallHole_L:
   ; blocks at pixel positionn (y=0):
-  defb $00, $00, $10, $10, $10, $10, $10, $08
+mh250  defb $00, $00, $10, $10, $10, $10, $10, $08
   ; blocks at pixel positionn (y=8):
-  defb $04, $02, $03, $06, $0A, $12, $27, $20
+mh218  defb $04, $02, $03, $06, $0A, $12, $27, $20
   ; blocks at pixel positionn (y=16):
-  defb $10, $18, $1F, $12, $22, $52, $7F, $7F
+mh186  defb $10, $18, $1F, $12, $22, $52, $7F, $7F
 
 MainScreen_WallHole_R:
   ; blocks at pixel positionn (y=0):
-  defb $00, $00, $00, $00, $00, $00, $00, $00
+;  defb $00, $00, $00, $00, $00, $00, $00, $00
   ; blocks at pixel positionn (y=8):
-  defb $00, $00, $00, $80, $80, $40, $E0, $38
+mh217  defb $00, $00, $00, $80, $80, $40, $E0, $38
   ; blocks at pixel positionn (y=16):
-  defb $24, $24, $FC, $02, $02, $01, $FF, $FF
+mh185  defb $24, $24, $FC, $02, $02, $01, $FF, $FF
 
 MainScreen_TVStand_L:
   ; blocks at pixel positionn (y=0):
-  defb $FF, $FF, $FE, $FC, $F9, $F0, $E0, $C0
+tv222  defb $FF, $FF, $FE, $FC, $F9, $F0, $E0, $C0
   ; blocks at pixel positionn (y=8):
-  defb $82, $81, $80, $FF, $FE, $80, $87, $FF
+tv190  defb $82, $81, $80, $FF, $FE, $80, $87, $FF
   ; blocks at pixel positionn (y=16):
-  defb $FF, $FF, $FF, $FF, $FF, $FF, $EF, $FF
+tv158  defb $FF, $FF, $FF, $FF, $FF, $FF, $EF, $FF
   ; blocks at pixel positionn (y=24):
-  defb $FE, $FC, $F8, $FF, $E0, $C0, $80, $80
+tv126  defb $FE, $FC, $F8, $FF, $E0, $C0, $80, $80
   ; blocks at pixel positionn (y=32):
-  defb $80, $80, $81, $83, $87, $8F, $9F, $BF
+tv94  defb $80, $80, $81, $83, $87, $8F, $9F, $BF
   ; blocks at pixel positionn (y=40):
-  defb $FF, $FF, $FE, $FC, $F8, $F0, $E0, $C0
+tv62  defb $FF, $FF, $FE, $FC, $F8, $F0, $E0, $C0
 
 MainScreen_TVStand_R:
   ; blocks at pixel positionn (y=0):
-  defb $FF, $FF, $FF, $FD, $F9, $F1, $E1, $C1
+tv253  defb $FF, $FF, $FF, $FD, $F9, $F1, $E1, $C1
   ; blocks at pixel positionn (y=8):
-  defb $81, $01, $11, $09, $05, $81, $41, $21
+tv221 defb $81, $01, $11, $09, $05, $81, $41, $21
   ; blocks at pixel positionn (y=16):
-  defb $11, $09, $01, $F9, $19, $79, $F9, $F9
+tv189  defb $11, $09, $01, $F9, $19, $79, $F9, $F9
   ; blocks at pixel positionn (y=24):
-  defb $FB, $FD, $F9, $F1, $E1, $C1, $81, $21
+tv157 defb $FB, $FD, $F9, $F1, $E1, $C1, $81, $21
   ; blocks at pixel positionn (y=32):
-  defb $11, $09, $01, $FF, $07, $0F, $1F, $3F
+tv125  defb $11, $09, $01, $FF, $07, $0F, $1F, $3F
   ; blocks at pixel positionn (y=40):
-  defb $FF, $FF, $FE, $FC, $F8, $F0, $E0, $C0
+tv93  defb $FF, $FF, $FE, $FC, $F8, $F0, $E0, $C0
+
+tv61  defb $80, $00, $00, $00, $00, $00, $00, $00
 
 MainScreen_LSpeaker_L:
   ; blocks at pixel positionn (y=0):
-  defb $07, $0F, $1F, $3F, $7F, $FF, $80, $80
+tv160  defb $07, $0F, $1F, $3F, $7F, $FF, $80, $80
   ; blocks at pixel positionn (y=8):
-  defb $80, $80, $80, $80, $80, $80, $80, $80
+tv128  defb $80, $80, $80, $80, $80, $80, $80, $80
   ; blocks at pixel positionn (y=16):
-  defb $80, $80, $80, $80, $80, $80, $80, $80
+tv96  defb $80, $80, $80, $80, $80, $80, $80, $80
   ; blocks at pixel positionn (y=24):
-  defb $80, $80, $80, $80, $80, $80, $80, $FF
+tv64  defb $80, $80, $80, $80, $80, $80, $80, $FF
   ; blocks at pixel positionn (y=32):
-  defb $FF, $FF, $FF, $FF, $FF, $FF, $00, $00
+tv32  defb $FF, $FF, $FF, $FF, $FF, $FF, $00, $00
 
 MainScreen_LSpeaker_R:
   ; blocks at pixel positionn (y=0):
-  defb $FF, $FF, $FF, $FD, $FF, $F5, $FB, $D5
+tv159  defb $FF, $FF, $FF, $FD, $FF, $F5, $FB, $D5
   ; blocks at pixel positionn (y=8):
-  defb $EF, $D5, $BB, $D5, $EF, $D5, $BB, $D5
+tv127  defb $EF, $D5, $BB, $D5, $EF, $D5, $BB, $D5
   ; blocks at pixel positionn (y=16):
-  defb $BB, $D5, $EF, $D5, $BB, $D5, $EF, $D5
+tv95  defb $BB, $D5, $EF, $D5, $BB, $D5, $EF, $D5
   ; blocks at pixel positionn (y=24):
-  defb $BB, $D7, $EF, $DF, $BF, $FF, $FF, $FF
+tv63  defb $BB, $D7, $EF, $DF, $BF, $FF, $FF, $FF
   ; blocks at pixel positionn (y=32):
-  defb $FE, $FC, $F8, $F0, $E0, $C0, $00, $00
+tv31  defb $FE, $FC, $F8, $F0, $E0, $C0, $00, $00
 
 MainScreen_RSpeaker:
   ; blocks at pixel positionn (y=0):
-  defb $FF, $FF, $FE, $FD, $FA, $F7, $EA, $5D
+tv220  defb $FF, $FF, $FE, $FD, $FA, $F7, $EA, $5D
   ; blocks at pixel positionn (y=8):
-  defb $6A, $77, $6A, $5D, $6A, $5D, $6A, $77
+tv188  defb $6A, $77, $6A, $5D, $6A, $5D, $6A, $77
   ; blocks at pixel positionn (y=16):
-  defb $6A, $5D, $6B, $77, $6F, $5F, $7F, $7F
+tv156  defb $6A, $5D, $6B, $77, $6F, $5F, $7F, $7F
   ; blocks at pixel positionn (y=24):
-  defb $FE, $FC, $F8, $F0, $E0, $C0, $80, $00
+tv124  defb $FE, $FC, $F8, $F0, $E0, $C0, $80, $00
 
 MainScreen_Couch_LArm:
   ; blocks at pixel positionn (y=0):
@@ -185,7 +187,7 @@ MainScreen_Attributes_MID:
 MainScreen_Attributes_BOT:
   attRow17:  defb $00, $00, $00, $38, $70, $70, $70, $70, $70, $70, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $70, $70, $70, $70, $78, $70, $70, $70, $70, $70, $70
   attRow18:  defb $00, $00, $38, $38, $38, $70, $70, $70, $70, $53, $51, $51, $51, $51, $51, $53, $51, $51, $51, $51, $51, $53, $70, $70, $70, $78, $70, $70, $70, $70, $70, $70
-  attRow19:  defb $38, $38, $38, $38, $38, $70, $70, $70, $70, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $70, $70, $70, $70, $70, $70, $70, $70, $70, $70
+  attRow19:  defb $3F, $3F, $38, $38, $38, $70, $70, $70, $70, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $70, $70, $70, $70, $70, $70, $70, $70, $70, $70
   attRow20:  defb $38, $38, $82, $38, $38, $60, $60, $60, $60, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60
   attRow21:  defb $38, $38, $38, $38, $60, $60, $60, $60, $60, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60
   attRow22:  defb $38, $38, $38, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60, $60
