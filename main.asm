@@ -14,9 +14,11 @@ main:
         call openChannel
         ;; TODO: do we need the above?
 
+
         call setupGameLogic
         call setupRenderer
 	call setupGraphics
+
 
         di                      ; disable interrupts
         ld hl, interrupt        ; interrupt handler addr
@@ -110,6 +112,7 @@ endProg:
         nop
         jp endProg
 
+
 pretim:
         defb 0
 
@@ -120,3 +123,6 @@ pretim:
         include "gameLogic.asm"
         include "render.asm"
         include "draw.asm"
+		include "utilities.asm"
+		include "graphics-mainScreen.asm"
+        include "graphics-sprites.asm"

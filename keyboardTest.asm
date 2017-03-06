@@ -1,7 +1,6 @@
     org $8000
-
+    jp  main
     include "defines.asm"
-
 main:
     ;; ---------------------------------------------------------------------
     ;; Setup program state, interrupt handling scheme
@@ -193,4 +192,4 @@ errorstr:
     defb    "Error!", newline
 Xerrorstr:
 
-        include "input.asm"
+    include "input.asm"

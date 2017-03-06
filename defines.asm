@@ -1,6 +1,7 @@
         ;; ---------------------------------------------------------------------
         ;; Functions
         ;; ---------------------------------------------------------------------
+printNumber:    equ $1a1b
 print:          equ $203c
 openChannel:    equ $1601
         ;; HL = HL * DE
@@ -89,10 +90,17 @@ stateMachine:   defb smLoadingScreen
         ;; - the m memory locations at foo now contain 0
         ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]
 
+
+        ;; The three following three constants are used to indicate
+        ;; the states of pXPPressed
+playerNotPunch: equ 0
+playerHiPunch:  equ 1
+playerLowPunch: equ 2
+
 p1StateBase:
 p1DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p1JPressed: defb 0
-p1PPressed: defb 0
+p1PPressed: defb playerNotPunch
 
 p1MovX:     defb 0
 p1MovY:     defb 0
@@ -102,7 +110,7 @@ p1CollisionState: defb 0
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p2JPressed: defb 0
-p2PPressed: defb 0
+p2PPressed: defb playerNotPunch
 
 p2MovX:     defb 0
 p2MovY:     defb 0

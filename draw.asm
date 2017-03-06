@@ -1,57 +1,35 @@
-        include "graphics-sprites.asm"
 
 setupGraphics:
-        ld b, screenTileHeight
-        ld hl, staticTileBackground
-setupGraphicsBackgroundYLoop:
-        ld c, screenTileWidth
-setupGraphicsBackgroundXLoop:
-        dec c
-        push bc
-        dec b
-        push hl
-        call renderFrameWriteTile
-        pop hl
-        pop bc
-        ld a, c
-        cp 0
-        jp nz, setupGraphicsBackgroundXLoop
-        djnz setupGraphicsBackgroundYLoop
 
-        ;; background drawn, now draw level
+clearFile:
+	ld hl,$4000
+	ld de,$4001
+	ld bc,$17FF
+	ld (hl),$00
+	ldir
 
-        ld b, levelTileHeight
-        ld hl, gameLevelEnd
-setupGraphicsLevelYLoop:
-        ld c, levelTileWidth
-setupGraphicsLevelXLoop:
-        dec c
-        dec hl
-        ld a, (HL)
-        and levelDummyTileMask
-        jp z, setupGraphicsLevelSkip
-        ld a, (HL)
-        and levelTileIndexMask
-        push hl
-        ld hl, dynamicTileInstanceBase
-        ld d, 0
-        ld e, a
-        add hl, de
-        push bc
-        dec b
-        ld a, levelLeftmostCol
-        add a, c
-        ld c, a
-        ld a, levelTopmostRow
-        add a, b
-        ld b, a
-        call renderFrameWriteTile
-        pop bc
-        pop hl
-setupGraphicsLevelSkip:
-        ld a, c
-        cp 0
-        jp nz, setupGraphicsLevelXLoop
-        djnz setupGraphicsLevelYLoop
+setAttributeFile:
+	ld hl, MainScreen_Attributes
+	ld de, $5800
+	ld bc, $0300
+	ldir
+
+drawTopScreen:
+  ld hl,MainScreen_Attributes_TOP
+  ld de,$4000
+  ld bc,256
+  call drawScreen
+drawMidScreen:
+  ld hl,MainScreen_Attributes_MID
+  ld de,$4800
+  ld bc,256
+  call drawScreen
+drawBotScreen:
+  ld hl,MainScreen_Attributes_BOT
+  ld de,$5000
+  ld bc,256
+  call drawScreen
+
+  RET
 
         ret
