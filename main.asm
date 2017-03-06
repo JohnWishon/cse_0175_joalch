@@ -7,7 +7,7 @@ main:
         ;; Setup program state, interrupt handling scheme
         ;; ---------------------------------------------------------------------
 
-        ld SP, $FFEF
+        ld SP, $FFEE
 
         ;; TODO: do we need this?
         ld a,2                 ; upper screen
@@ -15,6 +15,7 @@ main:
         ;; TODO: do we need the above?
 
         call setupGameLogic
+        call setupRenderer
 	call setupGraphics
 
         di                      ; disable interrupts
@@ -28,6 +29,7 @@ main:
         ld i, a                 ; set interrupt register
         im 2                    ; interrupt mode 2
         ei                      ; enable interrupts again
+
         jp endProg
 
 
@@ -54,7 +56,8 @@ updateIteration:
 drawIteration:
 
         ;; Draw the frame
-        call drawFrame
+
+        call renderFrame
         ret
 
 interrupt:
@@ -115,4 +118,5 @@ pretim:
         include "ai.asm"
         include "collision.asm"
         include "gameLogic.asm"
+        include "render.asm"
         include "draw.asm"
