@@ -69,8 +69,8 @@ renderFrame:
         ld (IX + renderPNUpdatesTilePtr), HIGH(catOneWalkRight + (8 * 3))
         ld (IX + renderPNUpdatesTilePtr + 1), LOW(catOneWalkRight   + (8 * 3))
 
-        ld a,2              ; 2 is the code for red.
-        out (254),a         ; write to port 254.
+        ;; ld a,2              ; 2 is the code for red.
+        ;; out (254),a         ; write to port 254.
 
         ld b, 100
 wasteTimeLoop:
@@ -162,8 +162,8 @@ wasteTimeLoop:
         ld d, 1
         call renderDrawRectangle
 
-        ld a,1              ; 1 is the code for blue.
-        out (254),a         ; write to port 254.
+        ;; ld a,1              ; 1 is the code for blue.
+        ;; out (254),a         ; write to port 254.
         ret
 
 renderFrameCat:
@@ -183,102 +183,7 @@ renderFrameCat:
         ;; TODO: sprite stuff
         ret
 
-        ;; ---------------------------------------------------------------------
-        ;; readTile
-        ;; ---------------------------------------------------------------------
-        ;; PRE: HL contains pointer to tile to read into
-        ;;      c contains x offset
-        ;;      b contains y offset
-        ;; POST: tile at screen position (x, y) written to address in HL
-renderFrameReadTile:
-        call renderFrameTileAddress
 
-        push bc
-        ld b, 8
-
-renderFrameReadTileChar0:
-        ld a, (de)              ; screen data[i]
-        ld (hl), a              ; copy to tile data[i]
-
-        inc hl
-        inc d
-        djnz renderFrameReadTileChar0
-
-        pop bc
-
-        push hl
-        call renderFrameTileAttrAddress
-        ld a, (hl)              ; a contains attribute
-        pop hl
-        ld (hl), a              ; attribute stored in (hl)
-        ret
-
-        ;; ---------------------------------------------------------------------
-        ;; writeTile
-        ;; ---------------------------------------------------------------------
-        ;; PRE: HL contains pointer to tile to draw
-        ;;      c contains x offset
-        ;;      b contains y offset
-        ;; POST: tile written to screen at (x, y)
-        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
-renderFrameWriteTile:
-        call renderFrameTileAddress ; DE contains pointer to top row of tile
-
-        push bc
-        ld b,8              ; number of pixels high.
-
-renderFrameWriteTileChar0:
-        ld a,(hl)           ; source graphic.
-        ld (de),a           ; transfer to screen.
-        inc hl              ; next piece of data.
-        inc d               ; next pixel line.
-        djnz renderFrameWriteTileChar0 ; repeat
-
-        pop bc
-
-        ld a, (hl)              ; a contains attribute
-        push af
-        call renderFrameTileAttrAddress ; HL contains pointer to attribute
-        pop af
-        ld (hl), a
-        ret
-
-
-
-        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
-renderFrameTileAddress:
-        ld a,b              ; vertical position.
-        and 24              ; which segment, 0, 1 or 2?
-        add a,64            ; 64*256 = 16384, Spectrum's screen memory.
-        ld d,a              ; this is our high byte.
-        ld a,b              ; what was that vertical position again?
-        and 7               ; which row within segment?
-        rrca                ; multiply row by 32.
-        rrca
-        rrca
-        ld e,a              ; low byte.
-        ld a,c              ; add on y coordinate.
-        add a,e             ; mix with low byte.
-        ld e,a              ; address of screen position in de.
-        ret
-
-        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
-renderFrameTileAttrAddress:
-        ld a,b              ; x position.
-        rrca                ; multiply by 32.
-        rrca
-        rrca
-        ld l,a              ; store away in l.
-        and 3               ; mask bits for high byte.
-        add a,88            ; 88*256=22528, start of attributes.
-        ld h,a              ; high byte done.
-        ld a,l              ; get x*32 again.
-        and 224             ; mask low byte.
-        ld l,a              ; put in l.
-        ld a,c              ; get y displacement.
-        add a,l             ; add to low byte.
-        ld l,a              ; hl=address of attributes.
-        ret
 
 
         ;; Some random blocks, used for testing
@@ -687,6 +592,10 @@ renderPrecomputeShiftCatSpriteLoop:
         pop bc
         ret
 
+;;; ----------------------------------------------------------------------------
+;;; Rectangle manipulation
+;;; ----------------------------------------------------------------------------
+
         ;; ---------------------------------------------------------------------
         ;; drawRectangle
         ;; ---------------------------------------------------------------------
@@ -696,7 +605,7 @@ renderPrecomputeShiftCatSpriteLoop:
         ;;      e contains width of rectangle
         ;;      d contains height of rectangle
         ;;      rectangle in range
-        ;; POST: rectangle of tiles at HL drawn to the screen
+        ;; POST: rectangle of tile pixel data at HL drawn to the screen
 renderDrawRectangle:
         ld a, e
         ld (renderDrawRectangleOriginalWidth), a
@@ -715,15 +624,15 @@ renderDrawRectangleXLoop:
         ;; hl contains current tile
         push de
         push hl
-        call renderFrameWriteTile
+        call renderFrameWriteTilePixels
         pop hl
         pop de
 
         push de
-        ld de, 9
+        ld de, 8
         add hl, de               ; advance to next tile
         pop de
-        ;; hl contains hl + 9
+        ;; hl contains hl + 8
 
         inc c
         dec e
@@ -750,7 +659,7 @@ renderDrawRectangleOriginalX:        defb 0
         ;;      e contains width of rectangle
         ;;      d contains height of rectangle
         ;;      rectangle in range
-        ;; POST: rectangle of tiles at screen location
+        ;; POST: rectangle of tile pixel data at screen location
         ;;       ((x, y),(x + width, y + height)) written to HL
 renderReadRectangle:
         ld a, e
@@ -770,15 +679,15 @@ renderReadRectangleXLoop:
         ;; hl contains current tile
         push de
         push hl
-        call renderFrameReadTile
+        call renderFrameReadTilePixels
         pop hl
         pop de
 
         push de
-        ld de, 9
+        ld de, 8
         add hl, de               ; advance to next tile
         pop de
-        ;; hl contains hl + 9
+        ;; hl contains hl + 8
 
         inc c
         dec e
@@ -795,3 +704,142 @@ renderReadRectangleXLoop:
 
 renderReadRectangleOriginalWidth:    defb 0
 renderReadRectangleOriginalX:        defb 0
+
+;;; ----------------------------------------------------------------------------
+;;; Tile manipulation
+;;; ----------------------------------------------------------------------------
+
+        ;; ---------------------------------------------------------------------
+        ;; readTile
+        ;; ---------------------------------------------------------------------
+        ;; PRE: HL contains pointer to tile to read into
+        ;;      c contains x offset
+        ;;      b contains y offset
+        ;; POST: tile at screen position (x, y) written to address in HL
+renderFrameReadTile:
+        call renderFrameReadTilePixels
+        call renderFrameReadTileAttribute
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; readTilePixels
+        ;; ---------------------------------------------------------------------
+        ;; PRE: HL contains pointer to tile to read into
+        ;;      c contains x offset
+        ;;      b contains y offset
+        ;; POST: tile pixel data at screen position (x, y) written to (HL)
+renderFrameReadTilePixels:
+        call renderFrameTileAddress
+        push bc
+        ld b, 8
+renderFrameReadTilePixelsLoop:
+        ld a, (de)              ; screen data[i]
+        ld (hl), a              ; copy to tile data[i]
+        inc hl
+        inc d
+        djnz renderFrameReadTilePixelsLoop
+        pop bc
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; readTileAttribute
+        ;; ---------------------------------------------------------------------
+        ;; PRE: HL contains pointer to tile to read into
+        ;;      c contains x offset
+        ;;      b contains y offset
+        ;; POST: tile Attribute at screen position (x, y) written to (HL)
+renderFrameReadTileAttribute:
+        push hl
+        call renderFrameTileAttrAddress
+        ld a, (hl)              ; a contains attribute
+        pop hl
+        ld (hl), a              ; attribute stored in (hl)
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; writeTile
+        ;; ---------------------------------------------------------------------
+        ;; PRE: HL contains pointer to tile to draw
+        ;;      c contains x offset
+        ;;      b contains y offset
+        ;; POST: tile written to screen at (x, y)
+        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
+renderFrameWriteTile:
+        call renderFrameWriteTilePixels
+        call renderFrameWriteTileAttribute
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; writeTilePixels
+        ;; ---------------------------------------------------------------------
+        ;; PRE: HL contains pointer to tile pixel data to draw
+        ;;      c contains x offset
+        ;;      b contains y offset
+        ;; POST: tile pixel data written to screen at (x, y)
+        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
+renderFrameWriteTilePixels:
+        call renderFrameTileAddress ; DE contains pointer to top row of tile
+
+        push bc
+        ld b,8              ; number of pixels high.
+
+renderFrameWriteTilePixelsLoop:
+        ld a,(hl)           ; source graphic.
+        ld (de),a           ; transfer to screen.
+        inc hl              ; next piece of data.
+        inc d               ; next pixel line.
+        djnz renderFrameWriteTilePixelsLoop ; repeat
+
+        pop bc
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; writeTileAttribute
+        ;; ---------------------------------------------------------------------
+        ;; PRE: HL contains pointer to tile attribute to draw
+        ;;      c contains x offset
+        ;;      b contains y offset
+        ;; POST: tile attribute written to screen at (x, y)
+        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
+renderFrameWriteTileAttribute:
+        ld a, (hl)              ; a contains attribute
+        push af
+        call renderFrameTileAttrAddress ; HL contains pointer to attribute
+        pop af
+        ld (hl), a
+        ret
+
+        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
+renderFrameTileAddress:
+        ld a,b              ; vertical position.
+        and 24              ; which segment, 0, 1 or 2?
+        add a,64            ; 64*256 = 16384, Spectrum's screen memory.
+        ld d,a              ; this is our high byte.
+        ld a,b              ; what was that vertical position again?
+        and 7               ; which row within segment?
+        rrca                ; multiply row by 32.
+        rrca
+        rrca
+        ld e,a              ; low byte.
+        ld a,c              ; add on y coordinate.
+        add a,e             ; mix with low byte.
+        ld e,a              ; address of screen position in de.
+        ret
+
+        ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
+renderFrameTileAttrAddress:
+        ld a,b              ; x position.
+        rrca                ; multiply by 32.
+        rrca
+        rrca
+        ld l,a              ; store away in l.
+        and 3               ; mask bits for high byte.
+        add a,88            ; 88*256=22528, start of attributes.
+        ld h,a              ; high byte done.
+        ld a,l              ; get x*32 again.
+        and 224             ; mask low byte.
+        ld l,a              ; put in l.
+        ld a,c              ; get y displacement.
+        add a,l             ; add to low byte.
+        ld l,a              ; hl=address of attributes.
+        ret

@@ -31,5 +31,3 @@ drawBotScreen:
   call drawScreen
 
   RET
-
-        ret
