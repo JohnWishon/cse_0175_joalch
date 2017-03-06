@@ -2,14 +2,15 @@
 .PHONY := all build rebuild clean run
 
 PROG_NAME = catastrophe
-TEST_PROG_TAP = keyboardTest.tap physicsTest.tap
-TEST_PROG_BIN = keyboardTest.bin physicsTest.bin
+TEST_PROG_TAP = keyboardTest.tap physicsTest.tap aiTest.tap
+TEST_PROG_BIN = keyboardTest.bin physicsTest.bin aiTest.bin
 RES_DIR = res
 
 ASM = pasmo
 ASM_FLAGS = --bin
 MAIN_FILE = main.asm
-ASM_FILES = defines.asm input.asm physics.asm ai.asm collision.asm draw.asm
+ASM_FILES = defines.asm input.asm physics.asm ai.asm collision.asm draw.asm \
+gameLogic.asm
 
 APPMAKE = appmake
 APPMAKE_FLAGS = +zx --org 32768
