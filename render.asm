@@ -72,6 +72,38 @@ renderFrame:
         ld a,2              ; 2 is the code for red.
         out (254),a         ; write to port 254.
 
+        ld b, 100
+wasteTimeLoop:
+        nop
+        nop
+        nop
+        djnz wasteTimeLoop
+
+        ;; TODO: erase mouse
+        ld hl, catCanvas
+        ld c, 2
+        ld b, 3
+        ld e, 3
+        ld d, 1
+        call renderDrawRectangle
+
+        ;; TODO: erase cat 2
+        ld hl, catCanvas
+        ld c, 2
+        ld b, 3
+        ld e, 4
+        ld d, 3
+        call renderDrawRectangle
+
+        ;; TODO: erase cat 1
+        ld hl, catCanvas
+        ld c, 2
+        ld b, 3
+        ld e, 4
+        ld d, 3
+        call renderDrawRectangle
+
+        ;; TODO: read area behind cat 1
         ld hl, catCanvas
         ld c, 0
         ld b, 0
@@ -83,6 +115,7 @@ renderFrame:
         ld IX, fuP1UpdatesBase
         call renderFrameCat
 
+        ;; TODO: draw cat 1
         ld hl, catCanvas
         ld c, 2
         ld b, 3
@@ -90,10 +123,44 @@ renderFrame:
         ld d, 3
         call renderDrawRectangle
 
+
+        ;; TODO: read area behind cat 2
+        ld hl, catCanvas
+        ld c, 0
+        ld b, 0
+        ld e, 4
+        ld d, 3
+        call renderReadRectangle
+
         ;; draw cat 2
         ld IX, fuP2UpdatesBase
         call renderFrameCat
+
+        ;; TODO: draw cat 2
+        ld hl, catCanvas
+        ld c, 2
+        ld b, 3
+        ld e, 4
+        ld d, 3
+        call renderDrawRectangle
+
+        ;; TODO: read area behind mouse
+        ld hl, catCanvas
+        ld c, 0
+        ld b, 0
+        ld e, 3
+        ld d, 1
+        call renderReadRectangle
+
         ;; TODO: draw mice
+
+        ;; TODO: draw mouse
+        ld hl, catCanvas
+        ld c, 2
+        ld b, 3
+        ld e, 3
+        ld d, 1
+        call renderDrawRectangle
 
         ld a,1              ; 1 is the code for blue.
         out (254),a         ; write to port 254.
