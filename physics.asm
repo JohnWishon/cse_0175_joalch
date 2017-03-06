@@ -18,7 +18,7 @@ phys_routine_body:
     jp  nz,phys_not_clear_vert_speed    ; Don't clear vertical speed. Climbing handles
                                         ; its own case
     ld  (ix+7),0
-phys_not_clear_vert_speed
+phys_not_clear_vert_speed:
     xor a
     add a,(ix+2)
     call nz,phys_setNegX    ; Left pressed
@@ -103,6 +103,9 @@ phys_handle_fall:
 
 phys_handle_jumpstate:
     dec (ix+7)                  ; Decelerate the cat vertically
+        ; Changing deceleration speed to N times of original -> max height to 1/N of original
+        ; Deducted from 0.5mv^2 = mgh and that the deceleration is proportional to gravity;
+        ; 0.5mv^2 = mgh = mgh*N/N = m(Ng)(h/N)
     ret nz                      ; Change to falling state if v-speed hits 0
     ld  (ix+8),movementStateFalling
     ret
@@ -115,10 +118,17 @@ phys_handle_fallstate:
     ret
 
 phys_setPunch:
-    ;ld  (hl),0
-    ; Last line TBD by whether we want in-air flying punch
+    ; Upon entering this subroutine, a should contain 1 = (ix+5)
+    add  a,(ix+1)   ; ix + 1 = down pressed;
+                    ; if ix + 1 == 0 (down not pressed), punch state = hi punch = 1 = 1 + 0
+                    ; if ix + 1 == 1 (down pressed), punch state = low punch = 2 = 1 + 1
+    ld  (ix+5), a   ; save the change
+    ld  (ix+1), 0   ; Clears down press to avoid interfering with drop logic.
     ret
+
 phys_jump_init_speed:   equ 8
+    ; Changing init speed to N times of original -> max height to N^2 of original
+    ; Deducted from 0.5mv^2 = mgh; 0.5m(Nv)^2 = 0.5mv^2*N^2 = mgh*N^2 = mg(N^2*h)
 phys_fall_max_speed:    equ -12
-phys_cat_hori_speed:    equ 1
+phys_cat_hori_speed:    equ 2
 phys_cat_vert_speed:    equ 1

@@ -1,7 +1,7 @@
     org $8000
 
+    jp  main
     include "defines.asm"
-
 main:
     ;; ---------------------------------------------------------------------
     ;; Setup program state, interrupt handling scheme
@@ -161,7 +161,7 @@ test_phys_yes_vert_halt2:
     ld  (p2MovementState),a
 test_phys_no_vert_halt2:
     ld  a,(horictr)
-    cp  25
+    cp  24
     jp  nz,test_phys_no_hori_halt1
     ld  a,0
     ld  (horictr),a
@@ -169,7 +169,7 @@ test_phys_no_vert_halt2:
     ld  (p1MovementState),a
 test_phys_no_hori_halt1:
     ld  a,(horictr+1)
-    cp  25
+    cp  24
     jp  nz,test_phys_no_hori_halt2
     ld  a,0
     ld  (horictr+1),a
@@ -219,5 +219,5 @@ vertctr:
 horictr:
     defb    0,0
 
-        include "input.asm"
-        include "physics.asm"
+    include "input.asm"
+    include "physics.asm"
