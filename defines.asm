@@ -106,6 +106,8 @@ p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
 p1CollisionState: defb 0
+p1PunchX:         defb 0
+p1PunchY:         defb 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
@@ -116,6 +118,8 @@ p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
 p2CollisionState: defb 0
+p2PunchX:         defb 0
+p2PunchY:         defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
