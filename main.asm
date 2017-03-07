@@ -42,8 +42,9 @@ updateIteration:
         ;; TODO: this section
         ;; TODO: multiple update iteration types
         ;; Read input, update player state
-        call updateKeystate
 
+        call updateKeystate
+        ret
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
         call updateAI

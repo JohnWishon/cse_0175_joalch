@@ -1,6 +1,16 @@
+renderPNUpdatesOldPosX: equ 0
+renderPNUpdatesNewPosX: equ 1
+renderPNUpdatesOldPosY: equ 2
+renderPNUpdatesNewPosY: equ 3
+renderPNUpdatesOldPose: equ 4
+renderPNUpdatesNewPose: equ 5
 renderPNUpdatesTileX:   equ 6
 renderPNUpdatesTileY:   equ 7
 renderPNUpdatesTilePtr: equ 8
+renderPNUpdatesOldTilePosX: equ 10
+renderPNUpdatesNewTilePosX: equ 11
+renderPNUpdatesOldTilePosY: equ 12
+renderPNUpdatesNewTilePosY: equ 13
 
 renderWriteTileX: equ 0
 renderWriteTileY: equ 1
@@ -10,7 +20,7 @@ renderCatMouseNumShifts:  equ 4
 renderCatMouseNumFacings: equ 2
 
 renderBuffersBegin:
-catOneSprites:
+catOneSprites: equ $C000
 catOneWalkLeft: equ $C000
 catOneJumpLeft: equ $C138
 catOneAttackHighLeft: equ $C270
@@ -19,34 +29,31 @@ catOneWalkRight: equ $C4E0
 catOneJumpRight: equ $C618
 catOneAttackHighRight: equ $C750
 catOneAttackLowRight: equ $C888
-
 catOneHandLeft: equ $C9C0
 catOneHandRight: equ $CA50
+catOneBgCache: equ $CAE0
 
 catTwoSprites:
-catTwoWalkLeft: equ $CAE0
-catTwoJumpLeft: equ $CC18
-catTwoAttackHighLeft: equ $CD50
-catTwoAttackLowLeft: equ $CE88
-catTwoWalkRight: equ $CFC0
-catTwoJumpRight: equ $D0F8
-catTwoAttackHighRight: equ $D230
-catTwoAttackLowRight: equ $D368
-
-catTwoHandLeft: equ $D4A0
-catTwoHandRight: equ $D530
+catTwoWalkLeft: equ $CB40
+catTwoJumpLeft: equ $CC78
+catTwoAttackHighLeft: equ $CDB0
+catTwoAttackLowLeft: equ $CEE8
+catTwoWalkRight: equ $D020
+catTwoJumpRight: equ $D158
+catTwoAttackHighRight: equ $D290
+catTwoAttackLowRight: equ $D3C8
+catTwoHandLeft: equ $D500
+catTwoHandRight: equ $D590
+catTwoBgCache: equ $D620
 
 mouseSprites:
-mouseWalkLeft: equ $D5C0
-mouseWalkRight: equ $D628
+mouseWalkLeft: equ $D680
+mouseWalkRight: equ $D6E8
+mouseBgCache: equ $D750
 
-catOneBgCache: equ $D690
-catTwoBgCache: equ $D6FC
-mouseBgCache: equ $D768
-
-catCanvas: equ $D783
-mouseCanvas: equ $D7EF
-renderBuffersEnd: equ $D80A
+catCanvas: equ $D768
+mouseCanvas: equ $D7C8
+renderBuffersEnd: equ $D7E0
 
 setupRenderer:
         call renderPrecomputeSprites
@@ -57,110 +64,179 @@ renderFrame:
         ;; manual create an update for testing purposes
 
 
-        ld IX, fuP1UpdatesBase
-        ld (IX + renderPNUpdatesTileX), 0
-        ld (IX + renderPNUpdatesTileY), 0
-        ld (IX + renderPNUpdatesTilePtr), HIGH(cat1SpritesWalk)
-        ld (IX + renderPNUpdatesTilePtr + 1), LOW(cat1SpritesWalk)
+        ;; ld IX, fuP1UpdatesBase
+        ;; ld (IX + renderPNUpdatesTileX), 0
+        ;; ld (IX + renderPNUpdatesTileY), 0
+        ;; ld (IX + renderPNUpdatesTilePtr), HIGH(cat1SpritesWalk)
+        ;; ld (IX + renderPNUpdatesTilePtr + 1), LOW(cat1SpritesWalk)
 
-        ld IX, fuP2UpdatesBase
-        ld (IX + renderPNUpdatesTileX), 3
-        ld (IX + renderPNUpdatesTileY), 0
-        ld (IX + renderPNUpdatesTilePtr), HIGH(catOneWalkRight + (8 * 3))
-        ld (IX + renderPNUpdatesTilePtr + 1), LOW(catOneWalkRight   + (8 * 3))
+        ;; ld IX, fuP2UpdatesBase
+        ;; ld (IX + renderPNUpdatesTileX), 3
+        ;; ld (IX + renderPNUpdatesTileY), 0
+        ;; ld (IX + renderPNUpdatesTilePtr), HIGH(catOneWalkRight + (8 * 3))
+        ;; ld (IX + renderPNUpdatesTilePtr + 1), LOW(catOneWalkRight   + (8 * 3))
 
         ;; ld a,2              ; 2 is the code for red.
         ;; out (254),a         ; write to port 254.
 
-        ld b, 100
-wasteTimeLoop:
-        nop
-        nop
-        nop
-        djnz wasteTimeLoop
+        ;; clear old sprites
 
-        ;; TODO: erase mouse
-        ld hl, catCanvas
-        ld c, 2
-        ld b, 3
+        ;; erase mouse
+        ;; ld hl, mouseBgCache
+        ;; ld a, (mouseUpdatesOldTilePosX)
+        ;; add a, levelLeftmostCol
+        ;; ld c, a
+        ;; ld a, (mouseUpdatesOldTilePosY)
+        ;; add a, levelTopmostRow
+        ;; ld b, a
+        ;; ld e, 3
+        ;; ld d, 1
+        ;; call renderDrawRectangle
+
+        ;; erase cat 2
+        ld hl, catTwoBgCache
+        ld a, (fuP2UpdatesOldTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP2UpdatesOldTilePosY)
+        add a, levelTopmostRow
+        ld b, a
         ld e, 3
-        ld d, 1
-        call renderDrawRectangle
-
-        ;; TODO: erase cat 2
-        ld hl, catCanvas
-        ld c, 2
-        ld b, 3
-        ld e, 4
         ld d, 3
         call renderDrawRectangle
 
-        ;; TODO: erase cat 1
-        ld hl, catCanvas
-        ld c, 2
-        ld b, 3
-        ld e, 4
+        ;; erase cat 1
+        ld hl, catOneBgCache
+        ld a, (fuP1UpdatesOldTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP1UpdatesOldTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
         ld d, 3
         call renderDrawRectangle
+
+        ;; Tile updates
+
+        ;; draw cat 1's tile updates
+        ld hl, (fuP1UpdatesTileChangePtr)
+        ld a, h
+        or l
+        jp z, renderFrameCat1NoTileUpdate
+
+        ld a, (fuP1UpdatesTileChangeX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP1UpdatesTileChangeY)
+        add a, levelTopmostRow
+        ld b, a
+        call renderFrameWriteTile
+renderFrameCat1NoTileUpdate:
+
+        ;; draw cat 2's tile updates
+        ld hl, (fuP2UpdatesTileChangePtr)
+        ld a, h
+        or l
+        jp z, renderFrameCat2NoTileUpdate
+
+        ld a, (fuP2UpdatesTileChangeX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP2UpdatesTileChangeY)
+        add a, levelTopmostRow
+        ld b, a
+        call renderFrameWriteTile
+renderFrameCat2NoTileUpdate:
+
+        ;; draw new sprites
 
         ;; TODO: read area behind cat 1
-        ld hl, catCanvas
-        ld c, 0
-        ld b, 0
-        ld e, 4
+        ld hl, catOneBgCache
+        ld a, (fuP1UpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
         ld d, 3
         call renderReadRectangle
 
-        ;; draw cat 1
-        ld IX, fuP1UpdatesBase
-        call renderFrameCat
+        ;; TODO: populate catCanvas
+        ld ix, fuP1UpdatesBase
+        ld de, catOneBgCache
+        ld hl, catOneSprites
+        call renderFrameBuildCat
 
         ;; TODO: draw cat 1
         ld hl, catCanvas
-        ld c, 2
-        ld b, 3
-        ld e, 4
+        ld a, (fuP1UpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
         ld d, 3
         call renderDrawRectangle
 
 
         ;; TODO: read area behind cat 2
-        ld hl, catCanvas
-        ld c, 0
-        ld b, 0
-        ld e, 4
+        ld hl, catTwoBgCache
+        ld a, (fuP2UpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
         ld d, 3
         call renderReadRectangle
 
-        ;; draw cat 2
-        ld IX, fuP2UpdatesBase
-        call renderFrameCat
+        ;; TODO: populate catCanvas
+        ld ix, fuP2UpdatesBase
+        ld de, catTwoBgCache
+        ld hl, catTwoSprites
+        call renderFrameBuildCat
 
         ;; TODO: draw cat 2
         ld hl, catCanvas
-        ld c, 2
-        ld b, 3
-        ld e, 4
+        ld a, (fuP2UpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
         ld d, 3
         call renderDrawRectangle
 
         ;; TODO: read area behind mouse
-        ld hl, catCanvas
-        ld c, 0
-        ld b, 0
-        ld e, 3
-        ld d, 1
-        call renderReadRectangle
+        ;; ld hl, mouseBgCache
+        ;; ld a, (mouseUpdatesNewTilePosX)
+        ;; add a, levelLeftmostCol
+        ;; ld c, a
+        ;; ld a, (mouseUpdatesNewTilePosY)
+        ;; add a, levelTopmostRow
+        ;; ld b, a
+        ;; ld e, 3
+        ;; ld d, 1
+        ;; call renderReadRectangle
 
-        ;; TODO: draw mice
+        ;; ;; TODO: draw mice
 
-        ;; TODO: draw mouse
-        ld hl, catCanvas
-        ld c, 2
-        ld b, 3
-        ld e, 3
-        ld d, 1
-        call renderDrawRectangle
+        ;; ;; TODO: draw mouse
+        ;; ld hl, mouseCanvas
+        ;; ld a, (mouseUpdatesNewTilePosX)
+        ;; add a, levelLeftmostCol
+        ;; ld c, a
+        ;; ld a, (mouseUpdatesNewTilePosY)
+        ;; add a, levelTopmostRow
+        ;; ld b, a
+        ;; ld e, 3
+        ;; ld d, 1
+        ;; call renderDrawRectangle
 
         ;; ld a,1              ; 1 is the code for blue.
         ;; out (254),a         ; write to port 254.
@@ -248,7 +324,7 @@ renderTempMouse:
         ;; POST: Sprite layout lookup table populated
 renderPrecomputeSprites:
         ld b, renderCatMouseNumShifts
-        ld ix, 0
+        ld ix, 24
         jp renderPrecomputeSpritesCopyLoopFirstIter
 renderPrecomputeSpritesCopyLoop:
         ld de, 9 * 8
@@ -258,77 +334,77 @@ renderPrecomputeSpritesCopyLoopFirstIter:
         ;; Walk
         ld de, catOneWalkLeft
         ld hl, cat1SpritesWalk
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catOneWalkRight
         ld hl, cat1SpritesWalk
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkLeft
         ld hl, cat2SpritesWalk
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkRight
         ld hl, cat2SpritesWalk
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ;; Jump
         ld de, catOneJumpLeft
         ld hl, cat1SpritesJump
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catOneJumpRight
         ld hl, cat1SpritesJump
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpLeft
         ld hl, cat2SpritesJump
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpRight
         ld hl, cat2SpritesJump
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ;; Attack High
         ld de, catOneAttackHighLeft
         ld hl, cat1SpritesAttackHigh
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackHighRight
         ld hl, cat1SpritesAttackHigh
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighLeft
         ld hl, cat2SpritesAttackHigh
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighRight
         ld hl, cat2SpritesAttackHigh
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ;; Attack Low
         ld de, catOneAttackLowLeft
         ld hl, cat1SpritesAttackLow
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackLowRight
         ld hl, cat1SpritesAttackLow
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowLeft
         ld hl, cat2SpritesAttackLow
-        call renderPrecomputeCopyLeftCatSprite
+        call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowRight
         ld hl, cat2SpritesAttackLow
-        call renderPrecomputeCopyRightCatSprite
+        call renderPrecomputeCopyCatSprite
 
         pop bc
         dec b
 
         jp nz, renderPrecomputeSpritesCopyLoop
         ld b, 0
-        ld hl, 0
+        ld hl, 24
 renderPrecomputeSpritesShiftLoop:
         push bc
         ld bc, 9 * 8
@@ -415,14 +491,13 @@ renderPrecomputeSpritesShiftLoopEnd:
         ret
 
         ;; ---------------------------------------------------------------------
-        ;;  copyRightCatSprite
+        ;;  copyCatSprite
         ;; ---------------------------------------------------------------------
-        ;; PRE: de contains destination of right facing cat-sized sprite
-        ;;      hl contains source of left facing cat-sized sprite
-        ;;      location at de is zero-filled
+        ;; PRE: de contains destination of cat-sized sprite
+        ;;      hl contains source of cat-sized sprite
         ;;      IX contains offset past de to write to
-        ;; POST: sprite copied and mirrored renderCatMouseNumShifts times
-renderPrecomputeCopyRightCatSprite:
+        ;; POST: sprite copied
+renderPrecomputeCopyCatSprite:
         push hl
 
         push ix                 ; put value in IX on stack
@@ -435,111 +510,49 @@ renderPrecomputeCopyRightCatSprite:
         ;; de contains de + ix (dest + dest offset)
         ;; hl contains original source value
 
+        ;; blank
         push hl
-        ld b, 3
-renderPrecomputeCopyRightCatSpriteTopRowLoop:
-        push bc
         ld hl, zeroTile
         ld bc, 8
         ldir
-        pop bc
-        djnz renderPrecomputeCopyRightCatSpriteTopRowLoop
         pop hl
-        ;; hl contains pointer to first byte of source tile 1
-        ;; de contains pointer to first byte of destination tile 4
 
-        ld bc, 15
+        ;; hl contains tile 0
+        ld bc, 8
+        ldir
+
+        push hl
+        ld bc, 8
         add hl, bc
-        ex de, hl
-        ;; hl contains pointer to first byte of destination tile 4
-        ;; de contains pointer to last byte of source tile 2
-        ld b, 16
-renderPrecomputeCopyRightCatSpriteMiddleRowLoop:
-        ld a, (de)
-        ld (hl), a
-        dec de
-        inc hl
-        djnz renderPrecomputeCopyRightCatSpriteMiddleRowLoop
+        ;; hl contains tile 2
+        ld bc, 8
+        ldir
 
-        ;; hl contains pointer to first byte of destination tile 6
-        ;; de contains pointer to byte prior to first byte of source
+        ;; blank
+        push hl
+        ld hl, zeroTile
+        ld bc, 8
+        ldir
+        pop hl
 
-        ex de, hl
-        ld bc, 32
+        pop hl
+        ;; hl contains tile 1
+
+        ld bc, 8
+        ldir
+
+        ld bc, 16
         add hl, bc
-
-        ;; de contains pointer to first byte of destination tile 6
-        ;; hl contains pointer to last byte of source tile 4
-
-        push hl
-        ld hl, zeroTile
         ld bc, 8
+        ;; hl contains tile 3
         ldir
-        pop hl
-
-        ex de, hl
-
-        ;; hl contains pointer to first byte of destination tile 7
-        ;; de contains pointer to last byte of source tile 4
-
-        ld b, 16
-renderPrecomputeCopyRightCatSpriteBottomRowLoop:
-        ld a, (de)
-        ld (hl), a
-        dec de
-        inc hl
-        djnz renderPrecomputeCopyRightCatSpriteBottomRowLoop
-
-        ex de, hl
 
         ld hl, zeroTile
         ld bc, 8
         ldir
 
-        ret
-
-        ;; ---------------------------------------------------------------------
-        ;;  copyLeftCatSprite
-        ;; ---------------------------------------------------------------------
-        ;; PRE: de contains destination of left facing cat-sized sprite
-        ;;      hl contains source of left facing cat-sized sprite
-        ;;      location at de is zero-filled
-        ;;      IX contains offset past de to write to
-        ;; POST: sprite copied renderCatMouseNumShifts times
-renderPrecomputeCopyLeftCatSprite:
-        push hl
-
-        push ix                 ; put value in IX on stack
-        pop hl                  ; pull it back off into HL
-        add hl, de
-        ex de, hl
-
-        pop hl
-
-        ;; de contains de + ix (dest + dest offset)
-        ;; hl contains original source value
-
-        push hl
-        ld b, 3
-renderPrecomputeCopyLeftCatSpriteTopRowLoop:
-        push bc
         ld hl, zeroTile
         ld bc, 8
-        ldir
-        pop bc
-        djnz renderPrecomputeCopyLeftCatSpriteTopRowLoop
-        pop hl
-
-        ld bc, 8 * 2
-        ldir
-
-        push hl
-        ld hl, zeroTile
-        ld bc, 8
-        ldir
-        pop hl
-
-        ld bc, 8 * 2
         ldir
 
         ld hl, zeroTile
@@ -842,4 +855,181 @@ renderFrameTileAttrAddress:
         ld a,c              ; get y displacement.
         add a,l             ; add to low byte.
         ld l,a              ; hl=address of attributes.
+        ret
+
+;;; ----------------------------------------------------------------------------
+;;; Canvas building
+;;; ----------------------------------------------------------------------------
+
+        ;; ---------------------------------------------------------------------
+        ;; buildCat
+        ;; ---------------------------------------------------------------------
+        ;; PRE: IX contains fuPNUpdatesBase
+        ;;      DE contains catNBgCache
+        ;;      HL contains catNSprites
+        ;;      N = 1 or 2
+        ;; POST: catCanvas contains tile data suitable for drawRectangle
+renderFrameBuildCat:
+        push de
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseFaceLeft
+        jp nz, renderFrameBuildCatFacingLeft
+        ;; If we're here, cat facing right
+
+        ld de, catOneWalkRight - catOneSprites ; de contains offset of right
+        ;; right-facing sprites
+        add hl, de              ; hl points to beginning of right-facing sprites
+renderFrameBuildCatFacingLeft:
+
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseAttackLow
+        jp nz, renderFrameBuildCatAttackLow
+
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseAttack
+        jp nz, renderFrameBuildCatAttack
+
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseJump
+        jp nz, renderFrameBuildCatJump
+
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseClimb
+        jp nz, renderFrameBuildCatClimb
+
+        jp renderFrameBuildCatWalk
+
+renderFrameBuildCatAttackLow:
+        ld de, catOneAttackLowLeft - catOneSprites + 24
+        add hl, de
+        jp renderFrameBuildCatPoseSet
+renderFrameBuildCatAttack:
+        ld de, catOneAttackHighLeft - catOneSprites + 24
+        add hl, de
+        jp renderFrameBuildCatPoseSet
+renderFrameBuildCatJump:
+        ld de, catOneJumpLeft - catOneSprites + 24
+        add hl, de
+        jp renderFrameBuildCatPoseSet
+renderFrameBuildCatClimb:
+        ;; TODO
+renderFrameBuildCatWalk:
+        ld de, catOneWalkLeft - catOneSprites + 24
+        add hl, de
+
+renderFrameBuildCatPoseSet:
+        ;; At this point, HL points to the beginning of the sprite sequence
+        ;; of the correct pose
+
+        ld a, (IX + renderPNUpdatesNewPosX)
+        and %0000$0110          ; posX can be X0, X2, X4, or X6
+
+        jp z, renderFrameBuildCatSelectY ; if a == 0, then hl is on correct idx
+
+        srl a                    ; a contains 0, 1, 2, or 3
+        ld b, a                 ; b contains 0 .. 4
+renderFrameBuildCatSelectXLoop:
+        ld de, 9 * 8
+        add hl, de
+        djnz renderFrameBuildCatSelectXLoop
+
+renderFrameBuildCatSelectY:
+        ;; HL points to correct sprite in sequence
+
+        ld a, (IX + renderPNUpdatesNewPosY)
+        and %0000$0111
+        ld bc, 0
+        ld c, a
+        add hl, bc              ; hl now points to correct sprite
+
+
+
+        ;; top left
+        push hl
+        ld de, catCanvas
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; middle left
+        push hl
+        ld bc, 24
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom left
+        push hl
+        ld bc, 48
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; top center
+        push hl
+        ld bc, 8
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; middle center
+        push hl
+        ld bc, 24 + 8
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom center
+
+        push hl
+        ld bc, 48 + 8
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; top right
+        push hl
+        ld bc, 16
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; middle right
+        push hl
+        ld bc, 24 + 16
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom right
+
+        push hl
+        ld bc, 48 + 16
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; prepare to copy data
+        ld b, 8 * 9
+        pop de
+        ld IY, catCanvas
+renderFrameBuildCatOrBGLoop:
+        ld c, (IY)
+        ld a, (DE)
+        or c
+
+        ld (IY), a
+        inc hl
+        inc de
+        inc iy
+        djnz renderFrameBuildCatOrBGLoop
+
         ret
