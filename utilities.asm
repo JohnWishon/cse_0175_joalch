@@ -10,9 +10,17 @@ Repeat:
   cp (hl)                        
   jp z,Shelf            
 
-  ld a,$28                     
+  ld a,$79                     
   cp (hl)                        
   jp z,Curtain  
+  
+  ld a,$28                     
+  cp (hl)                        
+  jp z,Spider 
+
+  ld a,$3D                     
+  cp (hl)                        
+  jp z,SpiderWeb   
 
   ld a,$0B                     
   cp (hl)                        
@@ -104,6 +112,14 @@ drawTile:
 Curtain:
   ld ix, MainScreen_CurtainTile
   jp drawTile	
+  
+Spider:
+  ld ix, MainScreen_SpiderTile
+  jp drawTile
+
+SpiderWeb:
+  ld ix, MainScreen_SpiderWebTile
+  jp drawTile  
 
 Shelf:
   ld ix, MainScreen_ShelfTile
