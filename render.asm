@@ -570,38 +570,73 @@ renderPrecomputeCopyCatSprite:
 renderPrecomputeShiftCatSprite:
         push bc
 renderPrecomputeShiftCatSpriteLoop:
-        srl (IX + 0)
-        rr (IX + 8)
-        rr (IX + 16)
+        ;; middle row
+        srl (IX + 8)
+        rr (IX + 8 + 24)
+        rr (IX + 8 + 48)
 
-        srl (IX + 0 + 1)
-        rr (IX + 8 + 1)
-        rr (IX + 16 + 1)
+        srl (IX + 8 + 1)
+        rr (IX + 8 + 24 + 1)
+        rr (IX + 8 + 48 + 1)
 
-        srl (IX + 0 + 2)
-        rr (IX + 8 + 2)
-        rr (IX + 16 + 2)
+        srl (IX + 8 + 2)
+        rr (IX + 8 + 24 + 2)
+        rr (IX + 8 + 48 + 2)
 
-        srl (IX + 0 + 3)
-        rr (IX + 8 + 3)
-        rr (IX + 16 + 3)
+        srl (IX + 8 + 3)
+        rr (IX + 8 + 24 + 3)
+        rr (IX + 8 + 48 + 3)
 
-        srl (IX + 0 + 4)
-        rr (IX + 8 + 4)
-        rr (IX + 16 + 4)
+        srl (IX + 8 + 4)
+        rr (IX + 8 + 24 + 4)
+        rr (IX + 8 + 48 + 4)
 
-        srl (IX + 0 + 5)
-        rr (IX + 8 + 5)
-        rr (IX + 16 + 5)
+        srl (IX + 8 + 5)
+        rr (IX + 8 + 24 + 5)
+        rr (IX + 8 + 48 + 5)
 
-        srl (IX + 0 + 6)
-        rr (IX + 8 + 6)
-        rr (IX + 16 + 6)
+        srl (IX + 8 + 6)
+        rr (IX + 8 + 24 + 6)
+        rr (IX + 8 + 48 + 6)
 
-        srl (IX + 0 + 7)
-        rr (IX + 8 + 7)
-        rr (IX + 16 + 7)
-        djnz renderPrecomputeShiftCatSpriteLoop
+        srl (IX + 8 + 7)
+        rr (IX + 8 + 24 + 7)
+        rr (IX + 8 + 48 + 7)
+
+        ;; bottom row
+        srl (IX + 16)
+        rr (IX + 16 + 24)
+        rr (IX + 16 + 48)
+
+        srl (IX + 16 + 1)
+        rr (IX + 16 + 24 + 1)
+        rr (IX + 16 + 48 + 1)
+
+        srl (IX + 16 + 2)
+        rr (IX + 16 + 24 + 2)
+        rr (IX + 16 + 48 + 2)
+
+        srl (IX + 16 + 3)
+        rr (IX + 16 + 24 + 3)
+        rr (IX + 16 + 48 + 3)
+
+        srl (IX + 16 + 4)
+        rr (IX + 16 + 24 + 4)
+        rr (IX + 16 + 48 + 4)
+
+        srl (IX + 16 + 5)
+        rr (IX + 16 + 24 + 5)
+        rr (IX + 16 + 48 + 5)
+
+        srl (IX + 16 + 6)
+        rr (IX + 16 + 24 + 6)
+        rr (IX + 16 + 48 + 6)
+
+        srl (IX + 16 + 7)
+        rr (IX + 16 + 24 + 7)
+        rr (IX + 16 + 48 + 7)
+        dec b
+        jp nz, renderPrecomputeShiftCatSpriteLoop
         pop bc
         ret
 
