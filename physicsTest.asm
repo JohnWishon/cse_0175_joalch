@@ -36,7 +36,7 @@ test_display_physics_reg_values:
     ld  a,(horictr)
     add a,c
     ld  (horictr),a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
     ld  a,(p1MovY)
     ld  b,0
@@ -44,7 +44,7 @@ test_display_physics_reg_values:
     ld  a,(vertctr)
     add a,c
     ld  (vertctr),a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
     ld  a,(p1MovementState)
     call    test_phys_print_air_state
@@ -52,13 +52,13 @@ test_display_physics_reg_values:
     ld  a,(vertctr) ; Print P1 vert counter
     ld  b,0
     ld  c,a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
     ld  a,(horictr) ; Print P1 hori counter
     ld  b,0
     ld  c,a
-    call    test_phys_print_num_and_space
-    call    test_phys_print_newline
+    call    test_print_num_and_space
+    call    test_print_newline
 
 test_phys_P2_line:
     ld  de,p2str ; addr. of "P2: " string
@@ -71,7 +71,7 @@ test_phys_P2_line:
     ld  a,(horictr+1)
     add a,c
     ld  (horictr+1),a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
     ld  a,(p2MovY)
     ld  b,0
@@ -79,7 +79,7 @@ test_phys_P2_line:
     ld  a,(vertctr+1)
     add a,c
     ld  (vertctr+1),a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
     ld  a,(p2MovementState)
     call    test_phys_print_air_state
@@ -87,15 +87,15 @@ test_phys_P2_line:
     ld  a,(vertctr+1) ; Print P2 vert counter
     ld  b,0
     ld  c,a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
     ld  a,(horictr+1) ; Print P2 hori counter
     ld  b,0
     ld  c,a
-    call    test_phys_print_num_and_space
+    call    test_print_num_and_space
 
-    call    test_phys_print_newline
-    call    test_phys_print_newline
+    call    test_print_newline
+    call    test_print_newline
 
 
     call    test_phys_border_check
@@ -139,9 +139,9 @@ test_phys_not_climbing:
      ; State transitions.
 test_phys_border_check:
     ld  a,(vertctr)
-    cp  -102
+    cp  102
     jp  z,test_phys_yes_vert_halt1
-    cp  -86
+    cp  86
     jp  nz,test_phys_no_vert_halt1
 test_phys_yes_vert_halt1:
     ld  a,0
@@ -150,9 +150,9 @@ test_phys_yes_vert_halt1:
     ld  (p1MovementState),a
 test_phys_no_vert_halt1:
     ld  a,(vertctr+1)
-    cp  -102
+    cp  102
     jp  z,test_phys_yes_vert_halt2
-    cp  -86
+    cp  86
     jp  nz,test_phys_no_vert_halt2
 test_phys_yes_vert_halt2:
     ld  a,0
@@ -161,7 +161,7 @@ test_phys_yes_vert_halt2:
     ld  (p2MovementState),a
 test_phys_no_vert_halt2:
     ld  a,(horictr)
-    cp  24
+    cp  -24
     jp  nz,test_phys_no_hori_halt1
     ld  a,0
     ld  (horictr),a
@@ -169,7 +169,7 @@ test_phys_no_vert_halt2:
     ld  (p1MovementState),a
 test_phys_no_hori_halt1:
     ld  a,(horictr+1)
-    cp  24
+    cp  -24
     jp  nz,test_phys_no_hori_halt2
     ld  a,0
     ld  (horictr+1),a
@@ -178,42 +178,6 @@ test_phys_no_hori_halt1:
 test_phys_no_hori_halt2:
     ret
 
-test_phys_print_num_and_space:
-    call    printNumber    ; Prints number in BC
-    call    test_phys_print_space
-    ret
-test_phys_print_space:
-    ld  de,spacestr ; addr. of " " string
-    ld  bc,1
-    call    print
-    ret
-test_phys_print_newline:
-    ld  de,newlinestr ; addr. of "\n" string
-    ld  bc,1
-    call    print
-    ret
-
-p1str:
-    defb    "P1: "
-Xp1str:
-p2str:
-    defb    "P2: "
-Xp2str:
-spacestr:
-    defb    " "
-newlinestr:
-    defb    newline
-grdstr:
-    defb    "GRD "
-jmpstr:
-    defb    "JMP "
-falstr:
-    defb    "FAL "
-clbstr:
-    defb    "CLB "
-errorstr:
-    defb    "Error!", newline
-
 vertctr:
     defb    0,0
 horictr:
@@ -221,3 +185,4 @@ horictr:
 
     include "input.asm"
     include "physics.asm"
+    include "testUtil.asm"

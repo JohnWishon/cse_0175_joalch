@@ -97,6 +97,8 @@ playerNotPunch: equ 0
 playerHiPunch:  equ 1
 playerLowPunch: equ 2
 
+playerMaxInterest: equ 16 ; Placeholder value
+
 p1StateBase:
 p1DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p1JPressed: defb 0
@@ -108,6 +110,8 @@ p1MovementState: defb movementStateGround
 p1CollisionState: defb 0
 p1PunchX:         defb 0
 p1PunchY:         defb 0
+p1Interest: defb playerMaxInterest
+p1Score:    defw 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
@@ -120,6 +124,8 @@ p2MovementState: defb movementStateGround
 p2CollisionState: defb 0
 p2PunchX:         defb 0
 p2PunchY:         defb 0
+p2Interest: defb playerMaxInterest
+p2Score:    defw 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -226,7 +232,7 @@ staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$01
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs (levelTileWidth * levelTileHeight), tgaPassable
+gameLevel: defs levelTileWidth * levelTileHeight, tgaPassable
 gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
