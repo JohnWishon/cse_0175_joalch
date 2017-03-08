@@ -62,6 +62,9 @@ XtestingStr:
 testPassedStr:
     defb    "Test passed!", newline
 XtestPassedStr:
+allTestPassedStr:
+    defb    "All tests passed!", newline
+XallTestPassedStr:
 
 
 test_print_num_and_space:
@@ -101,4 +104,12 @@ test_print_test_passed:
     ld  de,testPassedStr
     ld  bc,XtestPassedStr - testPassedStr
     call    print
+    call    test_print_newline
+    ret
+
+test_print_all_test_passed:
+    ld  de,allTestPassedStr
+    ld  bc,XallTestPassedStr - allTestPassedStr
+    call    print
+    call    test_print_newline
     ret
