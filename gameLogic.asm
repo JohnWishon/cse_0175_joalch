@@ -33,8 +33,9 @@ updateGameLogic:
         ;;-      inc interest gauge / score
         ;;-      signal mouse kill
         ;;*  Updates climbing state.
-        ld  d,2    ; Counter for # of players processed
-        push    iy
+        ld  d,2     ; Counter for # of players processed
+        push    iy  ; Save iy, to be restored before ret.
+                    ; otherwise the BASIC loader freaks out.
         push    de
 logicP1Init:
         ld  ix,p1DirPressed
@@ -169,91 +170,3 @@ logicGainInterest:
                 ; We need to at least check for exceeding max interest val
         ld  (ix+12),a
         ret
-
-
-
-
-
-
-
-collisionGetGameplayAttribute:
-        ld a, (HL)              ; a contains tile data
-        and levelDummyTileMask  ; a contains 0 IFF this is a dummy tile
-
-        jp nz, collisionGetGameplayAttributeDeref ; if a != 0, this is not
-                                                  ; a dummy tile. We need to
-                                                  ; dereference the index
-
-        ;; If we're here, that means this is a dummy tile index
-        ld a, (HL)              ; a contains gameplay attribute of this
-                                ; dummy tile
-        ret
-collisionGetGameplayAttributeDeref:
-        ld a, (HL)              ; restore tile data to a
-        ld hl, dynamicTileInstanceBase ; IY contains pointer to start of dynamic
-                                       ; instances area
-        and levelTileIndexMask    ; a contains an index into the dynamic
-                                  ; instances area
-        add a, collisionGameplayAttrOffset ; a contains index into the dynamic
-                                           ; instances area offset to the
-                                           ; gameplay attribute
-        ld d, 0
-        ld e, a
-        add hl, de              ; hl contains a pointer to a gameplay attribute
-        ld a, (hl)              ; a contains gameplay attribute
-                                ; of this dynamic tile
-        ret
-
-        ;; ---------------------------------------------------------------------
-        ;; calculateGameLevelPtr
-        ;; ---------------------------------------------------------------------
-        ;; PRE: c contains the x pixel coordinate
-        ;;      d contains the y pixel coordinate
-        ;;      h contains a tile offset to add to x
-        ;;      l contains a tile offset to add to y
-        ;;      <x, y> is in range
-        ;; POST: HL contains a pointer to the gameLevel index that
-        ;;       <x, y> falls in
-        ;;       b is preserved
-        ;;       IX preserved
-        ;;       IY is preserved
-collisionCalculateGameLevelPtr:
-        ld a, c
-        srl a
-        srl a
-        srl a
-
-        add a, h                ; a contains the tile column we want to move to
-
-        push bc
-
-        ld b, 0
-        ld c, a                 ; c now contains column index
-
-        ld a, d
-        srl a
-        srl a
-        srl a
-        add a, l                ; a contains the tile row we are in
-
-        ld d, 0
-        ld e, a                 ; DE now contains row index
-        ld h, 0
-        ld l, levelTileWidth  ; HL now contains the column width
-
-        call multiply           ; HL now contains column Width * row Index
-
-
-
-        ld DE, gameLevel        ; DE now contains pointer to gameLevel[0][0]
-        add HL, BC              ; HL now contains columnIndex + rowIndex * columnWidth
-        add HL, DE              ; HL now contains gameLevel + tile offset
-
-        pop bc
-        ret
-
-collisionGameplayAttrOffset:    equ 9
-
-GameLogic_s:
-    defb    "SSS", newline
-XGameLogic_s:
