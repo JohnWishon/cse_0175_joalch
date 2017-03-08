@@ -10,7 +10,7 @@ ASM = pasmo
 ASM_FLAGS = --bin
 MAIN_FILE = main.asm
 ASM_FILES = defines.asm input.asm physics.asm ai.asm collision.asm draw.asm \
-gameLogic.asm testUtil.asm
+gameLogic.asm render.asm testUtil.asm
 
 APPMAKE = appmake
 APPMAKE_FLAGS = +zx --org 32768

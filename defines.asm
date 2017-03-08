@@ -58,7 +58,7 @@ catPixelHeight: equ (catHeight << 3)
 
 levelLeftmostCol:     equ 0
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
-levelRightmostCol:    equ 32
+levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
@@ -262,26 +262,34 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 0
-fuP1UpdatesNewPosX:       defb 0
-fuP1UpdatesOldPosY:       defb 0
-fuP1UpdatesNewPosY:       defb 0
+fuP1UpdatesOldPosX:       defb 8 * 1 + 2
+fuP1UpdatesNewPosX:       defb 8 * 1 + 2
+fuP1UpdatesOldPosY:       defb 8 * 4 + 1
+fuP1UpdatesNewPosY:       defb 8 * 4 + 1
 fuP1UpdatesOldPose:       defb 0
-fuP1UpdatesNewPose:       defb 0
-fuP1UpdatesTileChangeX:   defb 0
+fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
+fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
+fuP1UpdatesOldTilePosX:   defb 1
+fuP1UpdatesNewTilePosX:   defb 1
+fuP1UpdatesOldTilePosY:   defb 4
+fuP1UpdatesNewTilePosY:   defb 4
 
 fuP2UpdatesBase:
-fuP2UpdatesOldPosX:       defb 0
-fuP2UpdatesNewPosX:       defb 0
-fuP2UpdatesOldPosY:       defb 0
-fuP2UpdatesNewPosY:       defb 0
+fuP2UpdatesOldPosX:       defb 8 * 4
+fuP2UpdatesNewPosX:       defb 8 * 4
+fuP2UpdatesOldPosY:       defb 8 * 3
+fuP2UpdatesNewPosY:       defb 8 * 3
 fuP2UpdatesOldPose:       defb 0
-fuP2UpdatesNewPose:       defb 0
-fuP2UpdatesTileChangeX:   defb 0
+fuP2UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
+fuP2UpdatesTileChangeX:   defb 10
 fuP2UpdatesTileChangeY:   defb 0
 fuP2UpdatesTileChangePtr: defw 0
+fuP2UpdatesOldTilePosX:   defb 4
+fuP2UpdatesNewTilePosX:   defb 4
+fuP2UpdatesOldTilePosY:   defb 3
+fuP2UpdatesNewTilePosY:   defb 3
 
         ;; In a frame, a mouse can:
         ;; TODO: amanda
@@ -290,10 +298,14 @@ mouseUpdatesBase:
 ; Mouse data tables
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
 mouseUpdatesDirection:  defb 2      ; ix
-mouseUpdatesOldPosX:    defb 0      ; ix + 1
+mouseUpdatesOldPosX:    defb 8 * 21      ; ix + 1
 mouseUpdatesNewPosX:    defb levelRightmostPixel - 4    ; ix + 2
-mouseUpdatesOldPosY:    defb 0      ; ix + 3
+mouseUpdatesOldPosY:    defb 8 * 3      ; ix + 3
 mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
+mouseUpdatesOldTilePosX:   defb 28
+mouseUpdatesNewTilePosX:   defb 0
+mouseUpdatesOldTilePosY:   defb 3
+mouseUpdatesNewTilePosY:   defb 0
 
 ; 3 mouse poses
 ; 3 exit paths -- door on right, below couch middle (maybe any part under couch), mouse hole on left
