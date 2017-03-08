@@ -30,10 +30,10 @@ phys_may_process_vert_mov:  ; Entered only if movementState = climbing
     ld  (ix+7),0            ; Clear vert. speed. We are climbing on frictional surface, baby!
     xor a
     add a,(ix+0)
-    call nz,phys_setPosY    ; Up pressed
+    call nz,phys_setNegY    ; Up pressed
     xor a
     add a,(ix+1)
-    call nz,phys_setNegY    ; Down pressed
+    call nz,phys_setPosY    ; Down pressed
     ;; Fall through
 phys_basic_mov_processed:
     ;; punch
@@ -102,7 +102,7 @@ phys_handle_fall:
     ret
 
 phys_handle_jumpstate:
-    dec (ix+7)                  ; Decelerate the cat vertically
+    inc (ix+7)                  ; Decelerate the cat vertically
         ; Changing deceleration speed to N times of original -> max height to 1/N of original
         ; Deducted from 0.5mv^2 = mgh and that the deceleration is proportional to gravity;
         ; 0.5mv^2 = mgh = mgh*N/N = m(Ng)(h/N)
@@ -114,7 +114,7 @@ phys_handle_fallstate:
     ld  a,(ix+7)
     cp  phys_fall_max_speed
     ret z
-    dec (ix+7)                  ; Just decelerate the cat vertically
+    inc (ix+7)                  ; Just decelerate the cat vertically
     ret
 
 phys_setPunch:
@@ -126,9 +126,9 @@ phys_setPunch:
     ld  (ix+1), 0   ; Clears down press to avoid interfering with drop logic.
     ret
 
-phys_jump_init_speed:   equ 8
+phys_jump_init_speed:   equ -8
     ; Changing init speed to N times of original -> max height to N^2 of original
     ; Deducted from 0.5mv^2 = mgh; 0.5m(Nv)^2 = 0.5mv^2*N^2 = mgh*N^2 = mg(N^2*h)
-phys_fall_max_speed:    equ -12
+phys_fall_max_speed:    equ 12
 phys_cat_hori_speed:    equ 2
 phys_cat_vert_speed:    equ 1
