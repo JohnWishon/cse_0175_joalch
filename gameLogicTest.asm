@@ -36,7 +36,7 @@ testGameLogic1:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile shouldn't change
     cp  testGameLogic_dummyStaticTile
@@ -94,7 +94,7 @@ testGameLogic2:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have 1 less HP
     cp  $12
@@ -152,7 +152,7 @@ testGameLogic3:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
     cp  tgaStandable | tgaPassable
@@ -213,7 +213,7 @@ testGameLogic6:
     ld  (p1CollisionState),a
     ld  a,movementStateFalling
     ld  (p1MovementState),a
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(p1MovementState)
     cp  movementStateGround         ; Should stop at ground
@@ -225,7 +225,7 @@ testGameLogic6:
     ld  (p1CollisionState),a
     ld  a,movementStateFalling
     ld  (p1MovementState),a
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(p1MovementState)
     cp  movementStateGround         ; Should stop at ground
@@ -237,7 +237,7 @@ testGameLogic6:
     ld  (p1CollisionState),a
     ld  a,movementStateFalling
     ld  (p1MovementState),a
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(p1MovementState)
     cp  movementStateFalling         ; Should NOT stop at ground
@@ -249,7 +249,7 @@ testGameLogic6:
     ld  (p1CollisionState),a
     ld  a,movementStateClimbing
     ld  (p1MovementState),a
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(p1MovementState)
     cp  movementStateClimbing         ; Should stop at ground
@@ -261,7 +261,7 @@ testGameLogic6:
     ld  (p1CollisionState),a
     ld  a,movementStateGround
     ld  (p1MovementState),a
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(p1MovementState)
     cp  movementStateGround         ; Should stop at ground
@@ -273,7 +273,7 @@ testGameLogic6:
     ld  (p1CollisionState),a
     ld  a,movementStateJumping
     ld  (p1MovementState),a
-    call updateGameLogic
+    call    updateGameLogic
 
     ld  a,(p1MovementState)
     cp  movementStateJumping         ; Should stop at ground
@@ -295,10 +295,23 @@ testGameLogic7:
     ld  a,16
     ld  (fuP1UpdatesNewPosY),a  ; Set the cat location
     ld  a,collisionStateBlockedLeft
-    ld  (p1CollisionState),a
-    ld  a,movementStateGround
-    ld  (p1MovementState),a
+    ld  (p1CollisionState),a    ; Indicate that the cat is moving to left but unable to do so
+    ld  a,movementStateFalling
+    ld  (p1MovementState),a     ; Set a not-on-ground mov state to (potentially) allow clipping to wall.
+    ld  a, tgaPassable | tgaClimbable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; Making the tile to the cat's right climbable, but it
+                                              ; shouldn't affects anything
+    call    updateGameLogic
 
+    ld  a,(p1MovementState)
+    cp  movementStateFalling    ; mov state should not have changed.
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    call    test_print_test_passed
+    ld  a, tgaPassable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; restore tile
 testGameLogic8:
     ld  b,0
     ld  c,8
@@ -307,30 +320,153 @@ testGameLogic8:
     ;; Test 8: Cat colliding right, right edge; The test may be a
     ;;         self-fulfilling prophecy but w/e
     ;============================================================
+    ld  a,8*(levelTileWidth - 2)    ; IS THIS A SERIOUS TEST? I just ctrl-c&v from gameLogic code.
+                                    ; Need more robust test probably
+    ld  (fuP1UpdatesNewPosX),a
+    ld  a,16
+    ld  (fuP1UpdatesNewPosY),a  ; Set the cat location
+    ld  a,collisionStateBlockedRight
+    ld  (p1CollisionState),a    ; Indicate that the cat is moving to right but unable to do so
+    ld  a,movementStateFalling
+    ld  (p1MovementState),a     ; Set a not-on-ground mov state to (potentially) allow clipping to wall.
+    ld  a, tgaPassable | tgaClimbable
+    ld  (gameLevel + 4*levelTileWidth - 3),a  ; Making the tile to the cat's left climbable, but it
+                                              ; shouldn't affects anything
+    call    updateGameLogic
+
+    ld  a,(p1MovementState)
+    cp  movementStateFalling    ; mov state should not have changed.
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    call    test_print_test_passed
+    ld  a, tgaPassable
+    ld  (gameLevel + 4*levelTileWidth - 3),a  ; restore tile
 
 testGameLogic9:
     ld  b,0
     ld  c,9
     call    test_print_testing_header_with_num
     ;============================================================
-    ;; Test 9: Cat colliding left in air, latched to it
+    ;; Test 9: Cat colliding left in air, latched to it if climbable
     ;============================================================
+    ld  a,0+24
+    ld  (fuP1UpdatesNewPosX),a
+    ld  a,16
+    ld  (fuP1UpdatesNewPosY),a  ; Set the cat location
+    ld  a,collisionStateBlockedLeft
+    ld  (p1CollisionState),a    ; Indicate that the cat is moving to left but unable to do so
+    ld  a,movementStateFalling
+    ld  (p1MovementState),a     ; Set a not-on-ground mov state to (potentially) allow clipping to wall.
+    call    updateGameLogic     ; The tile to the left of the cat is not climbable rn.
 
+    ld  a,(p1MovementState)
+    cp  movementStateFalling    ; mov state should not change since the neighbor tile is not climbable
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    ld  a, tgaPassable | tgaClimbable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; Making the tile to the cat's left climbable
+    call    updateGameLogic
+
+    ld  a,(p1MovementState)
+    cp  movementStateClimbing    ; mov state should now be climbing
+    ld  b,0
+    ld  c,2
+    call    nz,testGameLogic_errorExit
+
+    call    test_print_test_passed
+    ld  a, tgaPassable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; restore tile
 testGameLogic10:
     ld  b,0
     ld  c,10
     call    test_print_testing_header_with_num
     ;============================================================
-    ;; Test 10: Cat colliding right in air, latched to it
+    ;; Test 10: Cat colliding right in air, latched to it if climbable
     ;============================================================
+    ld  a,8*(levelTileWidth - 2)-24
+    ld  (fuP1UpdatesNewPosX),a
+    ld  a,16
+    ld  (fuP1UpdatesNewPosY),a  ; Set the cat location
+    ld  a,collisionStateBlockedRight
+    ld  (p1CollisionState),a    ; Indicate that the cat is moving to left but unable to do so
+    ld  a,movementStateFalling
+    ld  (p1MovementState),a     ; Set a not-on-ground mov state to (potentially) allow clipping to wall.
+    call    updateGameLogic     ; The tile to the right of the cat is not climbable rn.
 
+    ld  a,(p1MovementState)
+    cp  movementStateFalling    ; mov state should not change since the neighbor tile is not climbable
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    ld  a, tgaPassable | tgaClimbable
+    ld  (gameLevel + 4*levelTileWidth - 3),a  ; Making the tile to the cat's right climbable
+    call    updateGameLogic
+
+    ld  a,(p1MovementState)
+    cp  movementStateClimbing    ; mov state should now be climbing
+    ld  b,0
+    ld  c,2
+    call    nz,testGameLogic_errorExit
+
+    call    test_print_test_passed
+    ld  a, tgaPassable
+    ld  (gameLevel + 4*levelTileWidth - 3),a  ; restore tile
 testGameLogic11:
     ld  b,0
     ld  c,11
     call    test_print_testing_header_with_num
     ;============================================================
-    ;; Test 11: Cat colliding left on ground
+    ;; Test 11: Cat colliding left climbable on ground
     ;============================================================
+    ld  a,0+24
+    ld  (fuP1UpdatesNewPosX),a
+    ld  a,16
+    ld  (fuP1UpdatesNewPosY),a  ; Set the cat location
+    ld  a,collisionStateBlockedLeft
+    ld  (p1CollisionState),a    ; Indicate that the cat is moving to left but unable to do so
+    ld  a,movementStateGround
+    ld  (p1MovementState),a     ; Set a not-on-ground mov state to (potentially) allow clipping to wall.
+    ld  a, tgaPassable | tgaClimbable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; Making the tile to the cat's left climbable
+    ; Note that up is not pressed rn
+    call    updateGameLogic
+
+    ld  a,(p1MovementState)
+    cp  movementStateGround    ; mov state should still be ground since not pressing up
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    ld  a,1
+    ld  (p1DirPressed+0),a  ; Set up to be pressed
+    call    updateGameLogic
+
+    ld  a,(p1MovementState)
+    cp  movementStateClimbing   ; mov state should now be climbing since we pressed up.
+    ld  b,0
+    ld  c,2
+    call    nz,testGameLogic_errorExit
+
+    ld  a,movementStateGround
+    ld  (p1MovementState),a     ; "Here comes the invisible hand, drag the cat back unto the land"
+    ld  a, tgaPassable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; restore tile to non-climbable
+    call    updateGameLogic
+
+    ld  a,(p1MovementState)
+    cp  movementStateGround    ; mov state should still be ground since the neighbor tile isn't climbable
+    ld  b,0
+    ld  c,3
+    call    nz,testGameLogic_errorExit
+
+    call    test_print_test_passed
+
+    call    test_print_all_test_passed
 endProg:
     nop
     jp endProg
