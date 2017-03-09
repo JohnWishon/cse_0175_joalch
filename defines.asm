@@ -1,6 +1,7 @@
         ;; ---------------------------------------------------------------------
         ;; Functions
         ;; ---------------------------------------------------------------------
+printNumber:    equ $1a1b
 print:          equ $203c
 openChannel:    equ $1601
         ;; HL = HL * DE
@@ -89,25 +90,44 @@ stateMachine:   defb smLoadingScreen
         ;; - the m memory locations at foo now contain 0
         ;; - the nth location can be overwritten with ld (foo + n),[reg/imm]
 
+
+        ;; The three following three constants are used to indicate
+        ;; the states of pXPPressed
+playerNotPunch: equ 0
+playerHiPunch:  equ 1
+playerLowPunch: equ 2
+
+playerMaxInterest: equ 16 ; Placeholder value
+
 p1StateBase:
 p1DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p1JPressed: defb 0
-p1PPressed: defb 0
+p1PPressed: defb playerNotPunch
 
 p1MovX:     defb 0
 p1MovY:     defb 0
 p1MovementState: defb movementStateGround
 p1CollisionState: defb 0
+p1PunchX:         defb 0
+p1PunchY:         defb 0
+p1Interest: defb playerMaxInterest
+p1Score:    defw 0
+p1PatrolMouseHit:   defb 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
 p2JPressed: defb 0
-p2PPressed: defb 0
+p2PPressed: defb playerNotPunch
 
 p2MovX:     defb 0
 p2MovY:     defb 0
 p2MovementState: defb movementStateGround
 p2CollisionState: defb 0
+p2PunchX:         defb 0
+p2PunchY:         defb 0
+p2Interest: defb playerMaxInterest
+p2Score:    defw 0
+p2PatrolMouseHit:   defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -220,7 +240,7 @@ staticTileMouseHole: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs (levelTileWidth * levelTileHeight), tgaPassable
+gameLevel: defs levelTileWidth * levelTileHeight, tgaPassable
 gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
@@ -250,26 +270,34 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 0
-fuP1UpdatesNewPosX:       defb 0
-fuP1UpdatesOldPosY:       defb 0
-fuP1UpdatesNewPosY:       defb 0
+fuP1UpdatesOldPosX:       defb 8 * 1 + 2
+fuP1UpdatesNewPosX:       defb 8 * 1 + 2
+fuP1UpdatesOldPosY:       defb 8 * 4 + 1
+fuP1UpdatesNewPosY:       defb 8 * 4 + 1
 fuP1UpdatesOldPose:       defb 0
-fuP1UpdatesNewPose:       defb 0
-fuP1UpdatesTileChangeX:   defb 0
+fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
+fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
+fuP1UpdatesOldTilePosX:   defb 1
+fuP1UpdatesNewTilePosX:   defb 1
+fuP1UpdatesOldTilePosY:   defb 4
+fuP1UpdatesNewTilePosY:   defb 4
 
 fuP2UpdatesBase:
-fuP2UpdatesOldPosX:       defb 0
-fuP2UpdatesNewPosX:       defb 0
-fuP2UpdatesOldPosY:       defb 0
-fuP2UpdatesNewPosY:       defb 0
+fuP2UpdatesOldPosX:       defb 8 * 4
+fuP2UpdatesNewPosX:       defb 8 * 4
+fuP2UpdatesOldPosY:       defb 8 * 3
+fuP2UpdatesNewPosY:       defb 8 * 3
 fuP2UpdatesOldPose:       defb 0
-fuP2UpdatesNewPose:       defb 0
-fuP2UpdatesTileChangeX:   defb 0
+fuP2UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
+fuP2UpdatesTileChangeX:   defb 10
 fuP2UpdatesTileChangeY:   defb 0
 fuP2UpdatesTileChangePtr: defw 0
+fuP2UpdatesOldTilePosX:   defb 4
+fuP2UpdatesNewTilePosX:   defb 4
+fuP2UpdatesOldTilePosY:   defb 3
+fuP2UpdatesNewTilePosY:   defb 3
 
         ;; In a frame, a mouse can:
         ;; TODO: amanda
@@ -285,6 +313,10 @@ mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
 mouseActive:            defb 0      ; ix + 5
 spawnCtr:               defb 0      ; ix + 6
 randomCtr:              defb 0      ; ix + 7 - timer for the random call
+mouseUpdatesOldTilePosX:   defb 28
+mouseUpdatesNewTilePosX:   defb 0
+mouseUpdatesOldTilePosY:   defb 3
+mouseUpdatesNewTilePosY:   defb 0
 
 mouseWall1:
 mouseW1X:               defb 0      ;

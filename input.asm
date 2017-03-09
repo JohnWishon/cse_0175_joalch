@@ -1,19 +1,14 @@
 updateKeystate:
     ld  d,2
+    push de
 p1_init:
     ;   Reset keypress globals
     ld  hl,p1DirPressed
     ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
+    ld  de,p1DirPressed + 1
+    ld  bc,5
+    ldir
+
     ld  ix,p1DirPressed
 
     ; Use register a to store what keys are pressed
@@ -56,16 +51,10 @@ p2_init:
     ;   Reset keypress globals
     ld  hl,p2DirPressed
     ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
-    inc hl
-    ld  (hl),0
+    ld  de,p2DirPressed + 1
+    ld  bc,5
+    ldir
+
     ld  ix,p2DirPressed
 
     ; Use register a to store what keys are pressed
@@ -139,8 +128,10 @@ process_signals:
     jp  z,wa_handler        ; if original a = 10, w and a pressed
 
 input_cycle_closing:
+    pop de
     dec d
     ret z
+    push de
     jp  p2_init
 
 jump_handler:
@@ -148,7 +139,7 @@ jump_handler:
     ret
 
 punch_handler:
-    ld  (ix+5),1
+    ld  (ix+5),playerHiPunch
     ret
 
 d_handler:

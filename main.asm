@@ -7,13 +7,18 @@ main:
         ;; Setup program state, interrupt handling scheme
         ;; ---------------------------------------------------------------------
 
+        ld SP, $FFEE
+
         ;; TODO: do we need this?
         ld a,2                 ; upper screen
         call openChannel
         ;; TODO: do we need the above?
 
+
         call setupGameLogic
+        call setupRenderer
 	call setupGraphics
+
 
         di                      ; disable interrupts
         ld hl, interrupt        ; interrupt handler addr
@@ -26,6 +31,7 @@ main:
         ld i, a                 ; set interrupt register
         im 2                    ; interrupt mode 2
         ei                      ; enable interrupts again
+
         jp endProg
 
 
@@ -36,8 +42,9 @@ updateIteration:
         ;; TODO: this section
         ;; TODO: multiple update iteration types
         ;; Read input, update player state
-        call updateKeystate
 
+        call updateKeystate
+        ret
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
         call updateAI
@@ -52,7 +59,8 @@ updateIteration:
 drawIteration:
 
         ;; Draw the frame
-        call drawFrame
+
+        call renderFrame
         ret
 
 interrupt:
@@ -105,6 +113,7 @@ endProg:
         nop
         jp endProg
 
+
 pretim:
         defb 0
 
@@ -113,4 +122,8 @@ pretim:
         include "ai.asm"
         include "collision.asm"
         include "gameLogic.asm"
+        include "render.asm"
         include "draw.asm"
+		include "utilities.asm"
+		include "graphics-mainScreen.asm"
+        include "graphics-sprites.asm"
