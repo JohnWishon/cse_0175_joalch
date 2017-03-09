@@ -195,9 +195,28 @@ testGameLogic_t3LoopCR:
     ld  a,tgaPassable               ; Restore the tile.
     ld  (gameLevel + 1*levelTileWidth + 10), a
 
+testGameLogic4:
+    ld  b,0
+    ld  c,4
+    call    test_print_testing_header_with_num
     ;============================================================
-    ;; Test 4: Reserved
+    ;; Test 4: Cat punches patrolling mouse
     ;============================================================
+    ld  a,1
+    ld  (p1PatrolMouseHit),a
+    ld  a,playerHiPunch
+    ld  (p1PPressed),a    ; Mark punch as pressed
+    ld  a,10
+    ld  (p1Interest),a    ; Set starting interest
+    call    updateGameLogic
+
+    ld  a,(p1Interest)      ; Grab new interest val
+    cp  10+1                ; Check that interest is gained; change gained int val according to code
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    call    test_print_test_passed
 
     ;============================================================
     ;; Test 5: Reserved

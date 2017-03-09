@@ -112,6 +112,7 @@ p1PunchX:         defb 0
 p1PunchY:         defb 0
 p1Interest: defb playerMaxInterest
 p1Score:    defw 0
+p1PatrolMouseHit:   defb 0
 
 p2StateBase:
 p2DirPressed: defb 0, 0, 0, 0 ; Directions: Up, Down, Left, Right
@@ -126,6 +127,7 @@ p2PunchX:         defb 0
 p2PunchY:         defb 0
 p2Interest: defb playerMaxInterest
 p2Score:    defw 0
+p2PatrolMouseHit:   defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)

@@ -48,6 +48,12 @@ logicBody:
         ld  a,(ix+5)
         cp  playerNotPunch
         jp  z,logicUpdateMovementState  ; If punch is not pressed, no need to check punch
+
+        ;; First check if the cat punches a patrolling mouse
+        ld  a,(ix+15)
+        cp  1
+        call    z,logicGainInterest ; Interest or score?
+
         ;; Get punch coordinates. The X, Y here are in tiles, so use a
         ;; condensed version of collisionCalculateGameLevelPtr
         ld  h,0
