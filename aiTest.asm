@@ -1,4 +1,6 @@
     org $8000
+    jp main
+    include "defines.asm"
 
 main:
     ;; ---------------------------------------------------------------------
@@ -54,7 +56,7 @@ drawIteration:
 
 
     ;; Draw the frame
-    call drawFrame
+    ; call drawFrame
 
     ;; End of iteration
     ; halt
@@ -114,6 +116,14 @@ endProg:
 
 test_ai_state:
     ld ix, mouseUpdatesBase    ; load mouse movement
+    ; ld b, 0
+    ; ld c, (ix+ 2)
+    ; call $2d2b              ; print number
+    ; call $2de3
+    ld a, (ix + 5)              ; load if floor mouse is active
+    cp 1                        ; 1 = active, 0 = not active
+    jp nz, test_no_mouse
+
     ld a, (ix)          ; Load direction
 
     rra                 ; rotate lsb into carry
@@ -144,26 +154,35 @@ test_mouse_down:
     call    print
     ret
 
+test_no_mouse:
+    ld  de,noneStr
+    ld  bc,XnoneStr-noneStr
+    call    print
+    ret
+
 pretim:
     defb 0
 
 leftStr:
-    defb    "left", newline
+    defb    "<"
 XleftStr:
 
 rightStr:
-    defb    "right", newline
+    defb    ">"
 XrightStr:
 
 upStr:
-    defb    "up", newline
+    defb    "^"
 XupStr:
 
 downStr:
-    defb    "down", newline
+    defb    "v"
 XdownStr:
 
-    include "defines.asm"
+noneStr:
+    defb    "-"
+XnoneStr:
+
     include "input.asm"
     include "physics.asm"
     include "ai.asm"

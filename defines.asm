@@ -57,7 +57,7 @@ catPixelHeight: equ (catHeight << 3)
 
 levelLeftmostCol:     equ 0
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
-levelRightmostCol:    equ 32
+levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
@@ -271,13 +271,11 @@ fuP2UpdatesTileChangePtr: defw 0
 mouseUpdatesBase:
 ; Mouse data tables
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
-mouseUpdatesDirection:  defb 2      ; ix
+mouseUpdatesDirection:  defb 1      ; ix
 mouseUpdatesOldPosX:    defb 0      ; ix + 1
-mouseUpdatesNewPosX:    defb levelRightmostPixel - 4    ; ix + 2
+mouseUpdatesNewPosX:    defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:    defb 0      ; ix + 3
 mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
-
-; 3 mouse poses
-; 3 exit paths -- door on right, below couch middle (maybe any part under couch), mouse hole on left
-; if cat gets close enough- move 8 pixels/s ?
-; mouse holes spawn randomly on wall - change x y position on wall - lasts x seconds
+mouseActive:            defb 0      ; ix + 5
+spawnCtr:               defb 0      ; ix + 6
+randomCtr:              defb 0      ; ix + 7
