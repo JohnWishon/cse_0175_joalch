@@ -302,10 +302,10 @@ mouseUpdatesOldPosX:    defb 8 * 21      ; ix + 1
 mouseUpdatesNewPosX:    defb levelRightmostPixel - 4    ; ix + 2
 mouseUpdatesOldPosY:    defb 8 * 3      ; ix + 3
 mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
-mouseUpdatesOldTilePosX:   defb 28
-mouseUpdatesNewTilePosX:   defb 0
+mouseUpdatesOldTilePosX:   defb 21
+mouseUpdatesNewTilePosX:   defb levelRightmostCol
 mouseUpdatesOldTilePosY:   defb 3
-mouseUpdatesNewTilePosY:   defb 0
+mouseUpdatesNewTilePosY:   defb levelBottommostRow
 
 ; 3 mouse poses
 ; 3 exit paths -- door on right, below couch middle (maybe any part under couch), mouse hole on left

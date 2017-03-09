@@ -139,6 +139,17 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
+	ld hl, mouseBgCache
+	ld a, (mouseUpdatesNewTilePosX)
+	add a, levelLeftmostCol
+	ld c, a
+	ld a, (mouseUpdatesNewTilePosY)
+	add a, levelTopmostRow
+	ld b, a
+	ld e, 3
+	ld d, 1
+	call renderReadRectangle
+
         ret
 
 renderFrame:
@@ -200,26 +211,26 @@ renderFrame:
         srl a
         ld (mouseUpdatesNewTilePosY), a
 
-        ld a,2              ; 2 is the code for red.
-        out (254),a         ; write to port 254.
+        ;ld a,2              ; 2 is the code for red.
+        ;out (254),a         ; write to port 254.
 
         call renderFrameSwapBuffers
 
         ;; clear old sprites
 
         ;; erase mouse
-        ;; ld hl, mouseBgCache
-        ;; ld a, (mouseUpdatesOldTilePosX)
-        ;; add a, levelLeftmostCol
-        ;; ld c, a
-        ;; ld a, (mouseUpdatesOldTilePosY)
-        ;; add a, levelTopmostRow
-        ;; ld b, a
-        ;; ld e, 3
-        ;; ld d, 1
-        ;; call renderDrawRectangle
+        ld hl, mouseBgCache
+        ld a, (mouseUpdatesOldTilePosY)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, levelBottommostRow;(mouseUpdatesOldTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
+        ld d, 1
+        call renderDrawRectangle
 
-        ;; ;; erase cat 2
+        ;; erase cat 2
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesOldTilePosX)
         add a, levelLeftmostCol
@@ -339,51 +350,35 @@ renderFrameCat2NoTileUpdate:
         ld d, 3
         call renderDrawRectangle
 
-        ;; ;; TODO: read area behind mouse
-        ;; ld hl, mouseBgCache
-        ;; ld a, (mouseUpdatesNewTilePosX)
-        ;; add a, levelLeftmostCol
-        ;; ld c, a
-        ;; ld a, (mouseUpdatesNewTilePosY)
-        ;; add a, levelTopmostRow
-        ;; ld b, a
-        ;; ld e, 3
-        ;; ld d, 1
-        ;; call renderReadRectangle
+        ;; TODO: read area behind mouse
+        ld hl, mouseBgCache
+        ld a, (mouseUpdatesNewTilePosY)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, levelBottommostRow;(mouseUpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
+        ld d, 1
+        ;call renderReadRectangle
 
         ;; ;; ;; TODO: draw mice
 
-        ;; ;; ;; TODO: draw mouse
-        ;; ld hl, mouseCanvas
-        ;; ld a, (mouseUpdatesNewTilePosX)
-        ;; add a, levelLeftmostCol
-        ;; ld c, a
-        ;; ld a, (mouseUpdatesNewTilePosY)
-        ;; add a, levelTopmostRow
-        ;; ld b, a
-        ;; ld e, 3
-        ;; ld d, 1
-        ;; call renderDrawRectangle
+        ;; TODO: draw mouse
 
-        ld a,1              ; 1 is the code for blue.
-        out (254),a         ; write to port 254.
-        ret
-
-renderFrameCat:
-        ;; first update tiles
-
-        ld a, (IX + renderPNUpdatesTileX)
+        ld hl, cat1SpritesWalk
+        ld a, (mouseUpdatesNewTilePosY)
         add a, levelLeftmostCol
         ld c, a
-        ld a, (IX + renderPNUpdatesTileY)
+        ld a, levelBottommostRow;(mouseUpdatesNewTilePosY)
         add a, levelTopmostRow
         ld b, a
-        ld h, (IX + renderPNUpdatesTilePtr)
-        ld l, (IX + renderPNUpdatesTilePtr + 1)
-        call renderFrameWriteTile
+        ld e, 3
+        ld d, 1
+        call renderDrawRectangle
 
-
-        ;; TODO: sprite stuff
+        ;ld a,1              ; 1 is the code for blue.
+        ;out (254),a         ; write to port 254.
         ret
 
 
