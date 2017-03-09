@@ -220,10 +220,10 @@ renderFrame:
 
         ;; erase mouse
         ld hl, mouseBgCache
-        ld a, (mouseUpdatesOldTilePosY)
+        ld a, (mouseUpdatesOldTilePosX)
         add a, levelLeftmostCol
         ld c, a
-        ld a, levelBottommostRow;(mouseUpdatesOldTilePosY)
+        ld a, (mouseUpdatesOldTilePosY)
         add a, levelTopmostRow
         ld b, a
         ld e, 3
@@ -352,25 +352,25 @@ renderFrameCat2NoTileUpdate:
 
         ;; TODO: read area behind mouse
         ld hl, mouseBgCache
-        ld a, (mouseUpdatesNewTilePosY)
+        ld a, (mouseUpdatesNewTilePosX)
         add a, levelLeftmostCol
         ld c, a
-        ld a, levelBottommostRow;(mouseUpdatesNewTilePosY)
+        ld a, (mouseUpdatesNewTilePosY)
         add a, levelTopmostRow
         ld b, a
         ld e, 3
         ld d, 1
-        ;call renderReadRectangle
+        call renderReadRectangle
 
         ;; ;; ;; TODO: draw mice
 
         ;; TODO: draw mouse
 
         ld hl, cat1SpritesWalk
-        ld a, (mouseUpdatesNewTilePosY)
+        ld a, (mouseUpdatesNewTilePosX)
         add a, levelLeftmostCol
         ld c, a
-        ld a, levelBottommostRow;(mouseUpdatesNewTilePosY)
+        ld a, (mouseUpdatesNewTilePosY)
         add a, levelTopmostRow
         ld b, a
         ld e, 3
