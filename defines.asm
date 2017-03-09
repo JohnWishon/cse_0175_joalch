@@ -62,12 +62,12 @@ levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
-levelBottommostRow:   equ 23
+levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
 levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
 levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
-levelTileWidth:     equ levelRightmostCol - levelLeftmostCol
-levelTileHeight:    equ levelBottommostRow - levelTopmostRow
+levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
+levelTileHeight:    equ levelBottommostRow - levelTopmostRow + 1
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
@@ -232,7 +232,7 @@ staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$01
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs levelTileWidth * levelTileHeight, tgaPassable
+gameLevel: defs levelTileWidth * levelTileHeight, tgaStandable | tgaPassable
 gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
@@ -262,23 +262,23 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 8 * 1 + 2
-fuP1UpdatesNewPosX:       defb 8 * 1 + 2
-fuP1UpdatesOldPosY:       defb 8 * 4 + 1
-fuP1UpdatesNewPosY:       defb 8 * 4 + 1
+fuP1UpdatesOldPosX:       defb 8 * 7 + 6
+fuP1UpdatesNewPosX:       defb 8 * 7 + 6
+fuP1UpdatesOldPosY:       defb 8 * 2 + 0
+fuP1UpdatesNewPosY:       defb 8 * 2 + 0
 fuP1UpdatesOldPose:       defb 0
 fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
-fuP1UpdatesOldTilePosX:   defb 1
-fuP1UpdatesNewTilePosX:   defb 1
-fuP1UpdatesOldTilePosY:   defb 4
-fuP1UpdatesNewTilePosY:   defb 4
+fuP1UpdatesOldTilePosX:   defb 7
+fuP1UpdatesNewTilePosX:   defb 7
+fuP1UpdatesOldTilePosY:   defb 1
+fuP1UpdatesNewTilePosY:   defb 1
 
 fuP2UpdatesBase:
-fuP2UpdatesOldPosX:       defb 8 * 4
-fuP2UpdatesNewPosX:       defb 8 * 4
+fuP2UpdatesOldPosX:       defb 8 * 4 + 4
+fuP2UpdatesNewPosX:       defb 8 * 4 + 4
 fuP2UpdatesOldPosY:       defb 8 * 3
 fuP2UpdatesNewPosY:       defb 8 * 3
 fuP2UpdatesOldPose:       defb 0
