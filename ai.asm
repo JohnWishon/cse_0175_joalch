@@ -1,4 +1,9 @@
 updateAI:
+    call updateFloor
+    call updateWall
+    ret
+
+updateFloor:
     ld ix, mouseUpdatesBase     ; load mouse movement
     ld a, (ix + 5)              ; load if floor mouse is active
     cp 1                        ; 1 = active, 0 = not active
@@ -143,9 +148,10 @@ noMaxCtr:
     cp randomTime       ; compare against the random check timer
     jp nz, noSpawn      ; this should happen every sec (25 frames)
 
+    ld (ix + 7), 0
     call random         ; get random number
     and 9               ; range 0-9
-
+    ;
     ; push af
     ; ld b, 0
     ; ld c, a
@@ -173,6 +179,95 @@ noSpawn:
     inc (ix + 6)        ; increment the spawn counter
     inc (ix + 7)        ; increment the check counter
     ret
+
+
+updateWall:
+    ld ix, mouseWall1
+    ld a, (ix + 6)      ; load inactive setting
+    cp 1
+    jr z, wall1End
+activateWall1:
+    ld a, (ix + 7)      ; load the counter for when to check spawning
+    cp wallTime         ; compare against the random check timer
+    jp nz, wall1End     ; this should happen every sec (25 frames)
+
+    ld (ix + 7), 0
+    call random
+    and 1
+
+    ; push af
+    ; ld b, 0
+    ; ld c, a
+    ; call $2d2b
+    ; call $2de3
+    ; pop af
+
+    cp wallSpawn
+    jr nc, wall1End
+    ; ld  de,wall1Str
+    ; ld  bc,Xwall1Str-wall1Str
+    ; call    print
+    ld (ix + 6), 1
+wall1End:
+    inc (ix + 7)
+    ld ix, mouseWall2
+    ld a, (ix + 6)      ; load inactive setting
+    cp 1
+    jr z, wall2End
+activateWall2:
+    ld a, (ix + 7)      ; load the counter for when to check spawning
+    cp wallTime         ; compare against the random check timer
+    jp nz, wall2End     ; this should happen every sec (25 frames)
+
+    ld (ix + 7), 0
+    call random
+    and 1
+
+    ; push af
+    ; ld b, 0
+    ; ld c, a
+    ; call $2d2b
+    ; call $2de3
+    ; pop af
+
+    cp wallSpawn
+    jr nc, wall2End
+    ; ld  de,wall2Str
+    ; ld  bc,Xwall2Str-wall2Str
+    ; call    print
+    ld (ix + 6), 1
+wall2End:
+    inc (ix + 7)
+    ld ix, mouseWall3
+    ld a, (ix + 6)      ; load inactive setting
+    cp 1
+    jr z, wall3End
+activateWall3:
+    ld a, (ix + 7)      ; load the counter for when to check spawning
+    cp wallTime         ; compare against the random check timer
+    jp nz, wall3End     ; this should happen every sec (25 frames)
+
+    ld (ix + 7), 0
+    call random
+    and 1
+
+    ; push af
+    ; ld b, 0
+    ; ld c, a
+    ; call $2d2b
+    ; call $2de3
+    ; pop af
+
+    cp wallSpawn
+    jr nc, wall3End
+    ; ld  de,wall3Str
+    ; ld  bc,Xwall3Str-wall3Str
+    ; call    print
+    ld (ix + 6), 1
+wall3End:
+    inc (ix + 7)
+    ret
+
 ;;---------------------------------------
 ;; random number generator
 ;;      - leaves the number in A
@@ -206,6 +301,18 @@ random:
     inc hl              ; Incr pointer
     ld (seed), hl
     ret
+
+wall1Str:
+    defb    "1"
+Xwall1Str:
+
+wall2Str:
+    defb    "2"
+Xwall2Str:
+
+wall3Str:
+    defb    "3"
+Xwall3Str:
 
 checkStr:
     defb    "C"
@@ -246,8 +353,9 @@ couchX:     equ 200
 holeX:      equ 100
 spawnTime:  equ 125
 randomTime: equ 25
+wallTime:   equ 20
 spawnChance:    equ 4
-
+wallSpawn:  equ 1
 
 ; cp 1
 ; jr z, firstOne
