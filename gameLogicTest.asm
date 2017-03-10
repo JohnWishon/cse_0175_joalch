@@ -36,6 +36,8 @@ testGameLogic1:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
+    ld  bc,1000
+    ld  (p1Score),bc      ; Set starting score
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile shouldn't change
@@ -74,7 +76,19 @@ testGameLogic_t1LoopCR:
     ld  c,3
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    ld  de,(p1Score)        ; Check that score doesn't change.
+    ld  a,d
+    cp  $3
+    ld  b,0
+    ld  c,4
+    call    nz,testGameLogic_errorExit
+    ld  a,e
+    cp  $E8
+    ld  b,0
+    ld  c,5
+    call    nz,testGameLogic_errorExit
+
+    call    testGameLogic_testPassed
 
 testGameLogic2:
     ld  b,0
@@ -94,6 +108,8 @@ testGameLogic2:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
+    ld  bc,1000
+    ld  (p1Score),bc      ; Set starting score
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have 1 less HP
@@ -125,14 +141,25 @@ testGameLogic_t2LoopCR:
     ld  c,2
     call    nz,testGameLogic_errorExit
 
-
     ld  a,(p1Interest)      ; Grab new interest val
-    cp  10+1                ; Check that interest is gained; change gained int val according to code
+    cp  10                  ; Check that no interest gained.
     ld  b,0
     ld  c,3
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    ld  de,(p1Score)        ; Check that score += 10.
+    ld  a,d
+    cp  $3
+    ld  b,0
+    ld  c,4
+    call    nz,testGameLogic_errorExit
+    ld  a,e
+    cp  $F2
+    ld  b,0
+    ld  c,5
+    call    nz,testGameLogic_errorExit
+
+    call    testGameLogic_testPassed
 
 testGameLogic3:
     ld  b,0
@@ -152,6 +179,8 @@ testGameLogic3:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
+    ld  bc,1000
+    ld  (p1Score),bc
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
@@ -183,14 +212,25 @@ testGameLogic_t3LoopCR:
     ld  c,2
     call    nz,testGameLogic_errorExit
 
-
     ld  a,(p1Interest)      ; Grab new interest val
-    cp  10+1                ; Check that interest is gained; change gained int val according to code
+    cp  10                  ; Check that no interest gained.
     ld  b,0
     ld  c,3
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    ld  de,(p1Score)        ; Check that score += 10.
+    ld  a,d
+    cp  $3
+    ld  b,0
+    ld  c,4
+    call    nz,testGameLogic_errorExit
+    ld  a,e
+    cp  $F2
+    ld  b,0
+    ld  c,5
+    call    nz,testGameLogic_errorExit
+
+    call    testGameLogic_testPassed
 
     ld  a,tgaPassable               ; Restore the tile.
     ld  (gameLevel + 1*levelTileWidth + 10), a
@@ -208,6 +248,8 @@ testGameLogic4:
     ld  (p1PPressed),a    ; Mark punch as pressed
     ld  a,10
     ld  (p1Interest),a    ; Set starting interest
+    ld  bc,1000
+    ld  (p1Score),bc      ; Set init score
     call    updateGameLogic
 
     ld  a,(p1Interest)      ; Grab new interest val
@@ -216,7 +258,19 @@ testGameLogic4:
     ld  c,1
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    ld  de,(p1Score)        ; Check that score += 10.
+    ld  a,d
+    cp  $3
+    ld  b,0
+    ld  c,4
+    call    nz,testGameLogic_errorExit
+    ld  a,e
+    cp  $F2
+    ld  b,0
+    ld  c,5
+    call    nz,testGameLogic_errorExit
+
+    call    testGameLogic_testPassed
 
     ;============================================================
     ;; Test 5: Reserved
@@ -300,7 +354,7 @@ testGameLogic6:
     ld  c,6
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    call    testGameLogic_testPassed
 
 testGameLogic7:
     ld  b,0
@@ -328,7 +382,7 @@ testGameLogic7:
     ld  c,1
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    call    testGameLogic_testPassed
     ld  a, tgaPassable
     ld  (gameLevel + 3*levelTileWidth + 2),a  ; restore tile
 testGameLogic8:
@@ -359,7 +413,7 @@ testGameLogic8:
     ld  c,1
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    call    testGameLogic_testPassed
     ld  a, tgaPassable
     ld  (gameLevel + 4*levelTileWidth - 3),a  ; restore tile
 
@@ -396,7 +450,7 @@ testGameLogic9:
     ld  c,2
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    call    testGameLogic_testPassed
     ld  a, tgaPassable
     ld  (gameLevel + 3*levelTileWidth + 2),a  ; restore tile
 testGameLogic10:
@@ -432,9 +486,10 @@ testGameLogic10:
     ld  c,2
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    call    testGameLogic_testPassed
     ld  a, tgaPassable
     ld  (gameLevel + 4*levelTileWidth - 3),a  ; restore tile
+
 testGameLogic11:
     ld  b,0
     ld  c,11
@@ -483,9 +538,133 @@ testGameLogic11:
     ld  c,3
     call    nz,testGameLogic_errorExit
 
-    call    test_print_test_passed
+    call    testGameLogic_testPassed
+
+testGameLogic12:
+    ld  b,0
+    ld  c,12
+    call    test_print_testing_header_with_num
+    ;============================================================
+    ;; Test 12: P2 punching dyna block, destroyed (Just to check P2 works)
+    ;============================================================
+    ld  a,$11               ; Second dyna tile, 1 HP
+    ld  (gameLevel + 1*levelTileWidth + 10), a
+    ; Put a static tile at <1, 10>
+    ld  a,10
+    ld  (p2PunchX),a      ; Set punch coordinates
+    ld  a,1
+    ld  (p2PunchY),a
+    ld  a,playerHiPunch
+    ld  (p2PPressed),a    ; Mark punch as pressed
+    ld  a,10
+    ld  (p2Interest),a    ; Set starting interest
+    ld  bc,1000
+    ld  (p2Score),bc
+    call    updateGameLogic
+
+    ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
+    cp  tgaStandable | tgaPassable
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    ld  d,0
+    ld  hl, gameLevel       ; Need to check that we didn't change other tiles
+    ld  b,levelTileHeight
+testGameLogic_t12Loop1:
+    push    bc
+    ld  b,levelTileWidth
+testGameLogic_t12Loop2:
+    ld  a,(hl)
+    cp  tgaPassable
+    jp  z,testGameLogic_t12LoopCR
+    inc d
+testGameLogic_t12LoopCR:
+    inc hl
+    djnz testGameLogic_t12Loop2
+    pop bc
+    djnz testGameLogic_t12Loop1
+
+    ld  a,d
+    cp  1
+    ld  b,0
+    ld  c,2
+    call    nz,testGameLogic_errorExit
+
+    ld  a,(p2Interest)      ; Grab new interest val
+    cp  10                  ; Check that no interest gained.
+    ld  b,0
+    ld  c,3
+    call    nz,testGameLogic_errorExit
+
+    ld  de,(p2Score)        ; Check that score += 10.
+    ld  a,d
+    cp  $3
+    ld  b,0
+    ld  c,4
+    call    nz,testGameLogic_errorExit
+    ld  a,e
+    cp  $F2
+    ld  b,0
+    ld  c,5
+    call    nz,testGameLogic_errorExit
+
+    call    testGameLogic_testPassed
+    ld  a,tgaPassable               ; Restore the tile.
+    ld  (gameLevel + 1*levelTileWidth + 10), a
+
+testGameLogic13:
+    ld  b,0
+    ld  c,13
+    call    test_print_testing_header_with_num
+    ;============================================================
+    ;; Test 11: Cat colliding left climbable on ground
+    ;============================================================
+    ld  a,0+24
+    ld  (fuP2UpdatesNewPosX),a
+    ld  a,16
+    ld  (fuP2UpdatesNewPosY),a  ; Set the cat location
+    ld  a,collisionStateBlockedLeft
+    ld  (p2CollisionState),a    ; Indicate that the cat is moving to left but unable to do so
+    ld  a,movementStateGround
+    ld  (p2MovementState),a     ; Set a not-on-ground mov state to (potentially) allow clipping to wall.
+    ld  a, tgaPassable | tgaClimbable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; Making the tile to the cat's left climbable
+    ; Note that up is not pressed rn
+    call    updateGameLogic
+
+    ld  a,(p2MovementState)
+    cp  movementStateGround    ; mov state should still be ground since not pressing up
+    ld  b,0
+    ld  c,1
+    call    nz,testGameLogic_errorExit
+
+    ld  a,1
+    ld  (p2DirPressed+0),a  ; Set up to be pressed
+    call    updateGameLogic
+
+    ld  a,(p2MovementState)
+    cp  movementStateClimbing   ; mov state should now be climbing since we pressed up.
+    ld  b,0
+    ld  c,2
+    call    nz,testGameLogic_errorExit
+
+    ld  a,movementStateGround
+    ld  (p2MovementState),a     ; "Here comes the invisible hand, drag the cat back unto the land"
+    ld  a, tgaPassable
+    ld  (gameLevel + 3*levelTileWidth + 2),a  ; restore tile to non-climbable
+    call    updateGameLogic
+
+    ld  a,(p2MovementState)
+    cp  movementStateGround    ; mov state should still be ground since the neighbor tile isn't climbable
+    ld  b,0
+    ld  c,3
+    call    nz,testGameLogic_errorExit
+
+    call    testGameLogic_testPassed
 
     call    test_print_all_test_passed
+
 endProg:
     nop
     jp endProg
@@ -493,7 +672,20 @@ endProg:
 testGameLogic_errorExit:
     call    test_print_error_with_num
     jp  endProg
+testGameLogic_testPassed:
+    call    test_print_test_passed
+    ld  hl,testGameLogic_defaultPlayerState
+    ld  de,p1StateBase
+    ld  bc,15
+    ldir
+    ld  hl,testGameLogic_defaultPlayerState
+    ld  de,p2StateBase
+    ld  bc,15
+    ldir
+    ret
 
+testGameLogic_defaultPlayerState:
+    defb 0,0,0,0,0,playerNotPunch,0,0,movementStateGround,0,0,0,playerMaxInterest,0,0
     include "gameLogic.asm"
 
 collisionGetGameplayAttribute:

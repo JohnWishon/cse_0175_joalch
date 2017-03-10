@@ -52,7 +52,7 @@ logicBody:
         ;; First check if the cat punches a patrolling mouse
         ld  a,(ix+15)
         cp  1
-        call    z,logicGainInterest ; Interest or score?
+        call    z,logicGainScoreAndInterest
 
         ;; Get punch coordinates. The X, Y here are in tiles, so use a
         ;; condensed version of collisionCalculateGameLevelPtr
@@ -76,7 +76,7 @@ logicBody:
         ;; CAVEAT: not sure how the running mouse is implemented (does it have a dyna tile,
         ;; for example), talk with Amanda.
         ;; The whack-a-mole is conceptually lesser of an issue for this line
-        call logicGainInterest  ; So destruction definitely happens, calc interest gain first
+        call logicGainScore  ; So destruction definitely happens, calc interest gain first
         ld  a,(hl)  ; reload raw data
         dec a       ; -1 to raw data, dec the HP by 1
         ld  (hl),a
@@ -173,6 +173,20 @@ logicGainInterest:
         ret z   ; z indicates that the interest is equal to max.
         ret nc  ; nc indicates that the interest is higher than max.
         inc a   ; Place holder interest inc val
-                ; We need to at least check for exceeding max interest val
         ld  (ix+12),a
+        ret
+
+logicGainScore:
+        ld  a,(ix+13)
+        add a,10
+        ld  (ix+13),a
+        ret nc
+        ld  a,(ix+14)
+        inc a
+        ld  (ix+14),a
+        ret
+
+logicGainScoreAndInterest:
+        call    logicGainInterest
+        call    logicGainScore
         ret
