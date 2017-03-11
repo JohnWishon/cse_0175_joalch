@@ -8,16 +8,24 @@ main:
         ;; ---------------------------------------------------------------------
 
         ld SP, $FFEE
-
         ;; TODO: do we need this?
         ld a,2                 ; upper screen
         call openChannel
         ;; TODO: do we need the above?
-
-
+		;; TODO: should we keep this?
+		call runLoadingScreen
+		
+waitSpaceKey:  
+		ld a,(23560)        ; read keyboard.
+		cp 32               ; is SPACE pressed?
+		jr nz,waitSpaceKey  ; no, wait.
+		call startGame      ; play the game.
+		jr waitSpaceKey     ; SPACE to restart game.
+		
+startGame:		
         call setupGameLogic
-        call setupRenderer
-	call setupGraphics
+        call setupRenderer	
+		call setupGraphics
 
 
         di                      ; disable interrupts
@@ -126,4 +134,6 @@ pretim:
         include "draw.asm"
 		include "utilities.asm"
 		include "graphics-mainScreen.asm"
+		include "graphics-loadingScreen.asm"
         include "graphics-sprites.asm"
+		include "music-loadingScreen.asm"
