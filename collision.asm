@@ -250,6 +250,7 @@ collisionHandleHorizontalHandleCollisionRight:
         ;;       IX regester preserved
         ;;       IY register preserved
 collisionHandleVertical:
+        ret
         ;; Did we even try to move?
         ld a, (IX + collisionPNMovY)
         cp 0
@@ -328,7 +329,7 @@ collisionHandleVerticalStepTwo:
 
         ld a, (IY + collisionPNUpdatesNewY) ; a contains Y position
 
-        cp 0                                ; Are we in the bottommost pixel?
+        cp levelBottommostPixel + catPixelHeight ; Are we in the bottommost pixel?
         jp z, collisionHandleVerticalCollisionDown ; If we are, collide down
         jp collisionHandleVerticalTopBottomEdgeEnd
 collisionHandleVerticalTopEdge:
@@ -371,8 +372,8 @@ collisionHandleVerticalCatHeightEnd:
         call collisionGetGameplayAttribute ; a now contains the gameplay
                                            ; attribute of the tile we want to
                                            ; move to
-
-        and tgaPassable                    ; a contains 0 IFF passable bit is
+        jp 0
+        and tgaStandable                   ; a contains 0 IFF passable bit is
                                            ; not set
 
         jp z, collisionHandleVerticalCollision ; handle potential collision

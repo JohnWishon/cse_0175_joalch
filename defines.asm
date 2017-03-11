@@ -62,12 +62,12 @@ levelRightmostCol:    equ 31
 levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
-levelBottommostRow:   equ 23
+levelBottommostRow:   equ 22
 levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
 levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
 levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
-levelTileWidth:     equ levelRightmostCol - levelLeftmostCol
-levelTileHeight:    equ levelBottommostRow - levelTopmostRow
+levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
+levelTileHeight:    equ levelBottommostRow - levelTopmostRow + 1
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
@@ -148,6 +148,11 @@ ENDIF
         ;;   |pad 1|pad 2|pad3| -> padding to ensure word alignment
 
 dynamicTileInstanceBase:
+mouseHoleActive: defb 0, 0, 0, 0, 0, 0, 0, 0, 0  ; tile - base OR'd health : inactive -> active: gamelevel array active - base -- changeptr: mouseHoleActive
+        defb tgaPassable | 1
+        defw staticTileMouseHole    ; active -> inactive: changeptr
+        defb tgaPassable            ; active -> inactive: gamelevel array
+        defb 0, 0, 0
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
@@ -198,6 +203,7 @@ staticTileCouchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileCouchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileBackground: defb 0, 0, 0, 0, 0, 0, 0, 0, %01$111$111
 staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$010$001
+staticTileMouseHole: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 
         ;; Game state
 
@@ -234,7 +240,7 @@ staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$01
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs levelTileWidth * levelTileHeight, tgaPassable
+gameLevel: defs levelTileWidth * levelTileHeight, tgaStandable | tgaPassable
 gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
@@ -264,23 +270,23 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 8 * 1 + 2
-fuP1UpdatesNewPosX:       defb 8 * 1 + 2
-fuP1UpdatesOldPosY:       defb 8 * 4 + 1
-fuP1UpdatesNewPosY:       defb 8 * 4 + 1
+fuP1UpdatesOldPosX:       defb 8 * 7 + 6
+fuP1UpdatesNewPosX:       defb 8 * 7 + 6
+fuP1UpdatesOldPosY:       defb 8 * 2 + 0
+fuP1UpdatesNewPosY:       defb 8 * 2 + 0
 fuP1UpdatesOldPose:       defb 0
 fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
-fuP1UpdatesOldTilePosX:   defb 1
-fuP1UpdatesNewTilePosX:   defb 1
-fuP1UpdatesOldTilePosY:   defb 4
-fuP1UpdatesNewTilePosY:   defb 4
+fuP1UpdatesOldTilePosX:   defb 7
+fuP1UpdatesNewTilePosX:   defb 7
+fuP1UpdatesOldTilePosY:   defb 1
+fuP1UpdatesNewTilePosY:   defb 1
 
 fuP2UpdatesBase:
-fuP2UpdatesOldPosX:       defb 8 * 4
-fuP2UpdatesNewPosX:       defb 8 * 4
+fuP2UpdatesOldPosX:       defb 8 * 4 + 4
+fuP2UpdatesNewPosX:       defb 8 * 4 + 4
 fuP2UpdatesOldPosY:       defb 8 * 3
 fuP2UpdatesNewPosY:       defb 8 * 3
 fuP2UpdatesOldPose:       defb 0
@@ -299,17 +305,49 @@ fuP2UpdatesNewTilePosY:   defb 3
 mouseUpdatesBase:
 ; Mouse data tables
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
-mouseUpdatesDirection:  defb 2      ; ix
-mouseUpdatesOldPosX:    defb 8 * 21      ; ix + 1
-mouseUpdatesNewPosX:    defb levelRightmostPixel - 4    ; ix + 2
-mouseUpdatesOldPosY:    defb 8 * 3      ; ix + 3
+mouseUpdatesDirection:  defb 1      ; ix
+mouseUpdatesOldPosX:    defb 0      ; ix + 1
+mouseUpdatesNewPosX:    defb levelLeftmostPixel + 4    ; ix + 2
+mouseUpdatesOldPosY:    defb 0      ; ix + 3
 mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
+mouseActive:            defb 0      ; ix + 5
+spawnCtr:               defb 0      ; ix + 6
+randomCtr:              defb 0      ; ix + 7 - timer for the random call
+
 mouseUpdatesOldTilePosX:   defb 28
 mouseUpdatesNewTilePosX:   defb 0
-mouseUpdatesOldTilePosY:   defb 3
-mouseUpdatesNewTilePosY:   defb 0
 
-; 3 mouse poses
-; 3 exit paths -- door on right, below couch middle (maybe any part under couch), mouse hole on left
-; if cat gets close enough- move 8 pixels/s ?
-; mouse holes spawn randomly on wall - change x y position on wall - lasts x seconds
+mouseUpdatesOldTilePosY:   defb 3
+mouseUpdatesNewTilePosY:   defb levelBottommostRow
+
+mouseWall1:
+mouseW1X:               defb 0      ;
+mouseW1Y:               defb 0
+mouseW1MinXTile:        defb 0
+mouseW1MinYTile:        defb 0
+mouseW1MaxXTile:        defb 10
+mouseW1MaxYTile:        defb 5
+mouseW1Inactive:        defb 0      ; inactive timer
+wall1Rnd:               defb 0      ; time for random call  - reset on deactivate
+;; add ptr change to null if no change - if change valid ptr
+wall1ChangePtr:         defw 0
+
+mouseWall2:
+mouseW2X:               defb 0      ;
+mouseW2Y:               defb 0
+mouseW2MinXTile:        defb 15
+mouseW2MinYTile:        defb 10
+mouseW2MaxXTile:        defb 20
+mouseW2MaxYTile:        defb 15
+mouseW2Inactive:        defb 0      ; inactive timer
+wall2Rnd:               defb 0      ; time for random call  - reset on deactivate
+
+mouseWall3:
+mouseW3X:               defb 0      ; Current X tile
+mouseW3Y:               defb 0      ; Current Y tile
+mouseW3MinXTile:        defb 25     ; X Tile Boundary
+mouseW3MinYTile:        defb 15     ; Y Tile Boundary
+mouseW3MaxXTile:        defb 30
+mouseW3MaxYTile:        defb 20
+mouseW3Inactive:        defb 0      ; inactive timer
+wall3Rnd:               defb 0      ; time for random call - reset on deactivate

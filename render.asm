@@ -1,3 +1,7 @@
+renderFrameTransferStackPtr: defw 0
+renderFrameTransferSourceFirstColumn: defw 0
+renderFrameTransferDestLastColumn: defw 0
+
 renderPNUpdatesOldPosX: equ 0
 renderPNUpdatesNewPosX: equ 1
 renderPNUpdatesOldPosY: equ 2
@@ -19,79 +23,212 @@ renderWriteTilePtr: equ 2
 renderCatMouseNumShifts:  equ 4
 renderCatMouseNumFacings: equ 2
 
-renderBuffersBegin:
+catLateralSpriteWidth: equ 24 + (72 * 4)
+catNonLateralSpriteWidth: equ 74
+
+;;; Cat 1
+
 catOneSprites: equ $C000
+
 catOneWalkLeft: equ $C000
 catOneJumpLeft: equ $C138
 catOneAttackHighLeft: equ $C270
 catOneAttackLowLeft: equ $C3A8
+catOneStandLeft: equ $C4E0
+catOneClimbLeft: equ $C618
+catOneClimbAttackHighLeft: equ $C6F0
+catOneClimbAttackLowLeft: equ $C738
 catOneWalkRight: equ $C4E0
 catOneJumpRight: equ $C618
 catOneAttackHighRight: equ $C750
 catOneAttackLowRight: equ $C888
-catOneHandLeft: equ $C9C0
-catOneHandRight: equ $CA50
-catOneBgCache: equ $CAE0
+catOneStandRight: equ $CC60
+catOneClimbRight: equ $CD98
+catOneClimbAttackHighRight: equ $CE70
+catOneClimbAttackLowRight: equ $CEB8
+catOneBgCache: equ $CF00
 
-catTwoSprites:
-catTwoWalkLeft: equ $CB40
-catTwoJumpLeft: equ $CC78
-catTwoAttackHighLeft: equ $CDB0
-catTwoAttackLowLeft: equ $CEE8
-catTwoWalkRight: equ $D020
-catTwoJumpRight: equ $D158
-catTwoAttackHighRight: equ $D290
-catTwoAttackLowRight: equ $D3C8
-catTwoHandLeft: equ $D500
-catTwoHandRight: equ $D590
-catTwoBgCache: equ $D620
+catOneHandLeft: equ $CF48
+catOneHandRight: equ $CFD8
+catOneHandBgCache: equ $D068
 
-mouseSprites:
-mouseWalkLeft: equ $D680
-mouseWalkRight: equ $D6E8
-mouseBgCache: equ $D750
+;;; Cat 2
+catTwoSprites: equ $D088
 
-catCanvas: equ $D768
-mouseCanvas: equ $D7C8
-renderBuffersEnd: equ $D7E0
+catTwoWalkLeft: equ catTwoSprites + catOneWalkLeft - catOneSprites
+catTwoJumpLeft: equ catTwoSprites + catOneJumpLeft - catOneSprites
+catTwoAttackHighLeft: equ catTwoSprites + catOneAttackHighLeft - catOneSprites
+catTwoAttackLowLeft: equ catTwoSprites + catOneAttackLowLeft - catOneSprites
+catTwoStandLeft: equ catTwoSprites + catOneStandLeft - catOneSprites
+catTwoClimbLeft: equ catTwoSprites + catOneClimbLeft - catOneSprites
+catTwoClimbAttackHighLeft: equ catTwoSprites + catOneClimbAttackHighLeft - catOneSprites
+catTwoClimbAttackLowLeft: equ catTwoSprites + catOneClimbAttackLowLeft - catOneSprites
+catTwoWalkRight: equ catTwoSprites + catOneWalkRight - catOneSprites
+catTwoJumpRight: equ catTwoSprites + catOneJumpRight - catOneSprites
+catTwoAttackHighRight: equ catTwoSprites + catOneAttackHighRight - catOneSprites
+catTwoAttackLowRight: equ catTwoSprites + catOneAttackLowRight - catOneSprites
+catTwoStandRight: equ catTwoSprites + catOneStandRight- catOneSprites
+catTwoClimbRight: equ catTwoSprites + catOneClimbRight - catOneSprites
+catTwoClimbAttackHighRight: equ catTwoSprites + catOneClimbAttackHighRight - catOneSprites
+catTwoClimbAttackLowRight: equ catTwoSprites + catOneClimbAttackLowRight- catOneSprites
+catTwoBgCache: equ catTwoSprites + catOneBgCache - catOneSprites
+
+catTwoHandLeft: equ catTwoSprites + catOneHandLeft - catOneSprites
+catTwoHandRight: equ catTwoSprites + catOneHandRight - catOneSprites
+catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
+
+;;; Mouse
+mouseSprites: equ $E110
+mouseWalkLeft: equ $E110
+mouseWalkRight: equ $E178
+mouseBgCache: equ $E1E0
+
+;;; Canvi
+catCanvas: equ $E1F8
+catHandCanvas: equ $E240
+mouseCanvas: equ $E260
+renderBuffersEnd: equ $E278
+
+secondFramebuffer: equ $E278
+;;; Used by read/write tile to get the "logical beginning" of the framebuffer.
+;;; The code expects a full 32 x 24 framebuffer, but our second framebuffer
+;;; is smaller than this. Due to this, we need to pass in the pointer for
+;;; where the beginning *would be* for our window.
+;;;
+;;; INVARIANT: regions before the actual beginning must never be accessed!
+secondFramebufferLogicalBegin:   equ secondFramebuffer - (levelTopmostRow * levelTileWidth)
+
+;;; What to add to a pointer returned by renderFrameTileAddress to get an
+;;; address into the second framebuffer
+secondFramebufferLogicalOffset: equ secondFramebufferLogicalBegin - $4000
 
 setupRenderer:
+        ;; get the contents of the front buffer
+
+
+        ld de, secondFramebufferLogicalBegin
+        ld hl, $4000
+        ld bc, 32 * 24 * 8
+        ldir
+
+        ;; front buffer now copied. A bunch of stuff before and after
+        ;; the back buffer in memory got obliterated, but it *should*
+        ;; be fine
+
         call renderPrecomputeSprites
+
+        ld hl, catOneBgCache
+        ld a, (fuP1UpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
+        ld d, 3
+        call renderReadRectangle
+
+        ld hl, catTwoBgCache
+        ld a, (fuP2UpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
+        ld d, 3
+        call renderReadRectangle
+
+	ld hl, mouseBgCache
+	ld a, (mouseUpdatesNewTilePosX)
+	add a, levelLeftmostCol
+	ld c, a
+	ld a, (mouseUpdatesNewTilePosY)
+	add a, levelTopmostRow
+	ld b, a
+	ld e, 3
+	ld d, 1
+	call renderReadRectangle
+
         ret
 
 renderFrame:
-        ;; TODO: delete me
-        ;; manual create an update for testing purposes
+        ;; TODO: this stuff probably belongs in gameLogic
+        ;; Save old tile positions
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld (fuP1UpdatesOldTilePosX), a
 
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld (fuP2UpdatesOldTilePosX), a
 
-        ;; ld IX, fuP1UpdatesBase
-        ;; ld (IX + renderPNUpdatesTileX), 0
-        ;; ld (IX + renderPNUpdatesTileY), 0
-        ;; ld (IX + renderPNUpdatesTilePtr), HIGH(cat1SpritesWalk)
-        ;; ld (IX + renderPNUpdatesTilePtr + 1), LOW(cat1SpritesWalk)
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld (fuP1UpdatesOldTilePosY), a
 
-        ;; ld IX, fuP2UpdatesBase
-        ;; ld (IX + renderPNUpdatesTileX), 3
-        ;; ld (IX + renderPNUpdatesTileY), 0
-        ;; ld (IX + renderPNUpdatesTilePtr), HIGH(catOneWalkRight + (8 * 3))
-        ;; ld (IX + renderPNUpdatesTilePtr + 1), LOW(catOneWalkRight   + (8 * 3))
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld (fuP2UpdatesOldTilePosY), a
 
-        ;; ld a,2              ; 2 is the code for red.
-        ;; out (254),a         ; write to port 254.
+        ld a, (mouseUpdatesNewTilePosX)
+        ld (mouseUpdatesOldTilePosX), a
+
+        ld a, (mouseUpdatesNewTilePosY)
+        ld (mouseUpdatesOldTilePosY), a
+
+        ;;  calculate new tile positions
+        ld a, (fuP1UpdatesNewPosX)
+        srl a
+        srl a
+        srl a
+        ld (fuP1UpdatesNewTilePosX), a
+
+        ld a, (fuP1UpdatesNewPosY)
+        srl a
+        srl a
+        srl a
+        ld (fuP1UpdatesNewTilePosY), a
+
+        ld a, (fuP2UpdatesNewPosX)
+        srl a
+        srl a
+        srl a
+        ld (fuP2UpdatesNewTilePosX), a
+
+        ld a, (fuP2UpdatesNewPosY)
+        srl a
+        srl a
+        srl a
+        ld (fuP2UpdatesNewTilePosY), a
+
+        ;;  calculate new tile positions
+        ld a, (mouseUpdatesNewPosX)
+        srl a
+        srl a
+        srl a
+        ld (mouseUpdatesNewTilePosX), a
+
+        ld a, (mouseUpdatesNewPosY)
+        srl a
+        srl a
+        srl a
+        ld (mouseUpdatesNewTilePosY), a
+
+        ;ld a,2              ; 2 is the code for red.
+        ;out (254),a         ; write to port 254.
+
+        call renderFrameSwapBuffers
 
         ;; clear old sprites
 
         ;; erase mouse
-        ;; ld hl, mouseBgCache
-        ;; ld a, (mouseUpdatesOldTilePosX)
-        ;; add a, levelLeftmostCol
-        ;; ld c, a
-        ;; ld a, (mouseUpdatesOldTilePosY)
-        ;; add a, levelTopmostRow
-        ;; ld b, a
-        ;; ld e, 3
-        ;; ld d, 1
-        ;; call renderDrawRectangle
+        ld hl, mouseBgCache
+        ld a, (mouseUpdatesOldTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (mouseUpdatesOldTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
+        ld d, 1
+        call renderDrawRectangle
 
         ;; erase cat 2
         ld hl, catTwoBgCache
@@ -131,6 +268,7 @@ renderFrame:
         ld a, (fuP1UpdatesTileChangeY)
         add a, levelTopmostRow
         ld b, a
+        ld de, secondFramebufferLogicalOffset
         call renderFrameWriteTile
 renderFrameCat1NoTileUpdate:
 
@@ -146,6 +284,7 @@ renderFrameCat1NoTileUpdate:
         ld a, (fuP2UpdatesTileChangeY)
         add a, levelTopmostRow
         ld b, a
+        ld de, secondFramebufferLogicalOffset
         call renderFrameWriteTile
 renderFrameCat2NoTileUpdate:
 
@@ -167,7 +306,7 @@ renderFrameCat2NoTileUpdate:
         ld ix, fuP1UpdatesBase
         ld de, catOneBgCache
         ld hl, catOneSprites
-        call renderFrameBuildCat
+        call renderFrameBuildCat ;TODO: special case for climbing sprites
 
         ;; TODO: draw cat 1
         ld hl, catCanvas
@@ -180,7 +319,6 @@ renderFrameCat2NoTileUpdate:
         ld e, 3
         ld d, 3
         call renderDrawRectangle
-
 
         ;; TODO: read area behind cat 2
         ld hl, catTwoBgCache
@@ -213,50 +351,34 @@ renderFrameCat2NoTileUpdate:
         call renderDrawRectangle
 
         ;; TODO: read area behind mouse
-        ;; ld hl, mouseBgCache
-        ;; ld a, (mouseUpdatesNewTilePosX)
-        ;; add a, levelLeftmostCol
-        ;; ld c, a
-        ;; ld a, (mouseUpdatesNewTilePosY)
-        ;; add a, levelTopmostRow
-        ;; ld b, a
-        ;; ld e, 3
-        ;; ld d, 1
-        ;; call renderReadRectangle
-
-        ;; ;; TODO: draw mice
-
-        ;; ;; TODO: draw mouse
-        ;; ld hl, mouseCanvas
-        ;; ld a, (mouseUpdatesNewTilePosX)
-        ;; add a, levelLeftmostCol
-        ;; ld c, a
-        ;; ld a, (mouseUpdatesNewTilePosY)
-        ;; add a, levelTopmostRow
-        ;; ld b, a
-        ;; ld e, 3
-        ;; ld d, 1
-        ;; call renderDrawRectangle
-
-        ;; ld a,1              ; 1 is the code for blue.
-        ;; out (254),a         ; write to port 254.
-        ret
-
-renderFrameCat:
-        ;; first update tiles
-
-        ld a, (IX + renderPNUpdatesTileX)
+        ld hl, mouseBgCache
+        ld a, (mouseUpdatesNewTilePosX)
         add a, levelLeftmostCol
         ld c, a
-        ld a, (IX + renderPNUpdatesTileY)
+        ld a, (mouseUpdatesNewTilePosY)
         add a, levelTopmostRow
         ld b, a
-        ld h, (IX + renderPNUpdatesTilePtr)
-        ld l, (IX + renderPNUpdatesTilePtr + 1)
-        call renderFrameWriteTile
+        ld e, 3
+        ld d, 1
+        call renderReadRectangle
 
+        ;; ;; ;; TODO: draw mice
 
-        ;; TODO: sprite stuff
+        ;; TODO: draw mouse
+
+        ld hl, cat1SpritesWalk
+        ld a, (mouseUpdatesNewTilePosX)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (mouseUpdatesNewTilePosY)
+        add a, levelTopmostRow
+        ld b, a
+        ld e, 3
+        ld d, 1
+        call renderDrawRectangle
+
+        ;ld a,1              ; 1 is the code for blue.
+        ;out (254),a         ; write to port 254.
         ret
 
 
@@ -480,7 +602,7 @@ renderPrecomputeSpritesShiftLoop:
         call renderPrecomputeShiftCatSprite
 
         ld a, b
-        cp renderCatMouseNumShifts / 2
+        cp (renderCatMouseNumShifts - 1) * 2
         jp z, renderPrecomputeSpritesShiftLoopEnd
         jp renderPrecomputeSpritesShiftLoop
 renderPrecomputeSpritesShiftLoopEnd:
@@ -569,6 +691,9 @@ renderPrecomputeCopyCatSprite:
         ;; POST: the sprite in IX is shifted over N pixels
 renderPrecomputeShiftCatSprite:
         push bc
+        ld a, b
+        cp 8
+        jp z, 0
 renderPrecomputeShiftCatSpriteLoop:
         ;; middle row
         srl (IX + 8)
@@ -655,6 +780,7 @@ renderPrecomputeShiftCatSpriteLoop:
         ;;      rectangle in range
         ;; POST: rectangle of tile pixel data at HL drawn to the screen
 renderDrawRectangle:
+        dec b
         ld a, e
         ld (renderDrawRectangleOriginalWidth), a
         ld a, c
@@ -672,6 +798,7 @@ renderDrawRectangleXLoop:
         ;; hl contains current tile
         push de
         push hl
+        ld de, secondFramebufferLogicalOffset
         call renderFrameWriteTilePixels
         pop hl
         pop de
@@ -710,6 +837,7 @@ renderDrawRectangleOriginalX:        defb 0
         ;; POST: rectangle of tile pixel data at screen location
         ;;       ((x, y),(x + width, y + height)) written to HL
 renderReadRectangle:
+        dec b
         ld a, e
         ld (renderReadRectangleOriginalWidth), a
         ld a, c
@@ -727,6 +855,7 @@ renderReadRectangleXLoop:
         ;; hl contains current tile
         push de
         push hl
+        ld de, secondFramebufferLogicalOffset
         call renderFrameReadTilePixels
         pop hl
         pop de
@@ -761,6 +890,9 @@ renderReadRectangleOriginalX:        defb 0
         ;; readTile
         ;; ---------------------------------------------------------------------
         ;; PRE: HL contains pointer to tile to read into
+        ;;      DE contains an offset past the primary framebuffer
+        ;;         to add to the pointer. Use 0 to just read from the
+        ;;         primary framebuffer
         ;;      c contains x offset
         ;;      b contains y offset
         ;; POST: tile at screen position (x, y) written to address in HL
@@ -773,12 +905,23 @@ renderFrameReadTile:
         ;; readTilePixels
         ;; ---------------------------------------------------------------------
         ;; PRE: HL contains pointer to tile to read into
+        ;;      DE contains an offset past the primary framebuffer
+        ;;         to add to the pointer. Use 0 to just read from the
+        ;;         primary framebuffer
         ;;      c contains x offset
         ;;      b contains y offset
         ;; POST: tile pixel data at screen position (x, y) written to (HL)
 renderFrameReadTilePixels:
-        call renderFrameTileAddress
         push bc
+        push de
+
+        call renderFrameTileAddress
+        pop bc                  ; BC contains the value pushed from DE
+
+        ex de, hl
+        add hl, bc
+        ex de, hl               ; hl contains pixel data address + offset
+
         ld b, 8
 renderFrameReadTilePixelsLoop:
         ld a, (de)              ; screen data[i]
@@ -808,6 +951,9 @@ renderFrameReadTileAttribute:
         ;; writeTile
         ;; ---------------------------------------------------------------------
         ;; PRE: HL contains pointer to tile to draw
+        ;;      DE contains an offset past the primary framebuffer
+        ;;         to add to the pointer. Use 0 to just write to the
+        ;;         primary framebuffer
         ;;      c contains x offset
         ;;      b contains y offset
         ;; POST: tile written to screen at (x, y)
@@ -821,14 +967,24 @@ renderFrameWriteTile:
         ;; writeTilePixels
         ;; ---------------------------------------------------------------------
         ;; PRE: HL contains pointer to tile pixel data to draw
+        ;;      DE contains an offset past the primary framebuffer
+        ;;         to add to the pointer. Use 0 to just write to the
+        ;;         primary framebuffer
         ;;      c contains x offset
         ;;      b contains y offset
         ;; POST: tile pixel data written to screen at (x, y)
         ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
 renderFrameWriteTilePixels:
-        call renderFrameTileAddress ; DE contains pointer to top row of tile
-
         push bc
+        push de
+
+        call renderFrameTileAddress ; DE contains pointer to top row of tile
+        pop bc                  ; BC contains the value pushed from DE
+
+        ex de, hl
+        add hl, bc
+        ex de, hl               ; hl contains pixel data address + offset
+
         ld b,8              ; number of pixels high.
 
 renderFrameWriteTilePixelsLoop:
@@ -1067,4 +1223,374 @@ renderFrameBuildCatOrBGLoop:
         inc iy
         djnz renderFrameBuildCatOrBGLoop
 
+        ret
+
+renderFrameSwapBuffers:
+        ;; TODO: massive 7000 line fast transfer function
+        ;;  https://chuntey.wordpress.com/tag/double-buffering/
+
+        ld a, levelTileWidth * levelTileHeight * 8 / 96
+        ld c, 0
+        ld b, 2
+        call renderFrameTileAddress
+        ld hl, secondFramebuffer
+        ld bc, levelTileWidth * levelTileHeight * 8
+renderFrameSwapBuffersCopyLoop:
+        ;; try not to throw up
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+        ldi
+
+        ld a, b
+        or c
+        jp nz, renderFrameSwapBuffersCopyLoop
+        ret
+
+renderFrameSwapBuffersStackPtr: defw 0
+
+        ;; ---------------------------------------------------------------------
+        ;; transferCat
+        ;; ---------------------------------------------------------------------
+        ;; PRE: c contains x offset
+        ;;      b contains y offset
+        ;; INVARIANT: interrupts disabled during transfer. Any iterrupt that
+        ;;            fires will be lost
+        ;; POST: specified 4x3 region of back buffer transferred to front buffer
+renderFrameTransferCat:
+        di                      ; Disable interrupts during transfer
+        dec b
+
+        call renderFrameTransferCatRow
+
+        inc b
+        call renderFrameTransferCatRow
+
+        inc b
+        call renderFrameTransferCatRow
+
+        ei                                   ; Re-enable interrupts
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; transferCatRow
+        ;; ---------------------------------------------------------------------
+        ;; PRE: c contains x offset
+        ;;      b contains y offset
+        ;;      interrupts are disabled
+        ;; POST: specified 6x1 region of back buffer transferred to front buffer
+renderFrameTransferCatRow:
+        push bc
+        call renderFrameTileAddress
+        ex de, hl
+        push hl
+        ld de, 6
+        add hl, de
+        ld (renderFrameTransferDestLastColumn), hl
+        ;; transferDestLastColumn contains pointer to the first pixel row of
+        ;; the top right tile of the front buffer
+
+        pop hl
+        ld de, secondFramebufferLogicalOffset
+        add hl, de
+        ld (renderFrameTransferSourceFirstColumn), hl
+        ;; transferSourceFirstColumn contains pointer to the first pixel row of
+        ;; the top left tile of the back buffer
+
+        ld (renderFrameTransferStackPtr), sp ; save the stack pointer
+        ;; pixel row 0
+
+
+        ld sp, (renderFrameTransferSourceFirstColumn)
+        pop af
+        pop bc
+        pop de
+
+        ld sp, (renderFrameTransferDestLastColumn)
+        push de
+        push bc
+        push af
+
+        ;; pixel row 1
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 255
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 255
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ;; pixel row 2
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 511
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 511
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ;; pixel row 3
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 767
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 767
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ;; pixel row 4
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 1023
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 1023
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ;; pixel row 5
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 1279
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 1279
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ;; pixel row 6
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 1535
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 1535
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ;; pixel row 7
+
+        ld ix, (renderFrameTransferSourceFirstColumn)
+        ld de, 1791
+        add ix, de
+        ld sp, ix
+
+        pop af
+        pop bc
+        pop hl
+
+        ld ix, (renderFrameTransferDestLastColumn)
+        ld de, 1791
+        add ix, de
+        ld sp, ix
+
+        push hl
+        push bc
+        push af
+
+        ld sp, (renderFrameTransferStackPtr) ; restore the stack pointer
+        pop bc
         ret

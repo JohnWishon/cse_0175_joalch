@@ -13,19 +13,20 @@ main:
         call openChannel
         ;; TODO: do we need the above?
 		;; TODO: should we keep this?
-		call runLoadingScreen
 		
+		call runLoadingScreen
 waitSpaceKey:  
 		ld a,(23560)        ; read keyboard.
 		cp 32               ; is SPACE pressed?
 		jr nz,waitSpaceKey  ; no, wait.
 		call startGame      ; play the game.
-		jr waitSpaceKey     ; SPACE to restart game.
-		
+		jr waitSpaceKey     ; SPACE to restart game.	
 startGame:		
         call setupGameLogic
-        call setupRenderer	
-		call setupGraphics
+        call setupGraphics
+        call setupRenderer
+
+
 
 
         di                      ; disable interrupts
@@ -50,9 +51,8 @@ updateIteration:
         ;; TODO: this section
         ;; TODO: multiple update iteration types
         ;; Read input, update player state
-
         call updateKeystate
-        ret
+
         ;; Update: physics simulation, ai, collision detection
         call updatePhysics
         call updateAI
