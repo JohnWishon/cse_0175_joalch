@@ -18,6 +18,7 @@ setupGameLogicXLoop:
         jp nz, setupGameLogicXLoop
         djnz setupGameLogicYLoop
 
+        ld hl, gameLevel
         ld bc, 8 + (9 * levelTileWidth)
         add hl, bc
         ld (hl), tgaNone

@@ -192,7 +192,6 @@ collisionHandleHorizontalCatHeightLoop:
         ;; collide or move the whole distance
 
 collisionHandleHorizontalCollision:
-        jp 0
         ;; If we're here, then we bumped into something. Set the collision
         ;; state and return without moving any further
         ld a, (IX + collisionPNMovX) ; a contains movement vector
