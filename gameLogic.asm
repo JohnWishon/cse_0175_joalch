@@ -9,12 +9,18 @@ setupGameLogicYLoop:
         ld c, levelTileWidth
 setupGameLogicXLoop:
         dec c
-        ;; ld (hl), (dynamicTileTestImpassableOneHealth - dynamicTileInstanceBase) | 1
+        ;ld (hl), (dynamicTileTestImpassableOneHealth - dynamicTileInstanceBase) | 1
+
+
         inc hl
         ld a, c
         cp 0
         jp nz, setupGameLogicXLoop
         djnz setupGameLogicYLoop
+
+        ld bc, 8 + (9 * levelTileWidth)
+        add hl, bc
+        ld (hl), tgaNone
         ret
 
 updateGameLogic:
