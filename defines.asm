@@ -270,8 +270,8 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 8 * 6 + 0
-fuP1UpdatesNewPosX:       defb 8 * 6 + 0
+fuP1UpdatesOldPosX:       defb 8 * 10 + 0
+fuP1UpdatesNewPosX:       defb 8 * 10 + 0
 fuP1UpdatesOldPosY:       defb 8 * 9 + 0
 fuP1UpdatesNewPosY:       defb 8 * 9 + 0
 fuP1UpdatesOldPose:       defb 0
@@ -287,8 +287,8 @@ fuP1UpdatesNewTilePosY:   defb 9
 fuP2UpdatesBase:
 fuP2UpdatesOldPosX:       defb 8 * 4 + 4
 fuP2UpdatesNewPosX:       defb 8 * 4 + 4
-fuP2UpdatesOldPosY:       defb 8 * 3
-fuP2UpdatesNewPosY:       defb 8 * 3
+fuP2UpdatesOldPosY:       defb 8 * 9
+fuP2UpdatesNewPosY:       defb 8 * 9
 fuP2UpdatesOldPose:       defb 0
 fuP2UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP2UpdatesTileChangeX:   defb 10

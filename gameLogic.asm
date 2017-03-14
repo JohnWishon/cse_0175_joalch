@@ -18,9 +18,21 @@ setupGameLogicXLoop:
         jp nz, setupGameLogicXLoop
         djnz setupGameLogicYLoop
 
+        ;; Fish tank is impassable
         ld hl, gameLevel
         ld bc, 8 + (9 * levelTileWidth)
         add hl, bc
+        ld (hl), tgaNone
+
+        inc hl
+        ld (hl), tgaNone
+
+        ld hl, gameLevel
+        ld bc, 8 + (10 * levelTileWidth)
+        add hl, bc
+        ld (hl), tgaNone
+
+        inc hl
         ld (hl), tgaNone
         ret
 
