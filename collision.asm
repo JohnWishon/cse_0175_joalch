@@ -68,6 +68,17 @@ collisionPrepareUpdates:
         ld (iy + collisionPNUpdatesTilePtr), 0
 
         ld (ix + collisionPNCollisionState), 0
+
+        ;; In order to ensure that we fall through platforms correctly,
+        ;; we need to apply a constant downward force if ground & speed = 0
+        ld a, (ix + collisionPNMoveState)
+        and movementStateGround
+        ret z                   ; not on the ground, can return early
+        ld a, (ix + collisionPNMovY)
+        cp 0
+        ret nz             ; We have vertical movement already, can return early
+        ld (ix + collisionPNMovY), -1 ; constant force of gravity
+
         ret
 
         ;; ---------------------------------------------------------------------
@@ -81,159 +92,142 @@ collisionPrepareUpdates:
         ;;       IX regester preserved
         ;;       IY register preserved
 collisionHandleHorizontal:
-        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
-        add a, (IX + collisionPNMovX)       ; a contains posX + movX
-        ld e, a                 ; We're going to use this a lot,
-                                ; save it in e
 
         ;; Did we even try to move?
         ld a, (IX + collisionPNMovX)
         cp 0
         ret z                   ; if movX == 0, return, do not move
 
-        ;; Determine facing
-        jp p, collisionHandleHorizontalFacingRight ; Trying to move right?
-        ;; if we're here, then we're facing left
+        ;; attempt to move to the edge of the tile
 
-        ld a, (IY + collisionPNUpdatesOldPose) ; a contains old cat pose
-        or catPoseFaceLeft                     ; cat facing left
-        ld (IY + collisionPNUpdatesOldPose), a ; new cat pose facing left
-        jp collisionHandleHorizontalStepOne
+        ;; ld c, (IY + collisionPNUpdatesOldX) ; c contains posX
+        ;; ld d, (IX + collisionPNMovX)        ; d contains movX
+        ;; call collisionCalculateSubtileMovement ; calculate the distance to move
+        ;; ;; the player to the next or previous first tile column
 
-collisionHandleHorizontalFacingRight:
-        ;;  If we're here, then we're facing right
-        ld a, (IY + collisionPNUpdatesOldPose) ; a contains old cat pose
-        and catPoseFaceLeftClearMask           ; cat facing right
-        ld (IY + collisionPNUpdatesOldPose), a ; new cat pose facing right
+        ;; ;; a contains the distance to we can move in this step
+        ;; ;; b contains the distance remaining to move
 
+        ;; ;; c contains the distance we can move
+        ;; ;; b contains remaining distance
 
-collisionHandleHorizontalStepOne:
-        ld a, (IY + collisionPNUpdatesOldX) ; a contains horizontal position
-        and collisionTileFirstMask ; Are we in the first column of this tile?
-        cp (IY + collisionPNUpdatesOldX)
-        jp z, collisionHandleHorizontalStepTwo ; If so, there's no move that is
-                                               ; "safe". Jump to step two
+        ;; ld a, (IY + collisionPNUpdatesOldX) ; a contains the old position
+        ;; add a, c                            ; a contains old pos + d_can
+        ;; ld (IY + collisionPNUpdatesNewX), a ; move the cat by d_can
 
-        ;; Did we move left or right?
-        ld a, (IX + collisionPNMovX)
+        ;; ld a, b                 ; a contains d_remain
+        ;; cp 0
+        ;; ret z                   ; if d_remain = 0, we're done.
+
+        ld a, (IX + collisionPNMovX) ; a contains pos x
+        cp 0                         ; are we moving right?
+        jp p, collisionHandleHorizontalLoopRightEntrypoint ; if so, enter loop
+
+        ;; if moving left, move to edge of tile, then loop
+        ld c, (IY + collisionPNUpdatesOldX) ; c contains pos x
+        ld d, a                             ; d contains mov x
+        call collisionCalculateSubtileMovement ; move to edge of tile
+
+        jp collisionHandleHorizontalLoopLeftEntrypoint
+
+        ;; enter collision loop
+collisionHandleHorizontalLoopRightEntrypoint:
+        ld b, (IX + collisionPNMovX)
+collisionHandleHorizontalLoop:
+        ;; test collisions against level edges
+
+        ld a, b                 ; a contains d_remain
+        jp p, collisionHandleHorizontalLoopScreenRight
+        ;; If we're here, then we want to move left
+        ;; load H with correct offset since we're here
+        ld h, -1
+
+        ld a, (IY + collisionPNUpdatesNewX) ; a contains current x pos
+        cp 0                                ; is this the leftmost pixel?
+        jp z, collisionHandleHorizontalCollisionLeft ; if so, collide left
+        jp collisionHandleHorizontalLoopScreenLeftRightEnd
+collisionHandleHorizontalLoopScreenRight:
+        ;; If we're here, then we want to move right
+
+        ;; load H with correct offset since we're here
+        ld h, catWidth
+
+        ld a, (IY + collisionPNUpdatesNewX) ; a contains current x pos
+        cp levelPixelWidth - catPixelWidth + 1 ; is this the rightmost pixel?
+        jp z, collisionHandleHorizontalCollisionRight ; if so, collide Right
+collisionHandleHorizontalLoopScreenLeftRightEnd:
+
+        ;; Enter cat height inner loop
+
+        ld e, catHeight     ; e contains cat height
+        ;; b contains d_remain
+collisionHandleHorizontalCatHeightLoop:
+        dec e                   ; e contains next row to check (1 -> 0 -> break)
+        push bc
+        push de
+        push hl
+        ld c, (IY + collisionPNUpdatesNewX) ; c contains current X position
+
+        ld d, (IY + collisionPNUpdatesOldY) ; c contains Y position
+        ;; h contains catWidth or -1 already
+        ld l, e                 ; l contains current row to test
+
+        ;; TODO: off by one when moving left
+        call collisionCalculateGameLevelPtr
+
+        ;; hl contains pointer to gameLevel index
+
+        call collisionGetGameplayAttribute
+
+        ;; a contains gameplay attribute
+
+        pop hl
+        pop de
+        pop bc
+
+        and tgaPassable         ; a contains 0 IFF passable bit is not set
+        jp z, collisionHandleHorizontalCollision ; if not passable, then collide
+
+        ld a, e                 ; a contains current row
         cp 0
-        jp p, collisionHandleHorizontalMovementPos ; did we move right?
-        ;; if we're here, then movement was negative
+        jp nz, collisionHandleHorizontalCatHeightLoop ; iterate if not on row 0
 
-        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
-        and collisionTileFirstMask          ; a contains the furthest left pixel
-                                            ; column that we can move to safely
-        cp e                                ; is canMove < wantToMove?
-        jp p, collisionHandleHorizontalMovementPosNegEnd
-        ;;  If we're here, then wantToMove < canMove
-        ld a, e
-        jp collisionHandleHorizontalMovementPosNegEnd
-collisionHandleHorizontalMovementPos:
-        ;; if we're here, then movement was positive
+        ;; If we're here, then we are clear to move up to 1 tile
+        ld c, (IY + collisionPNUpdatesNewX) ; c contains current X position
+        ld d, b                             ; d contains d_remain
+        call collisionCalculateNextTileMovement
 
-        ld a, (IY + collisionPNUpdatesOldX) ; a contains posX
-        or collisionTilePixelsMask    ; a contains the furthest right pixel
-                                      ; column that we can move to safely
-        cp e                          ; is canMove < wantToMove?
-        jp m, collisionHandleHorizontalMovementPosNegEnd
-        ;;  If we're here, then wantToMove < canMove
-        ld a, e
-collisionHandleHorizontalMovementPosNegEnd:
-        ;; a contains the furthest we can move in this tile, or the desired
-        ;; move itself it is in the safe range
+        ;; c contains new d_can
+        ;; b contains new d_remain
 
-        ld (IY + collisionPNUpdatesNewX), a ; Go ahead and move to the edge of
-                                            ; the tile
-        sub (IY + collisionPNUpdatesOldX)   ; a contains dest - pos = deltaX
-        ld b, a                              ; b contains deltaX
-        ld a, (IX + collisionPNMovX)         ; a contains movX
-        sub b                                ; a contains movX - deltaX
-        ld (IX + collisionPNMovX), a         ; movX = movX - deltaX
+collisionHandleHorizontalLoopLeftEntrypoint:
 
-        ;; Are we done?
+        ld a, (IY + collisionPNUpdatesNewX) ; a contains current X position
+        add a, c                            ; advance X position
+        ld (IY + collisionPNUpdatesNewX), a ; posX += d_can
+
+        ld a, b                 ; a contains d_remain
         cp 0
-        ret z                   ; If movX - deltaX = 0, then we're done
-
-collisionHandleHorizontalStepTwo:
-
-        ;; Make sure we aren't trying to walk off the screen
-        ld a, (IX + collisionPNMovX)        ; a contains movX
-        cp 0                                ; are we going left or right?
-        jp P, collisionHandleHorizontalRightEdge
-        ;; If we're here, then we're walking left
-
-        ld a, (IY + collisionPNUpdatesNewX) ; a contains X position
-        cp 0                                ; Are we in the leftmost pixel?
-        jp z, collisionHandleHorizontalCollisionLeft
-        jp collisionHandleHorizontalLeftRightEdgeEnd
-collisionHandleHorizontalRightEdge:
-        ;; If we're here, then we're walking right
-        ld a, (IY + collisionPNUpdatesNewX) ; a contains X position
-        add a, catPixelWidth                ; a contains X + cat width
-
-        ;; TODO: pixelWidth or pixelWidth - 1?
-        cp levelPixelWidth      ; Are we in the rightmost pixel?
-        jp z, collisionHandleHorizontalHandleCollisionRight
-collisionHandleHorizontalLeftRightEdgeEnd:
-        ;; prepare to loop and check each row of the player N for collisions
-        ld b, catHeight                      ; b contains the cat's height
-
-collisionHandleHorizontalCollisionLoop:
-
-        ld a, (IY + collisionPNUpdatesNewX) ; a contains X position
-        ld d, (IY + collisionPNUpdatesOldY) ; d contains Y position
-        add a, (IX + collisionPNMovX)       ; a contains desired X position
-        ld c, a                             ; c contains desired X position
-
-        ld h, 0
-        ld a, (IX + collisionPNMovX)        ; a contains movX
-        cp 0                                ; are we going left or right?
-        jp M, collisionHandleHorizontalCatWidthEnd
-        ld h, catWidth         ; If moving right, compensate for cat width
-collisionHandleHorizontalCatWidthEnd:
-        ;; h contains 0 if moving left, catWidth if moving right
-        ld a, catHeight                     ; a contains the height of the cat
-        sub b                               ; a contains current row - catheight
-                                            ; 2-2 = 0, 2-1 = 1, etc...
-        ld l, a                             ; l contains the row of the cat to
-                                            ; check
+        ret z                   ; if d_remain = 0, we're done
 
 
-        call collisionCalculateGameLevelPtr ; HL now contains pointer to tile
-                                            ; index that we want to move to
 
-        call collisionGetGameplayAttribute ; a now contains the gameplay
-                                           ; attribute of the tile we want to
-                                           ; move to
+        jp collisionHandleHorizontalLoop ; Otherwise iterate until we either
+        ;; collide or move the whole distance
 
-        and tgaPassable                    ; a contains 0 IFF passable bit is
-                                           ; not set
-
-        jp z, collisionHandleHorizontalCollision       ; if tile we are trying
-                                                       ; to move into is not
-                                                       ; passable, then collide
-
-        djnz collisionHandleHorizontalCollisionLoop ; iterate if rows remain
-
-        ;; If we made it this far, then no tiles blocked us. Commit the move
-
-        ld a, (IY + collisionPNUpdatesNewX) ; a contains the current new posX
-        add a, (IX + collisionPNMovX)       ; add remaining movement distance
-        ld (IY + collisionPNUpdatesNewX), a ; x movement complete
-        ret
 collisionHandleHorizontalCollision:
         ;; If we're here, then we bumped into something. Set the collision
-        ;; state and return without moving
+        ;; state and return without moving any further
         ld a, (IX + collisionPNMovX) ; a contains movement vector
         cp 0                         ; left or right
-        jp p, collisionHandleHorizontalHandleCollisionRight
+        jp p, collisionHandleHorizontalCollisionRight
 collisionHandleHorizontalCollisionLeft:
         ;; If we're here, then we're moving left
         ld a, (IX + collisionPNCollisionState) ; a contains collision state
         or collisionStateBlockedLeft           ; collide left
         ld (IX + collisionPNCollisionState), a ; update collision state
         ret                                    ; return, do not move
-collisionHandleHorizontalHandleCollisionRight:
+collisionHandleHorizontalCollisionRight:
         ld a, (IX + collisionPNCollisionState) ; a contains collision state
         or collisionStateBlockedRight          ; collide right
         ld (IX + collisionPNCollisionState), a ; update collision state
@@ -372,7 +366,7 @@ collisionHandleVerticalCatHeightEnd:
         call collisionGetGameplayAttribute ; a now contains the gameplay
                                            ; attribute of the tile we want to
                                            ; move to
-        jp 0
+
         and tgaStandable                   ; a contains 0 IFF passable bit is
                                            ; not set
 
@@ -413,6 +407,76 @@ collisionHandleVerticalCollisionUp:
         ;; ---------------------------------------------------------------------
         ;; Subroutines
         ;; ---------------------------------------------------------------------
+
+
+        ;; ---------------------------------------------------------------------
+        ;; calculateNextTileMovement
+        ;; ---------------------------------------------------------------------
+        ;; PRE: c contains the current X or Y position
+        ;;      d contains the distance to move
+        ;; POST: c contains the furthest we can move and travel at most to the
+        ;;          next zero row/column boundary (d_can)
+        ;;       b contains the remaining distance that we still want to move
+        ;;       IX is preserved
+        ;;       IY is preserved
+collisionCalculateNextTileMovement:
+        ld b, 8                 ; non-in tile movement will subtract 8
+        jp collisionCalculateSubtileNextTileEntrypoint
+        ;; ---------------------------------------------------------------------
+        ;; calculateSubtileMovement
+        ;; ---------------------------------------------------------------------
+        ;; PRE: c contains the current X or Y position
+        ;;      d contains the distance to move
+        ;; POST: c contains the furthest we can move and not cross a
+        ;;          row/column boundary (d_can)
+        ;;       b contains the remaining distance that we still want to move
+        ;;       IX is preserved
+        ;;       IY is preserved
+collisionCalculateSubtileMovement:
+        ld b, 0                 ; non-in tile movement will subtract 0
+collisionCalculateSubtileNextTileEntrypoint:
+        ld a, d                 ; a contains distance to move
+        cp 0
+        jp p, collisionCalculateSubtileMovementMovingRight
+        ;; If we're here, then we want to move left
+        ld a, c                   ; a contains pos
+        and collisionTileFirstMask ; a contains the first row/col of this tile
+
+        cp c                    ; are we in the first pixel row?
+        jp nz, collisionCalculateSubtileMovementMovingLeftInThisTile
+        sub b                      ; a contains the first row/col of next
+collisionCalculateSubtileMovementMovingLeftInThisTile:
+        sub c                      ; a contains pos_can - pos = d_can
+        cp d                    ; is d_can < d_want?
+        jp p, collisionCalculateSubtileMovementFinish
+
+        ;;  if we're here, then d_can >= d_want. In this case d_can = d_want
+        ld c, d                 ; a contains d_can = d_want
+        ld b, 0                 ; if d_can = d_want, then d_remain = 0
+        ret
+collisionCalculateSubtileMovementMovingRight:
+        ;; If we're here, then we want to move right or not at all
+        ld a, c                    ; a contains pos
+        or collisionTilePixelsMask ; a contains the last row/col of this tile
+        inc a                      ; a contains the first row/col of next tile
+        sub c                      ; a contains pos_can - pos = d_can
+
+        cp d                    ; is d_can > d_want?
+        jp m, collisionCalculateSubtileMovementFinish
+        ;;  if we're here, then d_can <= d_want. In this case, d_can = d_want
+        ld c, d                 ; a contains d_can = d_want
+        ld b, 0                 ; if d_can = d_want, then d_remain = 0
+        ret
+collisionCalculateSubtileMovementFinish:
+        ;; a contains pos_can
+        ld e, a                    ; e contains d_can
+
+        ld a, d                    ; a contains d_want
+        sub e                      ; a contains d_want - d_can = d_remain
+
+        ld b, a                    ; b contains d_remain
+        ld c, e                    ; a contains d_can
+        ret
 
         ;; ---------------------------------------------------------------------
         ;; getGameplayAttribute

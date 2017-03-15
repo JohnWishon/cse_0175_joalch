@@ -9,12 +9,31 @@ setupGameLogicYLoop:
         ld c, levelTileWidth
 setupGameLogicXLoop:
         dec c
-        ;; ld (hl), (dynamicTileTestImpassableOneHealth - dynamicTileInstanceBase) | 1
+        ;ld (hl), (dynamicTileTestImpassableOneHealth - dynamicTileInstanceBase) | 1
+
+
         inc hl
         ld a, c
         cp 0
         jp nz, setupGameLogicXLoop
         djnz setupGameLogicYLoop
+
+        ;; Fish tank is impassable
+        ld hl, gameLevel
+        ld bc, 8 + (9 * levelTileWidth)
+        add hl, bc
+        ld (hl), tgaNone
+
+        inc hl
+        ld (hl), tgaNone
+
+        ld hl, gameLevel
+        ld bc, 8 + (10 * levelTileWidth)
+        add hl, bc
+        ld (hl), tgaNone
+
+        inc hl
+        ld (hl), tgaNone
         ret
 
 updateGameLogic:
