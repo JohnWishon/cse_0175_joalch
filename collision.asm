@@ -1,9 +1,14 @@
-collisionHandleVerticalMovY: defb 0
-
-collisionPNMovX:           equ 6
-collisionPNMovY:           equ 7
-collisionPNMoveState:      equ 8
-collisionPNCollisionState: equ 9
+collisionPNDirPressedDown:  equ 1
+collisionPNDirPressedLeft:  equ 2
+collisionPNDirPressedRight: equ 3
+collisionPNPressedPunch:    equ 5
+collisionPNMovX:            equ 6
+collisionPNMovY:            equ 7
+collisionPNMoveState:       equ 8
+collisionPNCollisionState:  equ 9
+collisionPNPunchX:          equ 10
+collisionPNPunchY:          equ 11
+collisionPNMouseHit:        equ 14
 
 collisionTileFirstMask:  equ %1111$1000
 collisionTilePixelsMask: equ %0000$0111
@@ -64,10 +69,12 @@ collisionPrepareUpdates:
 
         ld a, (iy + collisionPNUpdatesNewPose)
         ld (iy + collisionPNUpdatesOldPose), a
+        ld (iy + collisionPNUpdatesNewPose), 0
 
         ld (iy + collisionPNUpdatesTilePtr), 0
 
         ld (ix + collisionPNCollisionState), 0
+        ld (ix + collisionPNMouseHit), 0
 
         ;; In order to ensure that we fall through platforms correctly,
         ;; we need to apply a constant downward force if ground & speed = 0
@@ -78,6 +85,139 @@ collisionPrepareUpdates:
         cp 0
         ret nz             ; We have vertical movement already, can return early
         ld (ix + collisionPNMovY), 1 ; constant force of gravity
+
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; resolvePunch
+        ;; ---------------------------------------------------------------------
+        ;; PRE: N is the player number
+        ;;      pNStateBase is in IX register
+        ;;      fuPNUpdatesBase in IY register
+        ;;      (X, Y) movement resolved
+        ;;      pNPose = 0
+        ;; Post: punch location resolved
+        ;;       PatrolMouseHit resolved
+        ;;       pose facing, and high or low punch resolved
+        ;;       IX regester preserved
+        ;;       IY register preserved
+collisionResolvePunch:
+        ;; a contains what sort of punch is happening, if one is happening
+        ld c, 0
+        ld d, 0
+        ld a, (IX + collisionPNPressedPunch)
+        cp playerLowPunch
+        jp nz, collisionResolvePunchNotLow
+        ld c, 1                ; c contains low punch tile offset
+        ld d, 8                ; d contains low punch pixel offset
+        ld (IY + collisionPNUpdatesNewPose), catPoseAttackLow
+        jp collisionResolvePunchHighLowNoEnd
+collisionResolvePunchNotLow:
+        cp playerHiPunch
+        jp nz, collisionResolvePunchHighLowNoEnd
+        ld (IY + collisionPNUpdatesNewPose), catPoseAttack
+collisionResolvePunchHighLowNoEnd:
+        ;; attack pose now correct
+
+        ;; set a preliminary punch x/y
+
+        ;; get our subtile x/y position
+        ld a, (IY + collisionPNUpdatesNewX) ; a contains posX
+        ld d, a                             ; d contains posX
+        srl a
+        srl a
+        srl a                   ; a contains tile x of top left corner of cat
+        ld (IX + collisionPNPunchX), a
+
+        ld a, (IY + collisionPNUpdatesNewY) ; a contains posY
+        ld e, a                             ; e contains posY
+        srl a
+        srl a
+        srl a                   ; a contains tile y of top left corner of cat
+        add a, c                ; a contains tile y of top left if high or no
+        ;; punch. otherwise y of top left - 1. Punch Y is now correct
+        ld (IX + collisionPNPunchY), a
+        ld a, d                 ; a contains low punch pixel offset
+        add a, e                ; a contains low punch pixel Y location
+        ld e, a                 ; e contains low punch pixel Y location
+
+        ;; Facing left or right?
+
+        ld a, (IX + collisionPNMovX)
+        cp 0
+        jp p, collisionResolvePunchFacingRightLeftEnd
+        ;; If we're here, then we're facing left
+
+        dec (IX + collisionPNPunchX) ; punchX = tileposX - 1
+        ld a, (IY + collisionPNUpdatesNewPose)
+        or catPoseFaceLeft
+        ld (IY + collisionPNUpdatesNewPose), a ; pose = left | pose
+
+        ld a, d                 ; a contains posX
+        sub 8
+        ld d, a                 ; d contains posX - 8
+
+        jp collisionResolvePunchFacingRightLeftEnd
+collisionResolvePunchFacingRight:
+        ;; If we're here, then we're facing right
+        ld a, (IX + collisionPNPunchX)
+        add a, 3
+        ld (IX + collisionPNPunchX), a
+        ;; punchX = tileposX + 3
+
+        ld a, d                 ; a contains posX
+        add a, 24
+        ld d, a                 ; d contains posX + 24
+
+collisionResolvePunchFacingRightLeftEnd:
+        ;; d contains correct punch pixel location
+
+
+        ld a, (IX + collisionPNPressedPunch)
+        cp playerNotPunch
+        ret z                   ; if punch not pressed, then we're done
+
+        ld a, (mouseActive)
+        cp 0                    ; TODO: this the falsey value?
+        ret z                   ; if mouse not active, then we're done
+
+        ld a, e                 ; e contains punch Y
+        add a, 8                ; a conains punch Y + 8
+
+        ld b, a
+        ld a, (mouseUpdatesNewPosY) ; a contains mouse y location
+
+        cp b
+        ret m                   ; If punch Y + 8 < mouse Y, then the bottom of
+        ;; the cat's fist is above the top of the mouse's body. no hit occurred
+
+        dec e                 ; e contains punch Y - 1
+        cp e                    ; e contains punch Y - 1, a contains mouse y
+        add a, mousePixelHeight ; a contains mouse Y + mouse height
+        ret p                   ; If punch Y - 1 >= mouse Y + mouse height, then
+        ;; the bottom of the mouse's body is above the top of the cat's fist.
+        ;; no hit occurred
+
+        ld a, d                 ; d contains punch X
+        add a, 8                ; a contains punch X + 8
+
+        ld b, a
+        ld a, (mouseUpdatesNewPosX) ; a contains mouse x location
+
+        cp b
+        ret m                   ; If punch X + 8 < mouse X, then the right side
+        ;; of the cat's fist is to the left of the left side of the mouse's body
+        ;; no hit occurred
+
+        dec d                   ; d contains punch X - 1
+        cp d                    ; d contains punch X - 1, a contains mouse x
+        add a, mousePixelWidth  ; a contains mouse X + mouse width
+        ret p                   ; If punch X - 1 >= mouse X, then the right side
+        ;; of the mouse's body is to the left of the left side of the cat's fist
+        ;; no hit occurred
+
+        ;; If we made it here, then a hit must have occurred.
+        ld (IX + collisionPNMouseHit), 1 ; TODO: is this the truthy value?
 
         ret
 
@@ -132,7 +272,7 @@ collisionHandleHorizontalLoopScreenRight:
         ld h, catWidth
 
         ld a, (IY + collisionPNUpdatesNewX) ; a contains current x pos
-        cp levelPixelWidth - catPixelWidth + 1 ; is this the rightmost pixel?
+        cp levelPixelWidth - catPixelWidth  ; is this the rightmost pixel?
         jp z, collisionHandleHorizontalCollisionRight ; if so, collide Right
 collisionHandleHorizontalLoopScreenLeftRightEnd:
 
@@ -249,21 +389,20 @@ collisionHandleVerticalLoop:
         jp p, collisionHandleVerticalLoopScreenDown
         ;; If we're here, then we want to move up
         ;; load L with correct offset since we're here
-        ld l, -2
+        ld l, -1
 
         ld a, (IY + collisionPNUpdatesNewY) ; a contains current Y pos
-        ;; TODO: this leaves an unused pixel at the top. Why?
-        cp levelTopmostPixel - 8            ; is this the topmost pixel?
+        cp 0           ; is this the topmost pixel?
         jp z, collisionHandleVerticalCollisionUp ; if so, collide up
         jp collisionHandleVerticalLoopScreenUpDownEnd
 collisionHandleVerticalLoopScreenDown:
         ;; If we're here, then we want to move down
 
         ;; load L with correct offset since we're here
-        ld l, catHeight - 1
+        ld l, catHeight
 
         ld a, (IY + collisionPNUpdatesNewY) ; a contains current y pos
-        cp levelPixelHeight - catHeight - 8 ; is this the bottommost pixel?
+        cp levelPixelHeight - catPixelHeight ; is this the bottommost pixel?
         jp z, collisionHandleVerticalCollisionDown ; if so, collide Down
 collisionHandleVerticalLoopScreenUpDownEnd:
 
@@ -289,7 +428,6 @@ collisionHandleVerticalCatWidthLoop:
         ld c, (IY + collisionPNUpdatesNewX) ; c contains X position
 
         ld d, (IY + collisionPNUpdatesNewY) ; c contains current Y position
-        inc d
         ;; l contains catWidth or -1 already
         ld h, e                 ; h contains current col to test
 
@@ -306,9 +444,31 @@ collisionHandleVerticalCatWidthLoop:
         pop de
         pop bc
 
+        ld c, a             ; c also contains gameplay attribute
         and tgaPassable         ; a contains 0 IFF passable bit is not set
         jp z, collisionHandleVerticalCollision ; if not passable, then collide
 
+        ld a, (IX + collisionPNDirPressedDown) ; a contains 0 IFF down not pressed
+        cp 0
+        ;; If down not pressed, then do not ignore standable platforms
+        jp nz, collisionHandleVerticalCatWidthLoopSkipStandable
+
+        ld a, b                 ; a contains d_remain
+        cp 0                    ; is d_remain positive?
+        ;; If d_remain not positive, then do not ignore standable platforms
+        jp m, collisionHandleVerticalCatWidthLoopSkipStandable
+
+        ld a, (IX + collisionPNUpdatesNewY) ; a contains current posY
+        and collisionTilePixelsMask         ; a contains 0 IFF y = top pixel row
+        cp 0
+        ;; If in top pixel row of a tile, then do not ignore standable platforms
+        jp nz, collisionHandleVerticalCatWidthLoopSkipStandable
+
+        ld a, c                 ; a contains gameplay attribute
+        and tgaStandable        ; a contains 0 IFF standable bit is not set
+        jp nz, collisionHandleVerticalCollisionDown; if standable, collide down
+
+collisionHandleVerticalCatWidthLoopSkipStandable:
         ld a, e                 ; a contains current col
         cp 0
         jp nz, collisionHandleVerticalCatWidthLoop ; iterate if not on col 0
@@ -420,7 +580,7 @@ collisionCalculateSubtileMovementMovingRight:
         ld b, 0                 ; if d_can = d_want, then d_remain = 0
         ret
 collisionCalculateSubtileMovementFinish:
-        ;; a contains pos_can
+        ;; a contains d_can
         ld e, a                    ; e contains d_can
 
         ld a, d                    ; a contains d_want
