@@ -77,7 +77,7 @@ collisionPrepareUpdates:
         ld a, (ix + collisionPNMovY)
         cp 0
         ret nz             ; We have vertical movement already, can return early
-        ld (ix + collisionPNMovY), -1 ; constant force of gravity
+        ld (ix + collisionPNMovY), 1 ; constant force of gravity
 
         ret
 
