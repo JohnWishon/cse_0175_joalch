@@ -141,7 +141,7 @@ collisionHandleHorizontalLoopScreenLeftRightEnd:
         ld e, catHeight     ; e contains cat height
         ;; b contains d_remain
 collisionHandleHorizontalCatHeightLoop:
-        dec e                   ; e contains next row to check (1 -> 0 -> break)
+        dec e                   ; e contains next row to check (1 -> 0 -> -1 -> break)
         push bc
         push de
         push hl
@@ -168,7 +168,7 @@ collisionHandleHorizontalCatHeightLoop:
         jp z, collisionHandleHorizontalCollision ; if not passable, then collide
 
         ld a, e                 ; a contains current row
-        cp 0
+        cp -1
         jp nz, collisionHandleHorizontalCatHeightLoop ; iterate if not on row 0
 
         ;; If we're here, then we are clear to move up to 1 tile
@@ -249,26 +249,37 @@ collisionHandleVerticalLoop:
         jp p, collisionHandleVerticalLoopScreenDown
         ;; If we're here, then we want to move up
         ;; load L with correct offset since we're here
-        ld l, -1
+        ld l, -2
 
         ld a, (IY + collisionPNUpdatesNewY) ; a contains current Y pos
-        cp 0                                ; is this the topmost pixel?
+        ;; TODO: this leaves an unused pixel at the top. Why?
+        cp levelTopmostPixel - 8            ; is this the topmost pixel?
         jp z, collisionHandleVerticalCollisionUp ; if so, collide up
         jp collisionHandleVerticalLoopScreenUpDownEnd
 collisionHandleVerticalLoopScreenDown:
         ;; If we're here, then we want to move down
 
         ;; load L with correct offset since we're here
-        ld l, catHeight
+        ld l, catHeight - 1
 
         ld a, (IY + collisionPNUpdatesNewY) ; a contains current y pos
-        cp levelPixelHeight - catPixelHeight + 1 ; is this the bottommost pixel?
+        cp levelPixelHeight - catHeight - 8 ; is this the bottommost pixel?
         jp z, collisionHandleVerticalCollisionDown ; if so, collide Down
 collisionHandleVerticalLoopScreenUpDownEnd:
 
         ;; Enter cat height inner loop
 
-        ld e, catWidth     ; e contains cat height
+        ld e, catHeight    ; e contains cat height
+
+        ld a, (IY + collisionPNUpdatesNewY)
+        and collisionTilePixelsMask
+        cp 0                    ; Are we on a Y tile boundary?
+        jp nz, collisionHandleVerticalCatWidthLoop ; if not, no problem
+        ld a, (IY + collisionPNUpdatesNewX)
+        and collisionTilePixelsMask
+        cp 0                    ; Are we also on an X tile boundary?
+        jp z, collisionHandleVerticalCatWidthLoop ; If so, no problem
+        inc e                   ; Otherwise, check 3 columns instead of 2
         ;; b contains d_remain
 collisionHandleVerticalCatWidthLoop:
         dec e                   ; e contains next col to check (1 -> 0 -> break)
@@ -278,6 +289,7 @@ collisionHandleVerticalCatWidthLoop:
         ld c, (IY + collisionPNUpdatesNewX) ; c contains X position
 
         ld d, (IY + collisionPNUpdatesNewY) ; c contains current Y position
+        inc d
         ;; l contains catWidth or -1 already
         ld h, e                 ; h contains current col to test
 
