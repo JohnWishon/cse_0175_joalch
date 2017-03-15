@@ -1131,6 +1131,9 @@ renderFrameBuildCatSelectY:
         and %0000$0111
         ld bc, 0
         ld c, a
+        ld a, %0000$0111
+        sub c
+        ld c, a
         add hl, bc              ; hl now points to correct sprite
 
 
