@@ -382,10 +382,9 @@ collisionHandleVertical:
         ;; enter collision loop
 collisionHandleVerticalLoopDownEntrypoint:
         ld b, (IX + collisionPNMovY)
-<<<<<<< HEAD
-=======
+
         ld (IX + collisionPNMoveState), movementStateFalling
->>>>>>> master
+
 collisionHandleVerticalLoop:
         ;; test collisions against level edges
 
