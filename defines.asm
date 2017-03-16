@@ -31,7 +31,7 @@ smGameOver:      equ %0000$1001
 movementStateGround:   equ %0000$0001
 movementStateJumping:  equ %0000$0010
 movementStateFalling:  equ %0000$0100
-movementStateClimbing: equ %0000$1000
+;movementStateClimbing: equ %0000$1000
 
         ;; collision states
 collisionStateBlockedUp:        equ %0000$0001
@@ -43,7 +43,7 @@ collisionStateBlockedRight:     equ %0000$1000
 tgaNone:            equ %0000$0000
 tgaPassable:        equ %0001$0000
 tgaStandable:       equ %0010$0000
-tgaClimbable:       equ %0100$0000
+;tgaClimbable:       equ %0100$0000
 tgaDrainsInterest:  equ %1000$0000
 tgaDestroyableMask: equ %0000$1111
 
@@ -179,14 +179,14 @@ couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable
         defb 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-        defb tgaStandable | tgaClimbable | tgaPassable | 1
+        defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
         defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
 couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
-        defb tgaStandable | tgaClimbable | tgaPassable | 3
+        defb tgaStandable | tgaPassable | 3
         defw staticTileCouchCushionDestroyed
-        defb tgaStandable | tgaClimbable | tgaPassable
+        defb tgaStandable | tgaPassable
         defb 0, 0, 0
 dynamicTileTestImpassableOneHealth: defb 255, 127, 63, 31, 15, 7, 3, 1, %00$100$010
         defb tgaStandable | 1
@@ -266,7 +266,7 @@ gameLevelEnd:
 
                 ;; cat poses
 catPoseJump:      equ %0000$0001
-catPoseClimb:     equ %0000$0010
+;catPoseClimb:     equ %0000$0010
 catPoseWalk:      equ %0000$0100
 catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
