@@ -55,15 +55,20 @@ catPixelWidth:  equ (catWidth << 3)
 catHeight:      equ 2           ; in tiles
 catPixelHeight: equ (catHeight << 3)
 
+mouseWidth:       equ 2
+mousePixelWidth:  equ (mouseWidth << 3)
+mouseHeight:      equ 1
+mousePixelHeight: equ (mouseHeight << 3)
+
 
 levelLeftmostCol:     equ 0
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
 levelRightmostCol:    equ 31
-levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
+levelRightmostPixel:  equ (levelRightmostCol << 3)
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
-levelBottommostRow:   equ 22
-levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
+levelBottommostRow:   equ 23
+levelBottommostPixel: equ (levelBottommostRow << 3)
 levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
 levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
 levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
@@ -240,7 +245,7 @@ staticTileMouseHole: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs levelTileWidth * levelTileHeight, tgaStandable | tgaPassable
+gameLevel: defs levelTileWidth * levelTileHeight, tgaPassable
 gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
@@ -270,25 +275,25 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 8 * 7 + 6
-fuP1UpdatesNewPosX:       defb 8 * 7 + 6
-fuP1UpdatesOldPosY:       defb 8 * 2 + 0
-fuP1UpdatesNewPosY:       defb 8 * 2 + 0
+fuP1UpdatesOldPosX:       defb 8 * 8 + 0
+fuP1UpdatesNewPosX:       defb 8 * 8 + 0
+fuP1UpdatesOldPosY:       defb 8 * 6 + 1
+fuP1UpdatesNewPosY:       defb 8 * 6 + 1
 fuP1UpdatesOldPose:       defb 0
 fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
-fuP1UpdatesOldTilePosX:   defb 7
-fuP1UpdatesNewTilePosX:   defb 7
-fuP1UpdatesOldTilePosY:   defb 1
-fuP1UpdatesNewTilePosY:   defb 1
+fuP1UpdatesOldTilePosX:   defb 6
+fuP1UpdatesNewTilePosX:   defb 6
+fuP1UpdatesOldTilePosY:   defb 9
+fuP1UpdatesNewTilePosY:   defb 9
 
 fuP2UpdatesBase:
-fuP2UpdatesOldPosX:       defb 8 * 4 + 4
-fuP2UpdatesNewPosX:       defb 8 * 4 + 4
-fuP2UpdatesOldPosY:       defb 8 * 3
-fuP2UpdatesNewPosY:       defb 8 * 3
+fuP2UpdatesOldPosX:       defb 8 * 8
+fuP2UpdatesNewPosX:       defb 8 * 8
+fuP2UpdatesOldPosY:       defb 8 * 13
+fuP2UpdatesNewPosY:       defb 8 * 13
 fuP2UpdatesOldPose:       defb 0
 fuP2UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP2UpdatesTileChangeX:   defb 10
@@ -309,7 +314,7 @@ mouseUpdatesDirection:  defb 1      ; ix
 mouseUpdatesOldPosX:    defb 0      ; ix + 1
 mouseUpdatesNewPosX:    defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:    defb 0      ; ix + 3
-mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
+mouseUpdatesNewPosY:    defb levelBottommostPixel - 16      ; ix + 4
 mouseActive:            defb 0      ; ix + 5
 spawnCtr:               defb 0      ; ix + 6
 randomCtr:              defb 0      ; ix + 7 - timer for the random call

@@ -184,6 +184,7 @@ renderFrame:
         srl a
         srl a
         srl a
+        inc a
         ld (fuP1UpdatesNewTilePosY), a
 
         ld a, (fuP2UpdatesNewPosX)
@@ -196,6 +197,7 @@ renderFrame:
         srl a
         srl a
         srl a
+        inc a
         ld (fuP2UpdatesNewTilePosY), a
 
         ;;  calculate new tile positions
@@ -1129,7 +1131,11 @@ renderFrameBuildCatSelectY:
 
         ld a, (IX + renderPNUpdatesNewPosY)
         and %0000$0111
+
         ld bc, 0
+        ld c, a
+        ld a, %0000$1000
+        sub c
         ld c, a
         add hl, bc              ; hl now points to correct sprite
 

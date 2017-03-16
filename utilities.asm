@@ -1,6 +1,7 @@
 
 drawScreen: 
-
+ld a, 0  
+out (254),a ; black border
 Repeat:     
   ld a,b
   or c
@@ -34,7 +35,7 @@ Repeat:
   cp (hl)                        
   jp z,Light_Socket 
 
-  ld a,$53                     
+  ld a,$10                     
   cp (hl)                        
   jp z,CouchP
 
@@ -140,6 +141,37 @@ Light_Socket:
 CouchP:
   
   ld a, c
+  cp 214
+  jp z, continueStmt
+  ld a, c
+  cp 213
+  jp z, continueStmt
+  ld a, c
+  cp 212
+  jp z, continueStmt
+  ld a, c
+  cp 211
+  jp z, continueStmt
+  ld a, c
+  cp 210
+  jp z, continueStmt
+  ld a, c
+  cp 208
+  jp z, continueStmt
+  ld a, c
+  cp 207
+  jp z, continueStmt
+  ld a, c
+  cp 206
+  jp z, continueStmt
+  ld a, c
+  cp 205
+  jp z, continueStmt
+  ld a, c
+  cp 204
+  jp z, continueStmt
+
+  ld a, c
   cp 246
   ld ix, couch246
   jp z, drawTile
@@ -229,6 +261,7 @@ CouchP:
   ld ix, couch139
   jp z, drawTile
 
+  continueStmt
   inc hl                         
   inc de
   dec bc
