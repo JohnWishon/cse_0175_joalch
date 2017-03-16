@@ -60,13 +60,6 @@ phys_setNegX:
     ld  (ix+6),-phys_cat_hori_speed
     ret
 
-phys_setPosY:
-    ld  (ix+7),phys_cat_vert_speed
-    ret
-phys_setNegY:
-    ld  (ix+7),-phys_cat_vert_speed
-    ret
-
 phys_handle_jump:
     ld  a,(ix+8)    ; Read movement state
     cp  movementStateGround
@@ -116,4 +109,3 @@ phys_jump_init_speed:   equ -14
     ; Deducted from 0.5mv^2 = mgh; 0.5m(Nv)^2 = 0.5mv^2*N^2 = mgh*N^2 = mg(N^2*h)
 phys_fall_max_speed:    equ 8
 phys_cat_hori_speed:    equ 4
-phys_cat_vert_speed:    equ 1
