@@ -103,6 +103,7 @@ phys_handle_fall:
 
 phys_handle_jumpstate:
     inc (ix+7)                  ; Decelerate the cat vertically
+    inc (ix+7)
         ; Changing deceleration speed to N times of original -> max height to 1/N of original
         ; Deducted from 0.5mv^2 = mgh and that the deceleration is proportional to gravity;
         ; 0.5mv^2 = mgh = mgh*N/N = m(Ng)(h/N)
@@ -115,6 +116,7 @@ phys_handle_fallstate:
     cp  phys_fall_max_speed
     ret z
     inc (ix+7)                  ; Just decelerate the cat vertically
+    inc (ix+7)
     ret
 
 phys_setPunch:
@@ -126,9 +128,9 @@ phys_setPunch:
     ld  (ix+1), 0   ; Clears down press to avoid interfering with drop logic.
     ret
 
-phys_jump_init_speed:   equ -8
+phys_jump_init_speed:   equ -20
     ; Changing init speed to N times of original -> max height to N^2 of original
     ; Deducted from 0.5mv^2 = mgh; 0.5m(Nv)^2 = 0.5mv^2*N^2 = mgh*N^2 = mg(N^2*h)
-phys_fall_max_speed:    equ 12
+phys_fall_max_speed:    equ 8
 phys_cat_hori_speed:    equ 2
 phys_cat_vert_speed:    equ 1
