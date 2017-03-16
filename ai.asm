@@ -9,13 +9,13 @@ updateFloor:
     cp 1                        ; 1 = active, 0 = not active
     jp nz, noMouse
 
-;; ------------------------------------------
+;; ------------------------------------------------------------
 ;;  Mouse is active.
 ;;      - Check its direction (left, right, up, down) - currently only using left/right
 ;;      - Check its X position to see if it is at the mouse hole or couch escape
 ;;      - If not at a hole, then continue moving
 ;;      - If at a hole, randomly choose to escape or keep moving
-;; ------------------------------------------
+;; ------------------------------------------------------------
 activeMouse:
     ld a, (ix)                  ; Load direction
     rra                         ; rotate lsb into carry
@@ -123,12 +123,12 @@ mouseEscape:
 
     ret
 
-;;---------------------------------
+;;---------------------------------------------------
 ;;  No active mouse.
 ;;      - Check if the spawn counter reached the max time
 ;;      - If it has, then automatically activate the Mouse
 ;;      - If it hasn't, random roll to see if we activate or not
-;;---------------------------------
+;;---------------------------------------------------
 
 noMouse:
     ld a, (ix + 6)
@@ -268,36 +268,17 @@ wall3End:
     inc (ix + 7)
     ret
 
-;;---------------------------------------
+;;---------------------------------------------------------
 ;; random number generator
 ;;      - leaves the number in A
 ;;      - save A before using this function if you will need A after
 ;;      - TODO: elsewhere - load seed with frame counter after a keypress on load screen??
-;;---------------------------------------
+;;---------------------------------------------------------
 random:
-        ; ld  hl,0xA280   ; xz -> yw
-        ; ld  de,0xC0DE   ; yw -> zt
-        ; ld  (random+1),de  ; x = y, z = w
-        ; ld  a,e         ; w = w ^ ( w << 3 )
-        ; add a,a
-        ; add a,a
-        ; add a,a
-        ; xor e
-        ; ld  e,a
-        ; ld  a,h         ; t = x ^ (x << 1)
-        ; add a,a
-        ; xor h
-        ; ld  d,a
-        ; rra             ; t = t ^ (t >> 1) ^ w
-        ; xor d
-        ; xor e
-        ; ld  h,l         ; y = z
-        ; ld  l,a         ; w = t
-        ; ld  (random+4),hl
-        ; ret
     ld hl, (seed)       ; Load pointer to rom
     res 5, h            ; stay in first 8k of rom
     ld a, (hl)          ; Get the number
+    xor l               ; more randomness
     inc hl              ; Incr pointer
     ld (seed), hl
     ret

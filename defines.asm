@@ -277,34 +277,42 @@ fuP2UpdatesTileChangePtr: defw 0
 mouseUpdatesBase:
 ; Mouse data tables
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
-mouseUpdatesDirection:  defb 1      ; ix
-mouseUpdatesOldPosX:    defb 0      ; ix + 1
-mouseUpdatesNewPosX:    defb levelLeftmostPixel + 4    ; ix + 2
-mouseUpdatesOldPosY:    defb 0      ; ix + 3
-mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
-mouseActive:            defb 0      ; ix + 5
-spawnCtr:               defb 0      ; ix + 6
-randomCtr:              defb 0      ; ix + 7 - timer for the random call
+mouseUpdatesDirection:      defb 1      ; ix
+mouseUpdatesOldPosX:        defb 0      ; ix + 1
+mouseUpdatesNewPosX:        defb levelLeftmostPixel + 4    ; ix + 2
+mouseUpdatesOldPosY:        defb 0      ; ix + 3
+mouseUpdatesNewPosY:        defb levelBottommostPixel - 4      ; ix + 4
+mouseUpdateTileChangeX:     defb 0      ; ix + 5
+mouseUpdateTileChangeY:     defb 0      ; ix + 6
+mouseUpdateTileChangePtr:   defw 0      ; ix + 7
+mouseActive:                defb 0      ; ix + 8
+spawnCtr:                   defb 0      ; ix + 9
+randomCtr:                  defb 0      ; ix + 10 - timer for the random call
 
 mouseWall1:
-mouseW1X:               defb 0      ;
+mouseW1X:               defb 0      
 mouseW1Y:               defb 0
 mouseW1MinXTile:        defb 0
 mouseW1MinYTile:        defb 0
 mouseW1MaxXTile:        defb 10
 mouseW1MaxYTile:        defb 5
+mouseW1TileChangeX:     defb 0
+mouseW1TileChangeY:     defb 0
+mouseW1TileChangePtr:   defw 0
 mouseW1Inactive:        defb 0      ; inactive timer
 wall1Rnd:               defb 0      ; time for random call  - reset on deactivate
 ;; add ptr change to null if no change - if change valid ptr
-wall1ChangePtr:         defw 0
 
 mouseWall2:
-mouseW2X:               defb 0      ;
+mouseW2X:               defb 0
 mouseW2Y:               defb 0
 mouseW2MinXTile:        defb 15
 mouseW2MinYTile:        defb 10
 mouseW2MaxXTile:        defb 20
 mouseW2MaxYTile:        defb 15
+mouseW2TileChangeX:     defb 0
+mouseW2TileChangeY:     defb 0
+mouseW2TileChangePtr:   defw 0
 mouseW2Inactive:        defb 0      ; inactive timer
 wall2Rnd:               defb 0      ; time for random call  - reset on deactivate
 
@@ -315,5 +323,8 @@ mouseW3MinXTile:        defb 25     ; X Tile Boundary
 mouseW3MinYTile:        defb 15     ; Y Tile Boundary
 mouseW3MaxXTile:        defb 30
 mouseW3MaxYTile:        defb 20
+mouseW3TileChangeX:     defb 0
+mouseW3TileChangeY:     defb 0
+mouseW3TileChangePtr:   defw 0
 mouseW3Inactive:        defb 0      ; inactive timer
 wall3Rnd:               defb 0      ; time for random call - reset on deactivate
