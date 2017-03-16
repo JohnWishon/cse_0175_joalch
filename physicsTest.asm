@@ -33,9 +33,6 @@ test_display_physics_reg_values:
     ld  a,(p1MovX)
     ld  b,0
     ld  c,a
-    ld  a,(horictr)
-    add a,c
-    ld  (horictr),a
     call    test_print_num_and_space
 
     ld  a,(p1MovY)
@@ -53,11 +50,6 @@ test_display_physics_reg_values:
     ld  b,0
     ld  c,a
     call    test_print_num_and_space
-
-    ld  a,(horictr) ; Print P1 hori counter
-    ld  b,0
-    ld  c,a
-    call    test_print_num_and_space
     call    test_print_newline
 
 test_phys_P2_line:
@@ -68,9 +60,6 @@ test_phys_P2_line:
     ld  a,(p2MovX)
     ld  b,0
     ld  c,a
-    ld  a,(horictr+1)
-    add a,c
-    ld  (horictr+1),a
     call    test_print_num_and_space
 
     ld  a,(p2MovY)
@@ -88,13 +77,8 @@ test_phys_P2_line:
     ld  b,0
     ld  c,a
     call    test_print_num_and_space
-
-    ld  a,(horictr+1) ; Print P2 hori counter
-    ld  b,0
-    ld  c,a
-    call    test_print_num_and_space
-
     call    test_print_newline
+
     call    test_print_newline
 
 
@@ -123,13 +107,6 @@ test_phys_not_jumping:
     call print
     ret
 test_phys_not_falling:
-    cp  movementStateClimbing
-    jp  nz, test_phys_not_climbing
-    ld  de,clbstr
-    ld  bc,4
-    call print
-    ret
-test_phys_not_climbing:
     ld  de,errorstr
     ld  bc,7
     call print
@@ -139,9 +116,9 @@ test_phys_not_climbing:
      ; State transitions.
 test_phys_border_check:
     ld  a,(vertctr)
-    cp  102
+    cp  218
     jp  z,test_phys_yes_vert_halt1
-    cp  86
+    cp  52
     jp  nz,test_phys_no_vert_halt1
 test_phys_yes_vert_halt1:
     ld  a,0
@@ -150,9 +127,9 @@ test_phys_yes_vert_halt1:
     ld  (p1MovementState),a
 test_phys_no_vert_halt1:
     ld  a,(vertctr+1)
-    cp  102
+    cp  218
     jp  z,test_phys_yes_vert_halt2
-    cp  86
+    cp  52
     jp  nz,test_phys_no_vert_halt2
 test_phys_yes_vert_halt2:
     ld  a,0
@@ -160,27 +137,9 @@ test_phys_yes_vert_halt2:
     ld  a,movementStateGround
     ld  (p2MovementState),a
 test_phys_no_vert_halt2:
-    ld  a,(horictr)
-    cp  -24
-    jp  nz,test_phys_no_hori_halt1
-    ld  a,0
-    ld  (horictr),a
-    ld  a,movementStateClimbing
-    ld  (p1MovementState),a
-test_phys_no_hori_halt1:
-    ld  a,(horictr+1)
-    cp  -24
-    jp  nz,test_phys_no_hori_halt2
-    ld  a,0
-    ld  (horictr+1),a
-    ld  a,movementStateClimbing
-    ld  (p2MovementState),a
-test_phys_no_hori_halt2:
     ret
 
 vertctr:
-    defb    0,0
-horictr:
     defb    0,0
 
     include "input.asm"
