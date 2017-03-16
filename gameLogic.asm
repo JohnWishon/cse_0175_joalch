@@ -34,6 +34,28 @@ setupGameLogicXLoop:
 
         inc hl
         ld (hl), tgaNone
+
+        ;;  Fish tank shelf is passable/standable
+        ld hl, gameLevel
+        ld bc, 7 + (11 * levelTileWidth)
+        add hl, bc
+        ld (hl), tgaPassable | tgaStandable
+
+        inc hl
+        ld (hl), tgaPassable | tgaStandable
+
+        inc hl
+        ld (hl), tgaPassable | tgaStandable
+
+        inc hl
+        ld (hl), tgaPassable | tgaStandable
+
+        inc hl
+        ld (hl), tgaPassable | tgaStandable
+
+        inc hl
+        ld (hl), tgaPassable | tgaStandable
+
         ret
 
 updateGameLogic:
