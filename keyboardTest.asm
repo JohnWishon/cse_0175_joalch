@@ -1,7 +1,6 @@
     org $8000
-
+    jp  main
     include "defines.asm"
-
 main:
     ;; ---------------------------------------------------------------------
     ;; Setup program state, interrupt handling scheme
@@ -152,45 +151,8 @@ wa_tester:
     jp  test_closing_cycle
 
 error_print:
-    ld  de,errorstr         ; addr. of "Error!" string
-    ld  bc,Xerrorstr-errorstr
-    call    print           ; print our string
+    call test_print_error
     jp  test_closing_cycle
 
-punchstr:
-    defb    "Punch "
-Xpunchstr:
-jumpstr:
-    defb    "Jump", newline
-Xjumpstr:
-
-nstr:
-    defb    "North", newline
-Xnstr:
-estr:
-    defb    "East", newline
-Xestr:
-wstr:
-    defb    "West", newline
-Xwstr:
-sstr:
-    defb    "South", newline
-Xsstr:
-
-nestr:
-    defb    "Northeast", newline
-Xnestr:
-sestr:
-    defb    "Southeast", newline
-Xsestr:
-nwstr:
-    defb    "Northwest", newline
-Xnwstr:
-swstr:
-    defb    "Southwest", newline
-Xswstr:
-errorstr:
-    defb    "Error!", newline
-Xerrorstr:
-
-        include "input.asm"
+    include "input.asm"
+    include "testUtil.asm"
