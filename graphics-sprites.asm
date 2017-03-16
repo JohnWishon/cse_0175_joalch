@@ -5,29 +5,32 @@
 ;; mouse moving left ;;
 
 MOUSE_LEFT_ONE:
-	; line based output of pixel data:
-	defb $01, $00, $01, $01, $07, $C1, $D8, $21, $A8, $1E, $40, $10, $FF, $E0, $08, $40
+	defb $01, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $00, $01, $C1, $21, $1E, $10, $E0, $40
+
 MOUSE_LEFT_TWO:
-	; line based output of pixel data:
-	defb $02, $80, $01, $01, $07, $C1, $D8, $21, $A8, $1E, $40, $10, $FF, $E0, $08, $40
+	defb $02, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $80, $01, $C1, $21, $1E, $10, $E0, $40
+
 MOUSE_LEFT_THREE:
-	; line based output of pixel data:
-	defb $06, $C0, $01, $01, $07, $C1, $D8, $21, $A8, $1E, $40, $10, $FF, $E0, $08, $40
+	defb $06, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $C0, $01, $C1, $21, $1E, $10, $E0, $40
 
 ;; mouse moving right ;;
 
 MOUSE_RIGHT_ONE:
-	; line based output of pixel data:
-	defb $00, $80, $80, $80, $83, $E0, $84, $1B, $78, $15, $08, $02, $07, $FF, $02, $10
+	defb $00, $80, $83, $84, $78, $08, $07, $02
+	defb $80, $80, $E0, $1B, $15, $02, $FF, $10
+
 MOUSE_RIGHT_TWO:
-	; line based output of pixel data:
-	defb $01, $40, $80, $80, $83, $E0, $84, $1B, $78, $15, $08, $02, $07, $FF, $02, $10
+	defb $01, $80, $83, $84, $78, $08, $07, $02
+	defb $40, $80, $E0, $1B, $15, $02, $FF, $10
+
 MOUSE_RIGHT_THREE:
-	; line based output of pixel data:
-	defb $03, $60, $80, $80, $83, $E0, $84, $1B, $78, $15, $08, $02, $07, $FF, $02, $10
+	defb $03, $80, $83, $84, $78, $08, $07, $02
+	defb $60, $80, $E0, $1B, $15, $02, $FF, $10
 
 ;; mouse hole ;;
-
 MOUSE_SHOWING_IN_HOLE: ;flashing
 	; line based output of pixel data:
 	defb $66, $99, $7E, $81, $A5, $81, $66, $18
