@@ -26,11 +26,12 @@ MOUSE_RIGHT_TWO:
 	defb $01, $80, $83, $84, $78, $08, $07, $02
 	defb $40, $80, $E0, $1B, $15, $02, $FF, $10
 
+
 MOUSE_RIGHT_THREE:
 	defb $03, $80, $83, $84, $78, $08, $07, $02
 	defb $60, $80, $E0, $1B, $15, $02, $FF, $10
-;; mouse hole ;;
 
+;; mouse hole ;;
 MOUSE_SHOWING_IN_HOLE: ;flashing
 	; line based output of pixel data:
 	defb $66, $99, $7E, $81, $A5, $81, $66, $18
