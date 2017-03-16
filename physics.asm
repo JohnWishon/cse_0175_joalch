@@ -128,7 +128,7 @@ phys_setPunch:
     ld  (ix+1), 0   ; Clears down press to avoid interfering with drop logic.
     ret
 
-phys_jump_init_speed:   equ -20
+phys_jump_init_speed:   equ -14
     ; Changing init speed to N times of original -> max height to N^2 of original
     ; Deducted from 0.5mv^2 = mgh; 0.5m(Nv)^2 = 0.5mv^2*N^2 = mgh*N^2 = mg(N^2*h)
 phys_fall_max_speed:    equ 8
