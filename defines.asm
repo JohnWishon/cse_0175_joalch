@@ -247,11 +247,7 @@ staticTileMouseHole: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs levelTileWidth * levelTileHeight, tgaNone
-gameLevelEnd:
-        ;; define and zero-fill width * height bytes
-        ;; http://pasmo.speccy.org/pasmodoc.html#dirds
-
+gameLevel: equ $D880
 
         ;; Frame updates produced by the update frame. In a frame, a cat can:
         ;; - move: For players 1 and 2, an old/new x and y position are given
