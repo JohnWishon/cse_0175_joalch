@@ -278,7 +278,7 @@ fuP1UpdatesNewPosX:       defb 8 * 8 + 0
 fuP1UpdatesOldPosY:       defb 8 * 6 + 1
 fuP1UpdatesNewPosY:       defb 8 * 6 + 1
 fuP1UpdatesOldPose:       defb 0
-fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
+fuP1UpdatesNewPose:       defb catPoseJump | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
@@ -293,7 +293,7 @@ fuP2UpdatesNewPosX:       defb 8 * 8
 fuP2UpdatesOldPosY:       defb 8 * 13
 fuP2UpdatesNewPosY:       defb 8 * 13
 fuP2UpdatesOldPose:       defb 0
-fuP2UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
+fuP2UpdatesNewPose:       defb catPoseJump | catPoseFaceLeft
 fuP2UpdatesTileChangeX:   defb 10
 fuP2UpdatesTileChangeY:   defb 0
 fuP2UpdatesTileChangePtr: defw 0

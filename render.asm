@@ -433,78 +433,116 @@ renderPrecomputeSpritesCopyLoop:
         add ix, de
 renderPrecomputeSpritesCopyLoopFirstIter:
         push bc
-        ;; Walk
-        ld de, catOneWalkLeft
-        ld hl, cat1SpritesWalk
+        ;; Stand
+        ld de, catOneStandLeft
+        ld hl, CAT_LEFT_STANDING
         call renderPrecomputeCopyCatSprite
 
-        ld de, catOneWalkRight
-        ld hl, cat1SpritesWalk
+        ld de, catOneStandRight
+        ld hl, CAT_RIGHT_STANDING
         call renderPrecomputeCopyCatSprite
 
-        ld de, catTwoWalkLeft
-        ld hl, cat2SpritesWalk
+        ld de, catTwoStandLeft
+        ld hl, CAT_LEFT_STANDING
         call renderPrecomputeCopyCatSprite
 
-        ld de, catTwoWalkRight
-        ld hl, cat2SpritesWalk
+        ld de, catTwoStandRight
+        ld hl, CAT_RIGHT_STANDING
         call renderPrecomputeCopyCatSprite
 
         ;; Jump
         ld de, catOneJumpLeft
-        ld hl, cat1SpritesJump
+        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneJumpRight
-        ld hl, cat1SpritesJump
+        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpLeft
-        ld hl, cat2SpritesJump
+        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpRight
-        ld hl, cat2SpritesJump
+        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ;; Attack High
         ld de, catOneAttackHighLeft
-        ld hl, cat1SpritesAttackHigh
+        ld hl, CAT_LEFT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackHighRight
-        ld hl, cat1SpritesAttackHigh
+        ld hl, CAT_RIGHT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighLeft
-        ld hl, cat2SpritesAttackHigh
+        ld hl, CAT_LEFT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighRight
-        ld hl, cat2SpritesAttackHigh
+        ld hl, CAT_RIGHT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ;; Attack Low
         ld de, catOneAttackLowLeft
-        ld hl, cat1SpritesAttackLow
+        ld hl, CAT_LEFT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackLowRight
-        ld hl, cat1SpritesAttackLow
+        ld hl, CAT_RIGHT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowLeft
-        ld hl, cat2SpritesAttackLow
+        ld hl, CAT_LEFT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowRight
-        ld hl, cat2SpritesAttackLow
+        ld hl, CAT_RIGHT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         pop bc
         dec b
 
         jp nz, renderPrecomputeSpritesCopyLoop
+
+        ;; Load special case walking sprites
+
+        ld ix, 24
+        ld de, catOneWalkLeft
+        ld hl, CAT_LEFT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catOneWalkRight
+        ld hl, CAT_RIGHT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkLeft
+        ld hl, CAT_LEFT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkRight
+        ld hl, CAT_LEFT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld ix, 24 + (9 * 8)
+        ld de, catOneWalkLeft
+        ld hl, CAT_LEFT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catOneWalkRight
+        ld hl, CAT_RIGHT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkLeft
+        ld hl, CAT_LEFT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkRight
+        ld hl, CAT_LEFT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ;; Prepare for shift loop
         ld b, 0
         ld hl, 24
 renderPrecomputeSpritesShiftLoop:
@@ -518,6 +556,22 @@ renderPrecomputeSpritesShiftLoop:
         inc b
         inc b
         inc b
+
+        ld ix, catOneStandLeft
+        add ix, de
+        call renderPrecomputeShiftCatSprite
+
+        ld ix, catOneStandRight
+        add ix, de
+        call renderPrecomputeShiftCatSprite
+
+        ld ix, catTwoStandLeft
+        add ix, de
+        call renderPrecomputeShiftCatSprite
+
+        ld ix, catTwoStandRight
+        add ix, de
+        call renderPrecomputeShiftCatSprite
 
         ld ix, catOneWalkLeft
         add ix, de
@@ -1066,7 +1120,11 @@ renderFrameBuildCatFacingLeft:
         and catPoseJump
         jp nz, renderFrameBuildCatJump
 
-        jp renderFrameBuildCatWalk
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseWalk
+        jp nz, renderFrameBuildCatWalk
+
+        jp renderFrameBuildCatStand
 
 renderFrameBuildCatAttackLow:
         ld de, catOneAttackLowLeft - catOneSprites + 24
@@ -1082,6 +1140,10 @@ renderFrameBuildCatJump:
         jp renderFrameBuildCatPoseSet
 renderFrameBuildCatWalk:
         ld de, catOneWalkLeft - catOneSprites + 24
+        add hl, de
+        jp renderFrameBuildCatPoseSet
+renderFrameBuildCatStand:
+        ld de, catOneStandLeft - catOneSprites + 24
         add hl, de
 
 renderFrameBuildCatPoseSet:

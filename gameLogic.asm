@@ -149,6 +149,31 @@ logicUpdateMovementState:
                                              ; movement state.
         ld  (ix+8), movementStateGround ; Just change the state; speed handled in physics
 logicEndUpdateMovementState:
+        ;; Before moving on, we need to update the cat's pose for rendering
+        ;; new pose = iy + 4
+        ld a, (ix + 8)          ; a contains movement state
+        and movementStateGround
+        jp nz, logicUpdateNotFallingPose
+        ;; If we're here, then movement state is jumping or falling
+
+        ld a, catPoseJump
+        or (iy + 4)
+        ld (iy + 4), a
+        jp logicUpdatePoseEnd
+logicUpdateNotFallingPose:
+        ;; If we're here, then movement state is ground. Pose might be
+        ;; walking or standing
+
+        ld a, (iy + 0)          ; a contains new pos X
+        cp (iy - 1)             ; is new pos X same as old pos X?
+        jp z, logicUpdatePoseEnd ; if they are, we're standing
+        ;; If we're here, then we are walking
+        ld a, catPoseWalk
+        or (iy + 4)
+        ld (iy + 4), a
+
+logicUpdatePoseEnd:
+        ;; Pose set
         pop de  ; Retrieve player counter
         pop iy
         dec d
