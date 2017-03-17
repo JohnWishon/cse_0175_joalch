@@ -140,6 +140,7 @@ jump_handler:
 
 punch_handler:
     ld  (ix+5),playerHiPunch
+    call    input_punch_noise
     ret
 
 d_handler:
@@ -177,3 +178,21 @@ wa_handler:
     ld  (ix+0),1
     ld  (ix+2),1
     jp  input_cycle_closing
+
+
+input_punch_noise:
+    ld  c,224             ; decides how long a particular hi or lo lasts
+input_punch_noise_init:
+    ld  b,8              ; decides how many hi/lo we have.
+    ld  hl,0             ; start pointer in ROM.
+input_punch_noise_next_rn:
+    ld  a,(hl)           ; next "random" number.
+    inc hl               ; inc pointer.
+    and $f8              ; we want a black border.
+    out ($fe),a          ; write to speaker.
+    ld  a,c              ; set up delay
+input_punch_noise_delay:
+    dec a                ; decrement loop counter.
+    jr  nz,input_punch_noise_delay      ; delay loop.
+    djnz    input_punch_noise_next_rn   ; next step.
+    ret

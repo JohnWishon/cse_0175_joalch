@@ -31,7 +31,7 @@ smGameOver:      equ %0000$1001
 movementStateGround:   equ %0000$0001
 movementStateJumping:  equ %0000$0010
 movementStateFalling:  equ %0000$0100
-movementStateClimbing: equ %0000$1000
+;movementStateClimbing: equ %0000$1000
 
         ;; collision states
 collisionStateBlockedUp:        equ %0000$0001
@@ -43,7 +43,7 @@ collisionStateBlockedRight:     equ %0000$1000
 tgaNone:            equ %0000$0000
 tgaPassable:        equ %0001$0000
 tgaStandable:       equ %0010$0000
-tgaClimbable:       equ %0100$0000
+;tgaClimbable:       equ %0100$0000
 tgaDrainsInterest:  equ %1000$0000
 tgaDestroyableMask: equ %0000$1111
 
@@ -55,19 +55,26 @@ catPixelWidth:  equ (catWidth << 3)
 catHeight:      equ 2           ; in tiles
 catPixelHeight: equ (catHeight << 3)
 
+mouseWidth:       equ 2
+mousePixelWidth:  equ (mouseWidth << 3)
+mouseHeight:      equ 1
+mousePixelHeight: equ (mouseHeight << 3)
+
 
 levelLeftmostCol:     equ 0
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
 levelRightmostCol:    equ 31
-levelRightmostPixel:  equ ((levelRightmostCol << 3) + 7)
+levelRightmostColFirstPixel: equ (levelRightmostCol << 3)
+levelRightmostPixel:  equ levelRightmostColFirstPixel + 7
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
 levelBottommostRow:   equ 22
-levelBottommostPixel: equ ((levelBottommostRow << 3) + 7)
-levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
-levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
+levelBottommostRowFirstPixel: equ (levelBottommostRow << 3)
+levelBottommostPixel: equ levelBottommostRowFirstPixel + 7
 levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
 levelTileHeight:    equ levelBottommostRow - levelTopmostRow + 1
+levelPixelWidth:      equ levelTileWidth << 3
+levelPixelHeight:     equ levelTileHeight << 3
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
@@ -174,14 +181,14 @@ couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable
         defb 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-        defb tgaStandable | tgaClimbable | tgaPassable | 1
+        defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
         defb HIGH(couchCushionDamaged) | 3
         defb 0, 0, 0
 couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
-        defb tgaStandable | tgaClimbable | tgaPassable | 3
+        defb tgaStandable | tgaPassable | 3
         defw staticTileCouchCushionDestroyed
-        defb tgaStandable | tgaClimbable | tgaPassable
+        defb tgaStandable | tgaPassable
         defb 0, 0, 0
 dynamicTileTestImpassableOneHealth: defb 255, 127, 63, 31, 15, 7, 3, 1, %00$100$010
         defb tgaStandable | 1
@@ -240,7 +247,7 @@ staticTileMouseHole: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         ;; area. So 30 + 1 tiles from the left of the screen, and 18 + 5 tiles
         ;; from the top.
 
-gameLevel: defs levelTileWidth * levelTileHeight, tgaStandable | tgaPassable
+gameLevel: defs levelTileWidth * levelTileHeight, tgaPassable
 gameLevelEnd:
         ;; define and zero-fill width * height bytes
         ;; http://pasmo.speccy.org/pasmodoc.html#dirds
@@ -261,7 +268,7 @@ gameLevelEnd:
 
                 ;; cat poses
 catPoseJump:      equ %0000$0001
-catPoseClimb:     equ %0000$0010
+;catPoseClimb:     equ %0000$0010
 catPoseWalk:      equ %0000$0100
 catPoseAttack:    equ %0000$1000
 catPoseAttackLow: equ %0001$0000
@@ -270,25 +277,25 @@ catPoseFaceLeft: equ %1000$0000
 catPoseFaceLeftClearMask: equ %0111$1111
 
 fuP1UpdatesBase:
-fuP1UpdatesOldPosX:       defb 8 * 7 + 6
-fuP1UpdatesNewPosX:       defb 8 * 7 + 6
-fuP1UpdatesOldPosY:       defb 8 * 2 + 0
-fuP1UpdatesNewPosY:       defb 8 * 2 + 0
+fuP1UpdatesOldPosX:       defb 8 * 8 + 0
+fuP1UpdatesNewPosX:       defb 8 * 8 + 0
+fuP1UpdatesOldPosY:       defb 8 * 6 + 1
+fuP1UpdatesNewPosY:       defb 8 * 6 + 1
 fuP1UpdatesOldPose:       defb 0
 fuP1UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
-fuP1UpdatesOldTilePosX:   defb 7
-fuP1UpdatesNewTilePosX:   defb 7
-fuP1UpdatesOldTilePosY:   defb 1
-fuP1UpdatesNewTilePosY:   defb 1
+fuP1UpdatesOldTilePosX:   defb 6
+fuP1UpdatesNewTilePosX:   defb 6
+fuP1UpdatesOldTilePosY:   defb 9
+fuP1UpdatesNewTilePosY:   defb 9
 
 fuP2UpdatesBase:
-fuP2UpdatesOldPosX:       defb 8 * 4 + 4
-fuP2UpdatesNewPosX:       defb 8 * 4 + 4
-fuP2UpdatesOldPosY:       defb 8 * 3
-fuP2UpdatesNewPosY:       defb 8 * 3
+fuP2UpdatesOldPosX:       defb 8 * 8
+fuP2UpdatesNewPosX:       defb 8 * 8
+fuP2UpdatesOldPosY:       defb 8 * 13
+fuP2UpdatesNewPosY:       defb 8 * 13
 fuP2UpdatesOldPose:       defb 0
 fuP2UpdatesNewPose:       defb catPoseWalk | catPoseFaceLeft
 fuP2UpdatesTileChangeX:   defb 10
@@ -309,7 +316,7 @@ mouseUpdatesDirection:  defb 1      ; ix
 mouseUpdatesOldPosX:    defb 0      ; ix + 1
 mouseUpdatesNewPosX:    defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:    defb 0      ; ix + 3
-mouseUpdatesNewPosY:    defb levelBottommostPixel - 4      ; ix + 4
+mouseUpdatesNewPosY:    defb levelBottommostRowFirstPixel - mousePixelHeight ; ix + 4
 mouseActive:            defb 0      ; ix + 5
 spawnCtr:               defb 0      ; ix + 6
 randomCtr:              defb 0      ; ix + 7 - timer for the random call

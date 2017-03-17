@@ -52,8 +52,6 @@ jmpstr:
     defb    "JMP "
 falstr:
     defb    "FAL "
-clbstr:
-    defb    "CLB "
 
 
 testingStr:

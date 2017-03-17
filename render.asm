@@ -35,17 +35,11 @@ catOneJumpLeft: equ $C138
 catOneAttackHighLeft: equ $C270
 catOneAttackLowLeft: equ $C3A8
 catOneStandLeft: equ $C4E0
-catOneClimbLeft: equ $C618
-catOneClimbAttackHighLeft: equ $C6F0
-catOneClimbAttackLowLeft: equ $C738
 catOneWalkRight: equ $C4E0
 catOneJumpRight: equ $C618
 catOneAttackHighRight: equ $C750
 catOneAttackLowRight: equ $C888
 catOneStandRight: equ $CC60
-catOneClimbRight: equ $CD98
-catOneClimbAttackHighRight: equ $CE70
-catOneClimbAttackLowRight: equ $CEB8
 catOneBgCache: equ $CF00
 
 catOneHandLeft: equ $CF48
@@ -60,17 +54,11 @@ catTwoJumpLeft: equ catTwoSprites + catOneJumpLeft - catOneSprites
 catTwoAttackHighLeft: equ catTwoSprites + catOneAttackHighLeft - catOneSprites
 catTwoAttackLowLeft: equ catTwoSprites + catOneAttackLowLeft - catOneSprites
 catTwoStandLeft: equ catTwoSprites + catOneStandLeft - catOneSprites
-catTwoClimbLeft: equ catTwoSprites + catOneClimbLeft - catOneSprites
-catTwoClimbAttackHighLeft: equ catTwoSprites + catOneClimbAttackHighLeft - catOneSprites
-catTwoClimbAttackLowLeft: equ catTwoSprites + catOneClimbAttackLowLeft - catOneSprites
 catTwoWalkRight: equ catTwoSprites + catOneWalkRight - catOneSprites
 catTwoJumpRight: equ catTwoSprites + catOneJumpRight - catOneSprites
 catTwoAttackHighRight: equ catTwoSprites + catOneAttackHighRight - catOneSprites
 catTwoAttackLowRight: equ catTwoSprites + catOneAttackLowRight - catOneSprites
 catTwoStandRight: equ catTwoSprites + catOneStandRight- catOneSprites
-catTwoClimbRight: equ catTwoSprites + catOneClimbRight - catOneSprites
-catTwoClimbAttackHighRight: equ catTwoSprites + catOneClimbAttackHighRight - catOneSprites
-catTwoClimbAttackLowRight: equ catTwoSprites + catOneClimbAttackLowRight- catOneSprites
 catTwoBgCache: equ catTwoSprites + catOneBgCache - catOneSprites
 
 catTwoHandLeft: equ catTwoSprites + catOneHandLeft - catOneSprites
@@ -184,6 +172,7 @@ renderFrame:
         srl a
         srl a
         srl a
+        inc a
         ld (fuP1UpdatesNewTilePosY), a
 
         ld a, (fuP2UpdatesNewPosX)
@@ -196,6 +185,7 @@ renderFrame:
         srl a
         srl a
         srl a
+        inc a
         ld (fuP2UpdatesNewTilePosY), a
 
         ;;  calculate new tile positions
@@ -306,7 +296,7 @@ renderFrameCat2NoTileUpdate:
         ld ix, fuP1UpdatesBase
         ld de, catOneBgCache
         ld hl, catOneSprites
-        call renderFrameBuildCat ;TODO: special case for climbing sprites
+        call renderFrameBuildCat
 
         ;; TODO: draw cat 1
         ld hl, catCanvas
@@ -1084,10 +1074,6 @@ renderFrameBuildCatFacingLeft:
         and catPoseJump
         jp nz, renderFrameBuildCatJump
 
-        ld a, (IX + renderPNUpdatesNewPose)
-        and catPoseClimb
-        jp nz, renderFrameBuildCatClimb
-
         jp renderFrameBuildCatWalk
 
 renderFrameBuildCatAttackLow:
@@ -1102,8 +1088,6 @@ renderFrameBuildCatJump:
         ld de, catOneJumpLeft - catOneSprites + 24
         add hl, de
         jp renderFrameBuildCatPoseSet
-renderFrameBuildCatClimb:
-        ;; TODO
 renderFrameBuildCatWalk:
         ld de, catOneWalkLeft - catOneSprites + 24
         add hl, de
@@ -1129,7 +1113,11 @@ renderFrameBuildCatSelectY:
 
         ld a, (IX + renderPNUpdatesNewPosY)
         and %0000$0111
+
         ld bc, 0
+        ld c, a
+        ld a, %0000$1000
+        sub c
         ld c, a
         add hl, bc              ; hl now points to correct sprite
 

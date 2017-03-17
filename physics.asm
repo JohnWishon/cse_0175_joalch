@@ -11,12 +11,8 @@ phys_routine_body:
     ld  (ix+6),0            ; First clear horizontal speed
 
     ld  a,(ix+8)            ; Read movement state
-    cp  movementStateClimbing   ; If the cat is climbing
-    jp  z,phys_may_process_vert_mov ; Then don't process horizontal movement
-                                    ; jump directly to processing vertical movement
-    cp  movementStateGround ; If the cat is not the ground
-    jp  nz,phys_not_clear_vert_speed    ; Don't clear vertical speed. Climbing handles
-                                        ; its own case
+    cp  movementStateGround ; If the cat is not on the ground
+    jp  nz,phys_not_clear_vert_speed    ; Don't clear vertical speed.
     ld  (ix+7),0
 phys_not_clear_vert_speed:
     xor a
@@ -25,16 +21,6 @@ phys_not_clear_vert_speed:
     xor a                   ; no need for if/then/else since left and right
     add a,(ix+3)            ; should cancel each other
     call nz,phys_setPosX    ; Right pressed
-    jp  phys_basic_mov_processed
-phys_may_process_vert_mov:  ; Entered only if movementState = climbing
-    ld  (ix+7),0            ; Clear vert. speed. We are climbing on frictional surface, baby!
-    xor a
-    add a,(ix+0)
-    call nz,phys_setNegY    ; Up pressed
-    xor a
-    add a,(ix+1)
-    call nz,phys_setPosY    ; Down pressed
-    ;; Fall through
 phys_basic_mov_processed:
     ;; punch
     ld  a,(ix+5)            ; Punch = DirPressed + 5
@@ -74,20 +60,10 @@ phys_setNegX:
     ld  (ix+6),-phys_cat_hori_speed
     ret
 
-phys_setPosY:
-    ld  (ix+7),phys_cat_vert_speed
-    ret
-phys_setNegY:
-    ld  (ix+7),-phys_cat_vert_speed
-    ret
-
 phys_handle_jump:
     ld  a,(ix+8)    ; Read movement state
     cp  movementStateGround
-    jp  z,phys_set_jumping_state
-    cp  movementStateClimbing
-    ret nz          ; If not on the ground, nor climbing, jump is NOP
-phys_set_jumping_state:
+    ret nz          ; If not on the ground, jump is NOP
     ld  (ix+7),phys_jump_init_speed    ; Set initial upward speed.
     ld  (ix+8),movementStateJumping
     ret
@@ -103,6 +79,7 @@ phys_handle_fall:
 
 phys_handle_jumpstate:
     inc (ix+7)                  ; Decelerate the cat vertically
+    inc (ix+7)
         ; Changing deceleration speed to N times of original -> max height to 1/N of original
         ; Deducted from 0.5mv^2 = mgh and that the deceleration is proportional to gravity;
         ; 0.5mv^2 = mgh = mgh*N/N = m(Ng)(h/N)
@@ -115,6 +92,7 @@ phys_handle_fallstate:
     cp  phys_fall_max_speed
     ret z
     inc (ix+7)                  ; Just decelerate the cat vertically
+    inc (ix+7)
     ret
 
 phys_setPunch:
@@ -126,9 +104,8 @@ phys_setPunch:
     ld  (ix+1), 0   ; Clears down press to avoid interfering with drop logic.
     ret
 
-phys_jump_init_speed:   equ -8
+phys_jump_init_speed:   equ -14
     ; Changing init speed to N times of original -> max height to N^2 of original
     ; Deducted from 0.5mv^2 = mgh; 0.5m(Nv)^2 = 0.5mv^2*N^2 = mgh*N^2 = mg(N^2*h)
-phys_fall_max_speed:    equ 12
-phys_cat_hori_speed:    equ 2
-phys_cat_vert_speed:    equ 1
+phys_fall_max_speed:    equ 8
+phys_cat_hori_speed:    equ 4
