@@ -64,11 +64,11 @@ mousePixelHeight: equ (mouseHeight << 3)
 levelLeftmostCol:     equ 0
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
 levelRightmostCol:    equ 31
-levelRightmostPixel:  equ (levelRightmostCol << 3)
+levelRightmostPixel:  equ (levelRightmostCol << 3) + 8
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
-levelBottommostRow:   equ 23
-levelBottommostPixel: equ (levelBottommostRow << 3)
+levelBottommostRow:   equ 22
+levelBottommostPixel: equ (levelBottommostRow << 3) + 8
 levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
 levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
 levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
