@@ -323,6 +323,8 @@ mouseUpdatesNewTilePosX:   defb 0
 mouseUpdatesOldTilePosY:   defb 3
 mouseUpdatesNewTilePosY:   defb levelBottommostRow
 
+mouseWallNumHoles:      equ 3
+
 mouseWall1:
 mouseW1X:               defb 0      ;
 mouseW1Y:               defb 0

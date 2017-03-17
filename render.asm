@@ -26,6 +26,12 @@ renderCatMouseNumFacings: equ 2
 catLateralSpriteWidth: equ 24 + (72 * 4)
 catNonLateralSpriteWidth: equ 74
 
+mouseHoleXOffset:       equ mouseW1X - mouseWall1
+mouseHoleYOffset:       equ mouseW1Y - mouseWall1
+mouseHolePointerHigh:   equ wall1ChangePtr - mouseWall1
+mouseHolePointerLow:   equ wall1ChangePtr - mouseWall1 + 1
+mouseHoleStructSize:    equ mouseWall2 - mouseWall1
+
 ;;; Cat 1
 
 catOneSprites: equ $DB20
@@ -267,6 +273,32 @@ renderFrameCat1NoTileUpdate:
         ld de, secondFramebufferLogicalOffset
         call renderFrameWriteTile
 renderFrameCat2NoTileUpdate:
+
+        ld b, mouseWallNumHoles
+        ld ix, mouseWall1
+renderFrameMouseHoleTileLoop:
+        push bc
+        ld h, (IX + mouseHolePointerHigh)
+        ld l, (IX + mouseHolePointerLow)
+        ld a, h
+        or l
+        jp z, renderFrameMouseHoleTileLoopSkip
+
+        ld a, (IX + mouseHoleXOffset)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (IX + mouseHoleYOffset)
+        add a, levelTopmostRow
+        ld b, a
+        ld de, secondFramebufferLogicalOffset
+        call renderFrameWriteTile
+
+renderFrameMouseHoleTileLoopSkip:
+        ld bc, mouseHoleStructSize
+        add ix, bc
+
+        pop bc
+        djnz renderFrameMouseHoleTileLoop
 
         ;; draw new sprites
 
