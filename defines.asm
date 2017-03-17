@@ -71,10 +71,10 @@ levelTopmostPixel:    equ (levelTopmostRow << 3)
 levelBottommostRow:   equ 22
 levelBottommostRowFirstPixel: equ (levelBottommostRow << 3)
 levelBottommostPixel: equ levelBottommostRowFirstPixel + 7
-levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
-levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
 levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
 levelTileHeight:    equ levelBottommostRow - levelTopmostRow + 1
+levelPixelWidth:      equ levelTileWidth << 3
+levelPixelHeight:     equ levelTileHeight << 3
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
