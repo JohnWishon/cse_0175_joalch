@@ -64,15 +64,17 @@ mousePixelHeight: equ (mouseHeight << 3)
 levelLeftmostCol:     equ 0
 levelLeftmostPixel:   equ (levelLeftmostCol << 3)
 levelRightmostCol:    equ 31
-levelRightmostPixel:  equ (levelRightmostCol << 3)
+levelRightmostColFirstPixel: equ (levelRightmostCol << 3)
+levelRightmostPixel:  equ levelRightmostColFirstPixel + 7
 levelTopmostRow:      equ 2
 levelTopmostPixel:    equ (levelTopmostRow << 3)
-levelBottommostRow:   equ 23
-levelBottommostPixel: equ (levelBottommostRow << 3)
-levelPixelWidth:      equ levelRightmostPixel - levelLeftmostPixel
-levelPixelHeight:     equ levelBottommostPixel - levelTopmostPixel
+levelBottommostRow:   equ 22
+levelBottommostRowFirstPixel: equ (levelBottommostRow << 3)
+levelBottommostPixel: equ levelBottommostRowFirstPixel + 7
 levelTileWidth:     equ levelRightmostCol - levelLeftmostCol + 1
 levelTileHeight:    equ levelBottommostRow - levelTopmostRow + 1
+levelPixelWidth:      equ levelTileWidth << 3
+levelPixelHeight:     equ levelTileHeight << 3
 
 levelDummyTileMask:   equ %0000$1111
 levelTileIndexMask:   equ %1111$0000
@@ -314,7 +316,7 @@ mouseUpdatesDirection:  defb 1      ; ix
 mouseUpdatesOldPosX:    defb 0      ; ix + 1
 mouseUpdatesNewPosX:    defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:    defb 0      ; ix + 3
-mouseUpdatesNewPosY:    defb levelBottommostPixel - 16      ; ix + 4
+mouseUpdatesNewPosY:    defb levelBottommostRowFirstPixel - mousePixelHeight ; ix + 4
 mouseActive:            defb 0      ; ix + 5
 spawnCtr:               defb 0      ; ix + 6
 randomCtr:              defb 0      ; ix + 7 - timer for the random call
