@@ -20,7 +20,7 @@ renderWriteTileX: equ 0
 renderWriteTileY: equ 1
 renderWriteTilePtr: equ 2
 
-renderCatMouseNumShifts:  equ 4
+renderCatMouseNumShifts:  equ 2
 renderCatMouseNumFacings: equ 2
 
 catLateralSpriteWidth: equ 24 + (72 * 4)
@@ -28,26 +28,28 @@ catNonLateralSpriteWidth: equ 74
 
 ;;; Cat 1
 
-catOneSprites: equ $C000
+catOneSprites: equ $DB20
 
-catOneWalkLeft: equ $C000
-catOneJumpLeft: equ $C138
-catOneAttackHighLeft: equ $C270
-catOneAttackLowLeft: equ $C3A8
-catOneStandLeft: equ $C4E0
-catOneWalkRight: equ $C4E0
-catOneJumpRight: equ $C618
-catOneAttackHighRight: equ $C750
-catOneAttackLowRight: equ $C888
-catOneStandRight: equ $CC60
-catOneBgCache: equ $CF00
+catOneWalkLeft: equ $DB20
+catOneJumpLeft: equ $DBC8
+catOneAttackHighLeft: equ $DC70
+catOneAttackLowLeft: equ $DD18
+catOneStandLeft: equ $DDC0
+catOneWalkRight: equ $DE68
+catOneJumpRight: equ $DF10
+catOneAttackHighRight: equ $DFB8
+catOneAttackLowRight: equ $E060
+catOneStandRight: equ $E108
+catOneBgCache: equ $E1B0
 
-catOneHandLeft: equ $CF48
-catOneHandRight: equ $CFD8
-catOneHandBgCache: equ $D068
+catOneHandLeft: equ $E1F8
+catOneHandLowLeft: equ $E248
+catOneHandRight: equ $E298
+catOneHandLowRight: equ $E2E8
+catOneHandBgCache: equ $E338
 
 ;;; Cat 2
-catTwoSprites: equ $D088
+catTwoSprites: equ $E358
 
 catTwoWalkLeft: equ catTwoSprites + catOneWalkLeft - catOneSprites
 catTwoJumpLeft: equ catTwoSprites + catOneJumpLeft - catOneSprites
@@ -66,42 +68,30 @@ catTwoHandRight: equ catTwoSprites + catOneHandRight - catOneSprites
 catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
 
 ;;; Mouse
-mouseSprites: equ $E110
-mouseWalkLeft: equ $E110
-mouseWalkRight: equ $E178
-mouseBgCache: equ $E1E0
+mouseSprites: equ $EB90
+mouseWalkLeft: equ $EB90
+mouseWalkRight: equ $EBC8
+mouseBgCache: equ $EC00
 
 ;;; Canvi
-catCanvas: equ $E1F8
-catHandCanvas: equ $E240
-mouseCanvas: equ $E260
-renderBuffersEnd: equ $E278
+catCanvas: equ $D800
+catHandCanvas: equ $D848
+mouseCanvas: equ $D868
 
-secondFramebuffer: equ $E278
-;;; Used by read/write tile to get the "logical beginning" of the framebuffer.
-;;; The code expects a full 32 x 24 framebuffer, but our second framebuffer
-;;; is smaller than this. Due to this, we need to pass in the pointer for
-;;; where the beginning *would be* for our window.
-;;;
-;;; INVARIANT: regions before the actual beginning must never be accessed!
-secondFramebufferLogicalBegin:   equ secondFramebuffer - (levelTopmostRow * levelTileWidth)
+secondFramebuffer: equ $C000
 
 ;;; What to add to a pointer returned by renderFrameTileAddress to get an
 ;;; address into the second framebuffer
-secondFramebufferLogicalOffset: equ secondFramebufferLogicalBegin - $4000
+secondFramebufferLogicalOffset: equ secondFramebuffer - $4000
 
 setupRenderer:
         ;; get the contents of the front buffer
 
 
-        ld de, secondFramebufferLogicalBegin
+        ld de, secondFramebuffer
         ld hl, $4000
         ld bc, 32 * 24 * 8
         ldir
-
-        ;; front buffer now copied. A bunch of stuff before and after
-        ;; the back buffer in memory got obliterated, but it *should*
-        ;; be fine
 
         call renderPrecomputeSprites
 
@@ -526,6 +516,8 @@ renderPrecomputeSpritesShiftLoop:
         ld e, l
         inc b
         inc b
+        inc b
+        inc b
 
         ld ix, catOneWalkLeft
         add ix, de
@@ -592,7 +584,7 @@ renderPrecomputeSpritesShiftLoop:
         call renderPrecomputeShiftCatSprite
 
         ld a, b
-        cp (renderCatMouseNumShifts - 1) * 2
+        cp (renderCatMouseNumShifts - 1) * 4
         jp z, renderPrecomputeSpritesShiftLoopEnd
         jp renderPrecomputeSpritesShiftLoop
 renderPrecomputeSpritesShiftLoopEnd:
@@ -1097,16 +1089,14 @@ renderFrameBuildCatPoseSet:
         ;; of the correct pose
 
         ld a, (IX + renderPNUpdatesNewPosX)
-        and %0000$0110          ; posX can be X0, X2, X4, or X6
+        and %0000$0100          ; posX can be X0 or X4
 
         jp z, renderFrameBuildCatSelectY ; if a == 0, then hl is on correct idx
 
-        srl a                    ; a contains 0, 1, 2, or 3
-        ld b, a                 ; b contains 0 .. 4
-renderFrameBuildCatSelectXLoop:
+        ;; Otherwise a must equal 4. After all, it's not like anybody
+        ;; ever violated an invariant! That'd be madness!
         ld de, 9 * 8
         add hl, de
-        djnz renderFrameBuildCatSelectXLoop
 
 renderFrameBuildCatSelectY:
         ;; HL points to correct sprite in sequence
@@ -1214,18 +1204,16 @@ renderFrameBuildCatOrBGLoop:
         ret
 
 renderFrameSwapBuffers:
+
         ;; TODO: massive 7000 line fast transfer function
         ;;  https://chuntey.wordpress.com/tag/double-buffering/
 
-        ld a, levelTileWidth * levelTileHeight * 8 / 96
-        ld c, 0
-        ld b, 2
-        call renderFrameTileAddress
-        ld hl, secondFramebuffer
-        ld bc, levelTileWidth * levelTileHeight * 8
+        ld de, $4000             ; front buffer address
+        ld hl, secondFramebuffer ; back buffer address
+        ld bc, 32 * 24 * 8
 renderFrameSwapBuffersCopyLoop:
         ;; try not to throw up
-
+        ;; 128 ldi's
         ldi
         ldi
         ldi
