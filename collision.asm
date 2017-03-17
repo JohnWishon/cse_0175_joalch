@@ -50,6 +50,7 @@ updateCollision:
 updateCollisionBody:
         call collisionHandleHorizontal
         call collisionHandleVertical
+        call collisionResolvePunch
         ret
 
         ;; ---------------------------------------------------------------------
@@ -102,7 +103,6 @@ collisionPrepareUpdates:
         ;;       IX regester preserved
         ;;       IY register preserved
 collisionResolvePunch:
-        ;; a contains what sort of punch is happening, if one is happening
         ld c, 0
         ld d, 0
         ld a, (IX + collisionPNPressedPunch)
@@ -145,7 +145,9 @@ collisionResolvePunchHighLowNoEnd:
 
         ld a, (IX + collisionPNMovX)
         cp 0
+        jp z, collisionResolvePunchFacingUnchanged
         jp p, collisionResolvePunchFacingRightLeftEnd
+collisionResolvePunchFacingLeft:
         ;; If we're here, then we're facing left
 
         dec (IX + collisionPNPunchX) ; punchX = tileposX - 1
@@ -158,6 +160,13 @@ collisionResolvePunchHighLowNoEnd:
         ld d, a                 ; d contains posX - 8
 
         jp collisionResolvePunchFacingRightLeftEnd
+collisionResolvePunchFacingUnchanged:
+        ;; If we're here, then we're facing whatever way were last frame
+        ld a, (IY + collisionPNUpdatesOldPose) ; a contains old pose
+        and catPoseFaceLeft                   ; a contains old facing
+        ;; a contains 0 IFF old facing was right. Nonzero otherwise
+        jp nz, collisionResolvePunchFacingLeft ; if left, jump to left handler
+        ;; if right, fall through to right handler
 collisionResolvePunchFacingRight:
         ;; If we're here, then we're facing right
         ld a, (IX + collisionPNPunchX)
