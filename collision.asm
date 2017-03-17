@@ -458,10 +458,10 @@ collisionHandleVerticalCatWidthLoop:
 
         ld a, b                 ; a contains d_remain
         cp 0                    ; is d_remain positive?
-        ;; If d_remain not positive, then do not ignore standable platforms
+        ;; If d_remain positive, then do not ignore standable platforms
         jp m, collisionHandleVerticalCatWidthLoopSkipStandable
 
-        ld a, (IX + collisionPNUpdatesNewY) ; a contains current posY
+        ld a, (IY + collisionPNUpdatesNewY) ; a contains current posY
         and collisionTilePixelsMask         ; a contains 0 IFF y = top pixel row
         cp 0
         ;; If in top pixel row of a tile, then do not ignore standable platforms
