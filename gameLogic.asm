@@ -9,8 +9,7 @@ setupGameLogicYLoop:
         ld c, levelTileWidth
 setupGameLogicXLoop:
         dec c
-        ;ld (hl), (dynamicTileTestImpassableOneHealth - dynamicTileInstanceBase) | 1
-
+        ld (hl), tgaPassable
 
         inc hl
         ld a, c
