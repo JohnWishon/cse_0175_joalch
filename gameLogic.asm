@@ -2,6 +2,8 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
+        call initWallMouse
+
         ;; Flood the map with passable attr.
         ld  hl, gameLevel
         ld  (hl), tgaPassable
@@ -245,4 +247,18 @@ logicGainScore:
 logicGainScoreAndInterest:
         call    logicGainInterest
         call    logicGainScore
+        ret
+
+initWallMouse:
+        ld ix, mouseWall1
+        ld (ix), 3
+        ld (ix + 1), 4
+
+        ld ix, mouseWall2
+        ld (ix), 12
+        ld (ix + 1), 7
+
+        ld ix, mouseWall3
+        ld (ix), 24
+        ld (ix + 1), 2
         ret
