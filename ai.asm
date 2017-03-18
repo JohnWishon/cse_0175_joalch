@@ -123,24 +123,23 @@ mouseEscape:
 
 noMouse:
     ld a, (ix + 6)
-    cp spawnTime
-    jp z, initMouse
+    cp floorSpawnTime
+    jp z, activateMouse
 noMaxCtr:
     ld a, (ix + 7)      ; load the counter for when to check spawning
-    cp floorTime       ; compare against the random check timer
+    cp floorRndTime       ; compare against the random check timer
     jp nz, noSpawn      ; this should happen every sec (25 frames)
 
     ld (ix + 7), 0
     call random         ; get random number
     and 9               ; range 0-9
 decisionCp:
-    cp spawnChance      ; Change spawnChance variable to change %
+    cp floorSpawnChance ; Change variable to change %
     jr nc, noSpawn      ; If the answer is 1 (01) then we init
-initMouse:
+activateMouse:
     ld (ix + 5), 1      ; Activate mouse
     ret
 noSpawn:
-
     inc (ix + 6)        ; increment the spawn counter
     inc (ix + 7)        ; increment the check counter
     ret
@@ -148,21 +147,25 @@ noSpawn:
 
 updateWall:
     ld ix, mouseWall1
+    ld (ix + 7), 0
+    ld (ix + 8), 0
+
     ld a, (ix + 2)      ; load active setting
     cp 1
     jr z, wall1Escape
 activateWall1:
     ld a, (ix + 3)      ; load the counter for when to check spawning
-    cp wallTime         ; compare against the random check timer
+    cp wallRndTime      ; compare against the random check timer
     jp nz, wall1End     ; rand timer hasn't reached max
 
-    call random
-    and 1
-    cp wallSpawn        ; check if we should activate the wall mouse
-    jr nc, wall1End
-
-    ld (ix + 2), 1      ; active
     ld (ix + 3), 0      ; reset timer
+
+    call random
+    and 9
+    cp wallSpawnChance    ; check if we should activate the wall mouse
+    jp nc, wall1End
+
+    ld (ix + 2), 1          ; active
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -170,28 +173,39 @@ activateWall1:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
+    ld (ix + 6), 0          ; reset despawn counter
+
     ld hl, mouseHoleActive  ; ptr to tile
-    ld (ix + 6), h
-    ld (ix + 7), l
+    ld (ix + 7), h
+    ld (ix + 8), l
 
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
-    or 00000001
+    or 1
     ld (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a  ; add to gamelevel
 
     jp wall1End
 
 wall1Escape:
     ld a, (ix + 3)          ; check if we should check this frame
-    cp wallTime
+    cp wallRndTime
     jp nz, wall1End
 
+    ld (ix + 3), 0          ; reset timer
+
+    inc (ix + 6)            ; Increment deactivate timer
+
+    ld a, (ix + 6)
+    cp wallSpawnTime
+    jr z, deactivateWall1
+
     call random             ; does the mouse go away?
-    and 1
-    cp wallSpawn
+    and 9
+    cp wallSpawnChance
     jr nc, wall1End         ; no - it stays
 
+deactivateWall1:
+
     ld (ix + 2), 0          ; inactive
-    ld (ix + 3), 0          ; reset timer
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -199,31 +213,37 @@ wall1Escape:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
+    ld (ix + 6), 0          ; reset despawn timer
+
     ld hl, staticTileMouseHole               ; load change ptr with static mouse Hold
-    ld (ix + 6), h
-    ld (ix + 7), l
+    ld (ix + 7), h
+    ld (ix + 8), l
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a
 
 wall1End:
     inc (ix + 3)
+
     ld ix, mouseWall2
+    ld (ix + 7), 0
+    ld (ix + 8), 0
     ld a, (ix + 2)      ; load active setting
     cp 1
     jr z, wall2Escape
 activateWall2:
     ld a, (ix + 3)      ; load the counter for when to check spawning
-    cp wallTime         ; compare against the random check timer
+    cp wallRndTime         ; compare against the random check timer
     jp nz, wall2End     ; rand timer hasn't reached max
 
+    ld (ix + 3), 0      ; reset timer
+
     call random
-    and 1
-    cp wallSpawn        ; check if we should activate the wall mouse
+    and 9
+    cp wallSpawnChance        ; check if we should activate the wall mouse
     jr nc, wall2End
 
     ld (ix + 2), 1      ; active
-    ld (ix + 3), 0      ; reset timer
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -231,28 +251,38 @@ activateWall2:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
+    ld (ix + 6), 0          ; reset despawn counter
+
     ld hl, mouseHoleActive  ; ptr to tile
-    ld (ix + 6), h
-    ld (ix + 7), l
+    ld (ix + 7), h
+    ld (ix + 8), l
 
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
-    or 00000001
+    or 1
     ld (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a  ; add to gamelevel
 
     jp wall2End
 
 wall2Escape:
     ld a, (ix + 3)          ; check if we should check this frame
-    cp wallTime
+    cp wallRndTime
     jp nz, wall2End
 
+    ld (ix + 3), 0      ; reset timer
+
+    inc (ix + 6)            ; Increment deactivate timer
+
+    ld a, (ix + 6)
+    cp wallSpawnTime
+    jr z, deactivateWall2
+
     call random             ; does the mouse go away?
-    and 1
-    cp wallSpawn
+    and 9
+    cp wallSpawnChance
     jr nc, wall2End         ; no - it stays
 
+deactivateWall2:
     ld (ix + 2), 0          ; inactive
-    ld (ix + 3), 0          ; reset timer
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -260,31 +290,38 @@ wall2Escape:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
+    ld (ix + 6), 0          ; reset despawn timer
+
     ld hl, staticTileMouseHole               ; load change ptr with static mouse Hold
-    ld (ix + 6), h
-    ld (ix + 7), l
+    ld (ix + 7), h
+    ld (ix + 8), l
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a
 
 wall2End:
     inc (ix + 3)
+
     ld ix, mouseWall3
+    ld (ix + 7), 0
+    ld (ix + 8), 0
     ld a, (ix + 2)      ; load active setting
     cp 1
     jr z, wall3Escape
+
 activateWall3:
     ld a, (ix + 3)      ; load the counter for when to check spawning
-    cp wallTime         ; compare against the random check timer
+    cp wallRndTime         ; compare against the random check timer
     jp nz, wall3End     ; rand timer hasn't reached max
 
+    ld (ix + 3), 0      ; reset timer
+
     call random
-    and 1
-    cp wallSpawn        ; check if we should activate the wall mouse
+    and 9
+    cp wallSpawnChance        ; check if we should activate the wall mouse
     jr nc, wall3End
 
     ld (ix + 2), 1      ; active
-    ld (ix + 3), 0      ; reset timer
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -292,9 +329,11 @@ activateWall3:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
+    ld (ix + 6), 0          ; reset despawn counter
+
     ld hl, mouseHoleActive  ; ptr to tile
-    ld (ix + 6), h
-    ld (ix + 7), l
+    ld (ix + 7), h
+    ld (ix + 8), l
 
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
@@ -304,16 +343,24 @@ activateWall3:
 
 wall3Escape:
     ld a, (ix + 3)          ; check if we should check this frame
-    cp wallTime
+    cp wallRndTime
     jp nz, wall3End
 
+    ld (ix + 3), 0      ; reset timer
+
+    inc (ix + 6)            ; Increment deactivate timer
+
+    ld a, (ix + 6)
+    cp wallSpawnTime
+    jr z, deactivateWall3
+
     call random             ; does the mouse go away?
-    and 1
-    cp wallSpawn
+    and 9
+    cp wallSpawnChance
     jr nc, wall3End         ; no - it stays
 
+deactivateWall3:
     ld (ix + 2), 0          ; inactive
-    ld (ix + 3), 0          ; reset timer
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -321,12 +368,15 @@ wall3Escape:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
+    ld (ix + 6), 0          ; reset despawn timer
+
     ld hl, staticTileMouseHole               ; load change ptr with static mouse Hold
-    ld (ix + 6), h
-    ld (ix + 7), l
+    ld (ix + 7), h
+    ld (ix + 8), l
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a
+
 wall3End:
     inc (ix + 3)
     ret
@@ -346,16 +396,27 @@ random:
     ld (seed), hl
     ret
 
+spawnStr:
+        defb    "S"
+XspawnStr:
 
-mousePace:  equ 4
-maxY:       equ levelBottommostPixel - mousePixelHeight
-minY:       equ levelTopmostPixel
-maxX:       equ levelRightmostPixel - 3 - mousePixelWidth
-minX:       equ levelLeftmostPixel
-couchX:     equ 120
-holeX:      equ 40
-spawnTime:  equ 125
-floorTime:  equ 25
-wallTime:   equ 25
-spawnChance:    equ 4
-wallSpawn:  equ 1
+despawnStr:
+        defb    "D"
+XdespawnStr:
+
+mousePace:      equ 4
+couchX:         equ 120
+holeX:          equ 40
+
+maxY:           equ levelBottommostPixel - mousePixelHeight
+minY:           equ levelTopmostPixel
+maxX:           equ levelRightmostPixel - 3 - mousePixelWidth
+minX:           equ levelLeftmostPixel
+
+floorSpawnTime:     equ 125     ; spawn time (in frames) to force floor mouse to spawn
+floorRndTime:       equ 25      ; # of frames to wait for random call for floor mouse
+floorSpawnChance:   equ 4       ; % (out of 10) for floor mice to spawn
+
+wallSpawnTime:      equ 2       ; spawn time (in seconds) to force wall mouse to despawn
+wallRndTime:        equ 25      ; # of frames to wait for random call for wallk mice
+wallSpawnChance:    equ 1       ; % (out of 10) for wall mice to spawn

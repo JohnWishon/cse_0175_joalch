@@ -164,7 +164,7 @@ mouseHoleActive: defb $66, $99, $7E, $81, $A5, $81, $66, $18, $F0  ; tile - base
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
-        defb HIGH(couchTopDamaged) | 3     ; gameLevel index next
+        defb HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -174,7 +174,7 @@ couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged) | 3
+        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -184,7 +184,7 @@ couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged) | 3
+        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
         defb tgaStandable | tgaPassable | 3
@@ -325,39 +325,45 @@ mouseUpdatesNewTilePosY:   defb levelBottommostRow
 mouseWallNumHoles:      equ 3
 
 mouseWall1:
-mouseW1X:               defb 3     ; 0 - Current X tile
-mouseW1Y:               defb 4     ; 1 - Current Y tile
+mouseW1X:               defb 0     ; 0 - Current X tile
+mouseW1Y:               defb 0     ; 1 - Current Y tile
 mouseW1Active:          defb 0      ; 2 - Active/inactive
 wall1Rnd:               defb 0      ; 3 - timer for random call
 mouseW1TileChangeX:     defb 0      ; 4
 mouseW1TileChangeY:     defb 0      ; 5
-mouseW1TileChangePtr:   defw 0      ; 6
+mouseW1SpawnCtr:        defb 0      ; 6
+mouseW1TileChangePtr:   defw 0      ; 7 & 8
+
 ;mouseW1MinXTile:        defb 0      ; 2
 ;mouseW1MinYTile:        defb 0      ; 3
 ;mouseW1MaxXTile:        defb 10     ; 4
 ;mouseW1MaxYTile:        defb 5      ; 5
 
 mouseWall2:
-mouseW2X:               defb 12      ; 0 - Current X tile
-mouseW2Y:               defb 7      ; 1 - Current Y tile
+mouseW2X:               defb 0      ; 0 - Current X tile
+mouseW2Y:               defb 0      ; 1 - Current Y tile
 mouseW2Active:          defb 0      ; 2 - Active/inactive
 wall2Rnd:               defb 0      ; 3 - timer for random call
 mouseW2TileChangeX:     defb 0      ; 4
 mouseW2TileChangeY:     defb 0      ; 5
-mouseW2TileChangePtr:   defw 0      ; 6
+mouseW2SpawnCtr:        defb 0      ; 6
+mouseW2TileChangePtr:   defw 0      ; 7 & 8
+
 ;mouseW2MinXTile:        defb 15
 ;mouseW2MinYTile:        defb 10
 ;mouseW2MaxXTile:        defb 20
 ;mouseW2MaxYTile:        defb 15
 
 mouseWall3:
-mouseW3X:               defb 24      ; 0 - Current X tile
-mouseW3Y:               defb 2      ; 1 - Current Y tile
+mouseW3X:               defb 0      ; 0 - Current X tile
+mouseW3Y:               defb 0      ; 1 - Current Y tile
 mouseW3Active:          defb 0      ; 2 - Active/inactive
 wall3Rnd:               defb 0      ; 3 - timer for random call
 mouseW3TileChangeX:     defb 0      ; 4
 mouseW3TileChangeY:     defb 0      ; 5
-mouseW3TileChangePtr:   defw 0      ; 6
+mouseW3SpawnCtr:        defb 0      ; 6
+mouseW3TileChangePtr:   defw 0      ; 7 & 8
+
 ;mouseW3MinXTile:        defb 25     ; X Tile Boundary
 ;mouseW3MinYTile:        defb 15     ; Y Tile Boundary
 ;mouseW3MaxXTile:        defb 30

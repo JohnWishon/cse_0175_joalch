@@ -2,58 +2,101 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
-        ;; TODO: setup the level
-        ld b, levelTileHeight
-        ld hl, gameLevel
-setupGameLogicYLoop:
-        ld c, levelTileWidth
-setupGameLogicXLoop:
-        dec c
-        ld (hl), tgaPassable
+        call initWallMouse
 
-        inc hl
-        ld a, c
-        cp 0
-        jp nz, setupGameLogicXLoop
-        djnz setupGameLogicYLoop
+        ;; Flood the map with passable attr.
+        ld  hl, gameLevel
+        ld  (hl), tgaPassable
+        ld  de, gameLevel + 1
+        ld  bc, levelTileHeight * levelTileWidth - 1
+        ldir
 
         ;; Fish tank is impassable
-        ld hl, gameLevel
-        ld bc, 8 + (9 * levelTileWidth)
-        add hl, bc
-        ld (hl), tgaNone
+        ld  hl, gameLevel + 8 + (9 * levelTileWidth)
+        ld  (hl), tgaNone
 
         inc hl
-        ld (hl), tgaNone
+        ld  (hl), tgaNone
 
-        ld hl, gameLevel
-        ld bc, 8 + (10 * levelTileWidth)
-        add hl, bc
-        ld (hl), tgaNone
-
+        ld  hl, gameLevel + 8 + (10 * levelTileWidth)
+        ld  (hl), tgaNone
         inc hl
-        ld (hl), tgaNone
+        ld  (hl), tgaNone
 
-        ;;  Fish tank shelf is passable/standable
-        ld hl, gameLevel
-        ld bc, 7 + (11 * levelTileWidth)
-        add hl, bc
-        ld (hl), tgaPassable | tgaStandable
+        ;; Refer to screen.PNG for what do we have in the map.
 
+        ;; Shelves - passable/standable
+        ;; Top shelf
+        ld  hl, gameLevel + 8 + (3 * levelTileWidth)
+        ld  (hl), tgaPassable | tgaStandable
+        ld  de, gameLevel + 8 + (3 * levelTileWidth) + 1
+        ld  bc, 13
+        ldir
+
+        ;; Left first shelf from top
+        ld  hl, gameLevel + 3 + (7 * levelTileWidth)
+        ld  (hl), tgaPassable | tgaStandable
+        ld  de, gameLevel + 3 + (7 * levelTileWidth) + 1
+        ld  bc, 5
+        ldir
+
+        ;; Fish tank shelf
+        ld  hl, gameLevel + 7 + (11 * levelTileWidth)
+        ld  (hl), tgaPassable | tgaStandable
+        ld  de, gameLevel + 7 + (11 * levelTileWidth) + 1
+        ld  bc, 5
+        ldir
+
+        ;; Right first shelf from top
+        ld  hl, gameLevel + 21 + (7 * levelTileWidth)
+        ld  (hl), tgaPassable | tgaStandable
+        ld  de, gameLevel + 21 + (7 * levelTileWidth) + 1
+        ld  bc, 5
+        ldir
+
+        ;; Right second shelf from top
+        ld  hl, gameLevel + 18 + (11 * levelTileWidth)
+        ld  (hl), tgaPassable | tgaStandable
+        ld  de, gameLevel + 18 + (11 * levelTileWidth) + 1
+        ld  bc, 5
+        ldir
+
+        ;; Couch
+        ;; Couch top
+        ld  hl, gameLevel + 10 + (14 * levelTileWidth)
+        ld  (hl), HIGH(couchTop - dynamicTileInstanceBase) | 1
+        ld  de, gameLevel + 10 + (14 * levelTileWidth) + 1
+        ld  bc, 10
+        ldir
+        ld  hl, gameLevel + 10 + (15 * levelTileWidth) - 1
+        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  hl, gameLevel + 10 + (14 * levelTileWidth)
+        ld  de, gameLevel + 10 + (15 * levelTileWidth)
+        ld  bc, 11
+        ldir
+        ;; At this point de should be pointing to the right side of the couch
+        push    de
+        pop hl
+        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+
+        ;; Couch cushion
+        ld  hl, gameLevel + 10 + (16 * levelTileWidth) - 1
+        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
         inc hl
-        ld (hl), tgaPassable | tgaStandable
-
-        inc hl
-        ld (hl), tgaPassable | tgaStandable
-
-        inc hl
-        ld (hl), tgaPassable | tgaStandable
-
-        inc hl
-        ld (hl), tgaPassable | tgaStandable
-
-        inc hl
-        ld (hl), tgaPassable | tgaStandable
+        ld  (hl), HIGH(couchCushion - dynamicTileInstanceBase) | 1
+        ld  de, gameLevel + 10 + (16 * levelTileWidth) + 1
+        ld  bc, 10
+        ldir
+        ld  hl, gameLevel + 10 + (17 * levelTileWidth) - 1
+        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  hl, gameLevel + 10 + (16 * levelTileWidth)
+        ld  de, gameLevel + 10 + (17 * levelTileWidth)
+        ld  bc, 11
+        ldir
+        ;; At this point de should be pointing to the right side of the couch
+        push    de
+        pop hl
+        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
 
         ret
 
@@ -204,4 +247,18 @@ logicGainScore:
 logicGainScoreAndInterest:
         call    logicGainInterest
         call    logicGainScore
+        ret
+
+initWallMouse:
+        ld ix, mouseWall1
+        ld (ix), 3
+        ld (ix + 1), 4
+
+        ld ix, mouseWall2
+        ld (ix), 12
+        ld (ix + 1), 7
+
+        ld ix, mouseWall3
+        ld (ix), 24
+        ld (ix + 1), 2
         ret
