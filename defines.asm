@@ -11,6 +11,7 @@ multiply:       equ $30A9
         ;; Constants
         ;; ---------------------------------------------------------------------
 newline:        equ 13
+seed:           defw 0
 
         ;; 8 contiguous bytes of %0000$0000
 zeroTile:       equ $3D00
@@ -304,11 +305,8 @@ fuP2UpdatesNewTilePosX:   defb 4
 fuP2UpdatesOldTilePosY:   defb 3
 fuP2UpdatesNewTilePosY:   defb 3
 
-        ;; In a frame, a mouse can:
-        ;; TODO: amanda
-
-mouseUpdatesBase:
 ; Mouse data tables
+mouseUpdatesBase:
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
 mouseUpdatesDirection:      defb 1      ; ix
 mouseUpdatesOldPosX:        defb 0      ; ix + 1
@@ -327,41 +325,40 @@ mouseUpdatesOldTilePosY:   defb 3
 mouseUpdatesNewTilePosY:   defb levelBottommostRow
 
 mouseWall1:
-mouseW1X:               defb 0
-mouseW1Y:               defb 0
-mouseW1MinXTile:        defb 0
-mouseW1MinYTile:        defb 0
-mouseW1MaxXTile:        defb 10
-mouseW1MaxYTile:        defb 5
-mouseW1TileChangeX:     defb 0
-mouseW1TileChangeY:     defb 0
-mouseW1TileChangePtr:   defw 0
-mouseW1Inactive:        defb 0      ; inactive timer
-wall1Rnd:               defb 0      ; time for random call  - reset on deactivate
-;; add ptr change to null if no change - if change valid ptr
+mouseW1X:               defb 0      ; 0 - Current X tile
+mouseW1Y:               defb 0      ; 1 - Current Y tile
+mouseW1Active:          defb 0      ; 2 - Active/inactive
+wall1Rnd:               defb 0      ; 3 - timer for random call
+mouseW1TileChangeX:     defb 0      ; 4
+mouseW1TileChangeY:     defb 0      ; 5
+mouseW1TileChangePtr:   defw 0      ; 6
+;mouseW1MinXTile:        defb 0      ; 2
+;mouseW1MinYTile:        defb 0      ; 3
+;mouseW1MaxXTile:        defb 10     ; 4
+;mouseW1MaxYTile:        defb 5      ; 5
 
 mouseWall2:
-mouseW2X:               defb 0
-mouseW2Y:               defb 0
-mouseW2MinXTile:        defb 15
-mouseW2MinYTile:        defb 10
-mouseW2MaxXTile:        defb 20
-mouseW2MaxYTile:        defb 15
-mouseW2TileChangeX:     defb 0
-mouseW2TileChangeY:     defb 0
-mouseW2TileChangePtr:   defw 0
-mouseW2Inactive:        defb 0      ; inactive timer
-wall2Rnd:               defb 0      ; time for random call  - reset on deactivate
+mouseW2X:               defb 0      ; 0 - Current X tile
+mouseW2Y:               defb 0      ; 1 - Current Y tile
+mouseW2Active:          defb 0      ; 2 - Active/inactive
+wall2Rnd:               defb 0      ; 3 - timer for random call
+mouseW2TileChangeX:     defb 0      ; 4
+mouseW2TileChangeY:     defb 0      ; 5
+mouseW2TileChangePtr:   defw 0      ; 6
+;mouseW2MinXTile:        defb 15
+;mouseW2MinYTile:        defb 10
+;mouseW2MaxXTile:        defb 20
+;mouseW2MaxYTile:        defb 15
 
 mouseWall3:
-mouseW3X:               defb 0      ; Current X tile
-mouseW3Y:               defb 0      ; Current Y tile
-mouseW3MinXTile:        defb 25     ; X Tile Boundary
-mouseW3MinYTile:        defb 15     ; Y Tile Boundary
-mouseW3MaxXTile:        defb 30
-mouseW3MaxYTile:        defb 20
-mouseW3TileChangeX:     defb 0
-mouseW3TileChangeY:     defb 0
-mouseW3TileChangePtr:   defw 0
-mouseW3Inactive:        defb 0      ; inactive timer
-wall3Rnd:               defb 0      ; time for random call - reset on deactivate
+mouseW3X:               defb 0      ; 0 - Current X tile
+mouseW3Y:               defb 0      ; 1 - Current Y tile
+mouseW3Active:          defb 0      ; 2 - Active/inactive
+wall3Rnd:               defb 0      ; 3 - timer for random call
+mouseW3TileChangeX:     defb 0      ; 4
+mouseW3TileChangeY:     defb 0      ; 5
+mouseW3TileChangePtr:   defw 0      ; 6
+;mouseW3MinXTile:        defb 25     ; X Tile Boundary
+;mouseW3MinYTile:        defb 15     ; Y Tile Boundary
+;mouseW3MaxXTile:        defb 30
+;mouseW3MaxYTile:        defb 20
