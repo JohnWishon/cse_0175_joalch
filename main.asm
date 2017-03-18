@@ -13,15 +13,18 @@ main:
         call openChannel
         ;; TODO: do we need the above?
 		;; TODO: should we keep this?
-		
+
 		call runLoadingScreen
-waitSpaceKey:  
+waitSpaceKey:
 		ld a,(23560)        ; read keyboard.
 		cp 32               ; is SPACE pressed?
 		jr nz,waitSpaceKey  ; no, wait.
 		call startGame      ; play the game.
-		jr waitSpaceKey     ; SPACE to restart game.	
-startGame:		
+		jr waitSpaceKey     ; SPACE to restart game.
+startGame:
+        ld a, ($5c78)
+        ld (seed), a
+        
         call setupGameLogic
         call setupGraphics
         call setupRenderer
