@@ -20,34 +20,42 @@ renderWriteTileX: equ 0
 renderWriteTileY: equ 1
 renderWriteTilePtr: equ 2
 
-renderCatMouseNumShifts:  equ 4
+renderCatMouseNumShifts:  equ 2
 renderCatMouseNumFacings: equ 2
 
 catLateralSpriteWidth: equ 24 + (72 * 4)
 catNonLateralSpriteWidth: equ 74
 
+mouseHoleXOffset:       equ mouseW1X - mouseWall1
+mouseHoleYOffset:       equ mouseW1Y - mouseWall1
+mouseHolePointerHigh:   equ wall1ChangePtr - mouseWall1
+mouseHolePointerLow:   equ wall1ChangePtr - mouseWall1 + 1
+mouseHoleStructSize:    equ mouseWall2 - mouseWall1
+
 ;;; Cat 1
 
-catOneSprites: equ $C000
+catOneSprites: equ $DB20
 
-catOneWalkLeft: equ $C000
-catOneJumpLeft: equ $C138
-catOneAttackHighLeft: equ $C270
-catOneAttackLowLeft: equ $C3A8
-catOneStandLeft: equ $C4E0
-catOneWalkRight: equ $C4E0
-catOneJumpRight: equ $C618
-catOneAttackHighRight: equ $C750
-catOneAttackLowRight: equ $C888
-catOneStandRight: equ $CC60
-catOneBgCache: equ $CF00
+catOneWalkLeft: equ $DB20
+catOneJumpLeft: equ $DBC8
+catOneAttackHighLeft: equ $DC70
+catOneAttackLowLeft: equ $DD18
+catOneStandLeft: equ $DDC0
+catOneWalkRight: equ $DE68
+catOneJumpRight: equ $DF10
+catOneAttackHighRight: equ $DFB8
+catOneAttackLowRight: equ $E060
+catOneStandRight: equ $E108
+catOneBgCache: equ $E1B0
 
-catOneHandLeft: equ $CF48
-catOneHandRight: equ $CFD8
-catOneHandBgCache: equ $D068
+catOneHandLeft: equ $E1F8
+catOneHandLowLeft: equ $E248
+catOneHandRight: equ $E298
+catOneHandLowRight: equ $E2E8
+catOneHandBgCache: equ $E338
 
 ;;; Cat 2
-catTwoSprites: equ $D088
+catTwoSprites: equ $E358
 
 catTwoWalkLeft: equ catTwoSprites + catOneWalkLeft - catOneSprites
 catTwoJumpLeft: equ catTwoSprites + catOneJumpLeft - catOneSprites
@@ -66,42 +74,30 @@ catTwoHandRight: equ catTwoSprites + catOneHandRight - catOneSprites
 catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
 
 ;;; Mouse
-mouseSprites: equ $E110
-mouseWalkLeft: equ $E110
-mouseWalkRight: equ $E178
-mouseBgCache: equ $E1E0
+mouseSprites: equ $EB90
+mouseWalkLeft: equ $EB90
+mouseWalkRight: equ $EBC8
+mouseBgCache: equ $EC00
 
 ;;; Canvi
-catCanvas: equ $E1F8
-catHandCanvas: equ $E240
-mouseCanvas: equ $E260
-renderBuffersEnd: equ $E278
+catCanvas: equ $D800
+catHandCanvas: equ $D848
+mouseCanvas: equ $D868
 
-secondFramebuffer: equ $E278
-;;; Used by read/write tile to get the "logical beginning" of the framebuffer.
-;;; The code expects a full 32 x 24 framebuffer, but our second framebuffer
-;;; is smaller than this. Due to this, we need to pass in the pointer for
-;;; where the beginning *would be* for our window.
-;;;
-;;; INVARIANT: regions before the actual beginning must never be accessed!
-secondFramebufferLogicalBegin:   equ secondFramebuffer - (levelTopmostRow * levelTileWidth)
+secondFramebuffer: equ $C000
 
 ;;; What to add to a pointer returned by renderFrameTileAddress to get an
 ;;; address into the second framebuffer
-secondFramebufferLogicalOffset: equ secondFramebufferLogicalBegin - $4000
+secondFramebufferLogicalOffset: equ secondFramebuffer - $4000
 
 setupRenderer:
         ;; get the contents of the front buffer
 
 
-        ld de, secondFramebufferLogicalBegin
+        ld de, secondFramebuffer
         ld hl, $4000
         ld bc, 32 * 24 * 8
         ldir
-
-        ;; front buffer now copied. A bunch of stuff before and after
-        ;; the back buffer in memory got obliterated, but it *should*
-        ;; be fine
 
         call renderPrecomputeSprites
 
@@ -278,6 +274,32 @@ renderFrameCat1NoTileUpdate:
         call renderFrameWriteTile
 renderFrameCat2NoTileUpdate:
 
+        ld b, mouseWallNumHoles
+        ld ix, mouseWall1
+renderFrameMouseHoleTileLoop:
+        push bc
+        ld h, (IX + mouseHolePointerHigh)
+        ld l, (IX + mouseHolePointerLow)
+        ld a, h
+        or l
+        jp z, renderFrameMouseHoleTileLoopSkip
+
+        ld a, (IX + mouseHoleXOffset)
+        add a, levelLeftmostCol
+        ld c, a
+        ld a, (IX + mouseHoleYOffset)
+        add a, levelTopmostRow
+        ld b, a
+        ld de, secondFramebufferLogicalOffset
+        call renderFrameWriteTile
+
+renderFrameMouseHoleTileLoopSkip:
+        ld bc, mouseHoleStructSize
+        add ix, bc
+
+        pop bc
+        djnz renderFrameMouseHoleTileLoop
+
         ;; draw new sprites
 
         ;; TODO: read area behind cat 1
@@ -443,78 +465,116 @@ renderPrecomputeSpritesCopyLoop:
         add ix, de
 renderPrecomputeSpritesCopyLoopFirstIter:
         push bc
-        ;; Walk
-        ld de, catOneWalkLeft
-        ld hl, cat1SpritesWalk
+        ;; Stand
+        ld de, catOneStandLeft
+        ld hl, CAT_LEFT_STANDING
         call renderPrecomputeCopyCatSprite
 
-        ld de, catOneWalkRight
-        ld hl, cat1SpritesWalk
+        ld de, catOneStandRight
+        ld hl, CAT_RIGHT_STANDING
         call renderPrecomputeCopyCatSprite
 
-        ld de, catTwoWalkLeft
-        ld hl, cat2SpritesWalk
+        ld de, catTwoStandLeft
+        ld hl, CAT_LEFT_STANDING
         call renderPrecomputeCopyCatSprite
 
-        ld de, catTwoWalkRight
-        ld hl, cat2SpritesWalk
+        ld de, catTwoStandRight
+        ld hl, CAT_RIGHT_STANDING
         call renderPrecomputeCopyCatSprite
 
         ;; Jump
         ld de, catOneJumpLeft
-        ld hl, cat1SpritesJump
+        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneJumpRight
-        ld hl, cat1SpritesJump
+        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpLeft
-        ld hl, cat2SpritesJump
+        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpRight
-        ld hl, cat2SpritesJump
+        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ;; Attack High
         ld de, catOneAttackHighLeft
-        ld hl, cat1SpritesAttackHigh
+        ld hl, CAT_LEFT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackHighRight
-        ld hl, cat1SpritesAttackHigh
+        ld hl, CAT_RIGHT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighLeft
-        ld hl, cat2SpritesAttackHigh
+        ld hl, CAT_LEFT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighRight
-        ld hl, cat2SpritesAttackHigh
+        ld hl, CAT_RIGHT_HIGH_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ;; Attack Low
         ld de, catOneAttackLowLeft
-        ld hl, cat1SpritesAttackLow
+        ld hl, CAT_LEFT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackLowRight
-        ld hl, cat1SpritesAttackLow
+        ld hl, CAT_RIGHT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowLeft
-        ld hl, cat2SpritesAttackLow
+        ld hl, CAT_LEFT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowRight
-        ld hl, cat2SpritesAttackLow
+        ld hl, CAT_RIGHT_LOW_STRIKE
         call renderPrecomputeCopyCatSprite
 
         pop bc
         dec b
 
         jp nz, renderPrecomputeSpritesCopyLoop
+
+        ;; Load special case walking sprites
+
+        ld ix, 24
+        ld de, catOneWalkLeft
+        ld hl, CAT_LEFT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catOneWalkRight
+        ld hl, CAT_RIGHT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkLeft
+        ld hl, CAT_LEFT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkRight
+        ld hl, CAT_LEFT_NEUTRAL_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld ix, 24 + (9 * 8)
+        ld de, catOneWalkLeft
+        ld hl, CAT_LEFT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catOneWalkRight
+        ld hl, CAT_RIGHT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkLeft
+        ld hl, CAT_LEFT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ld de, catTwoWalkRight
+        ld hl, CAT_LEFT_INWARD_STEP
+        call renderPrecomputeCopyCatSprite
+
+        ;; Prepare for shift loop
         ld b, 0
         ld hl, 24
 renderPrecomputeSpritesShiftLoop:
@@ -526,6 +586,24 @@ renderPrecomputeSpritesShiftLoop:
         ld e, l
         inc b
         inc b
+        inc b
+        inc b
+
+        ld ix, catOneStandLeft
+        add ix, de
+        call renderPrecomputeShiftCatSprite
+
+        ld ix, catOneStandRight
+        add ix, de
+        call renderPrecomputeShiftCatSprite
+
+        ld ix, catTwoStandLeft
+        add ix, de
+        call renderPrecomputeShiftCatSprite
+
+        ld ix, catTwoStandRight
+        add ix, de
+        call renderPrecomputeShiftCatSprite
 
         ld ix, catOneWalkLeft
         add ix, de
@@ -592,7 +670,7 @@ renderPrecomputeSpritesShiftLoop:
         call renderPrecomputeShiftCatSprite
 
         ld a, b
-        cp (renderCatMouseNumShifts - 1) * 2
+        cp (renderCatMouseNumShifts - 1) * 4
         jp z, renderPrecomputeSpritesShiftLoopEnd
         jp renderPrecomputeSpritesShiftLoop
 renderPrecomputeSpritesShiftLoopEnd:
@@ -1074,7 +1152,11 @@ renderFrameBuildCatFacingLeft:
         and catPoseJump
         jp nz, renderFrameBuildCatJump
 
-        jp renderFrameBuildCatWalk
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseWalk
+        jp nz, renderFrameBuildCatWalk
+
+        jp renderFrameBuildCatStand
 
 renderFrameBuildCatAttackLow:
         ld de, catOneAttackLowLeft - catOneSprites + 24
@@ -1091,22 +1173,24 @@ renderFrameBuildCatJump:
 renderFrameBuildCatWalk:
         ld de, catOneWalkLeft - catOneSprites + 24
         add hl, de
+        jp renderFrameBuildCatPoseSet
+renderFrameBuildCatStand:
+        ld de, catOneStandLeft - catOneSprites + 24
+        add hl, de
 
 renderFrameBuildCatPoseSet:
         ;; At this point, HL points to the beginning of the sprite sequence
         ;; of the correct pose
 
         ld a, (IX + renderPNUpdatesNewPosX)
-        and %0000$0110          ; posX can be X0, X2, X4, or X6
+        and %0000$0100          ; posX can be X0 or X4
 
         jp z, renderFrameBuildCatSelectY ; if a == 0, then hl is on correct idx
 
-        srl a                    ; a contains 0, 1, 2, or 3
-        ld b, a                 ; b contains 0 .. 4
-renderFrameBuildCatSelectXLoop:
+        ;; Otherwise a must equal 4. After all, it's not like anybody
+        ;; ever violated an invariant! That'd be madness!
         ld de, 9 * 8
         add hl, de
-        djnz renderFrameBuildCatSelectXLoop
 
 renderFrameBuildCatSelectY:
         ;; HL points to correct sprite in sequence
@@ -1214,18 +1298,16 @@ renderFrameBuildCatOrBGLoop:
         ret
 
 renderFrameSwapBuffers:
+
         ;; TODO: massive 7000 line fast transfer function
         ;;  https://chuntey.wordpress.com/tag/double-buffering/
 
-        ld a, levelTileWidth * levelTileHeight * 8 / 96
-        ld c, 0
-        ld b, 2
-        call renderFrameTileAddress
-        ld hl, secondFramebuffer
-        ld bc, levelTileWidth * levelTileHeight * 8
+        ld de, $4000             ; front buffer address
+        ld hl, secondFramebuffer ; back buffer address
+        ld bc, 32 * 24 * 8
 renderFrameSwapBuffersCopyLoop:
         ;; try not to throw up
-
+        ;; 128 ldi's
         ldi
         ldi
         ldi

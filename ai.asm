@@ -310,9 +310,9 @@ noMouseStr:
 XnoMouseStr:
 
 mousePace:  equ 4
-maxY:       equ levelBottommostPixel
+maxY:       equ levelBottommostPixel - mousePixelHeight
 minY:       equ levelTopmostPixel
-maxX:       equ levelRightmostPixel - 3
+maxX:       equ levelRightmostPixel - mousePixelWidth - 3
 minX:       equ levelLeftmostPixel
 couchX:     equ 200
 holeX:      equ 100
