@@ -75,7 +75,7 @@ displayCollisionStateDoIt:
         ;; TODO: more as I get to them
         ret
 
-printNumber:    equ 6683
+;printNumber:    equ 6683
 
 displayMov:
         ld de, movStrPrelude
