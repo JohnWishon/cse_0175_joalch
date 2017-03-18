@@ -114,6 +114,9 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
+        ld hl, catOneHandBgCache
+        ld a, (
+
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
         add a, levelLeftmostCol
@@ -639,11 +642,11 @@ renderPrecomputeSpritesCatHandCopyLoopFirstIter:
 
         ld ix, 8 + 24
         ld de, mouseWalkLeft
-        ld hl, MOUSE_LEFT_ONE
+        ld hl, MOUSE_LEFT_TWO
         call renderPrecomputeCopyMouseSprite
 
         ld de, mouseWalkRight
-        ld hl, MOUSE_RIGHT_ONE
+        ld hl, MOUSE_RIGHT_TWO
         call renderPrecomputeCopyMouseSprite
 
         ;; ---------------------------------------------------------------------
@@ -2052,4 +2055,37 @@ renderFrameTransferCatRow:
 
         ld sp, (renderFrameTransferStackPtr) ; restore the stack pointer
         pop bc
+        ret
+
+;;; ----------------------------------------------------------------------------
+;;; Misc utility stuff
+;;; ----------------------------------------------------------------------------
+
+        ;; ---------------------------------------------------------------------
+        ;; handPos
+        ;; Pre: IX contains fuPNUpdatesBase
+        ;;      Cat must be in an attack pose (will return a value even if
+        ;;         it isn't)
+        ;; Post: c contains hand tile pos X
+        ;;       b contains hand tile pos Y
+        ;; ---------------------------------------------------------------------
+renderFrameHandPos:
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseFaceLeft
+        jp z, renderFrameHandPosLeft
+        ;; If we're here, cat is facing right
+        ld c, (IX + renderPNUpdatesNewPosX)
+        inc c
+        inc c
+        jp renderFrameHandPosLeftRightEnd
+renderFrameHandPosLeft:
+        ld c, (IX + renderPNUpdatesNewPosX)
+        dec c
+        ;; If we're here, cat is facing left
+renderFrameHandPosLeftRightEnd:
+        ld b, (IX + renderPNUpdatesNewPosY)
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseAttackLow
+        ret nz
+        dec b
         ret
