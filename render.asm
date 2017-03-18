@@ -115,7 +115,11 @@ setupRenderer:
         call renderReadRectangle
 
         ld hl, catOneHandBgCache
-        ld a, (
+        ld ix, fuP1UpdatesBase
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
 
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
@@ -126,6 +130,13 @@ setupRenderer:
         ld b, a
         ld e, 3
         ld d, 3
+        call renderReadRectangle
+
+        ld hl, catTwoHandBgCache
+        ld ix, fuP2UpdatesBase
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
         call renderReadRectangle
 
 	ld hl, mouseBgCache
@@ -2074,18 +2085,30 @@ renderFrameHandPos:
         and catPoseFaceLeft
         jp z, renderFrameHandPosLeft
         ;; If we're here, cat is facing right
-        ld c, (IX + renderPNUpdatesNewPosX)
-        inc c
-        inc c
+        ld a, (IX + renderPNUpdatesNewPosX)
+        inc a
+        inc a
+        add a, levelLeftmostCol
+        ld c, a
         jp renderFrameHandPosLeftRightEnd
 renderFrameHandPosLeft:
-        ld c, (IX + renderPNUpdatesNewPosX)
-        dec c
+        ld a, (IX + renderPNUpdatesNewPosX)
+        dec a
+        add a, levelLeftmostCol
+        ld c, a
         ;; If we're here, cat is facing left
 renderFrameHandPosLeftRightEnd:
-        ld b, (IX + renderPNUpdatesNewPosY)
         ld a, (IX + renderPNUpdatesNewPose)
         and catPoseAttackLow
-        ret nz
-        dec b
+        jp z, renderFrameIsLowPunch
+        ;; If we're here, then it is not a low punch
+        ld a, (IX + renderPNUpdatesNewPosY)
+        jp renderFramePunchHeightEnd
+renderFrameIsLowPunch:
+        ld a, (IX + renderPNUpdatesNewPosY)
+        dec a
+renderFramePunchHeightEnd:
+        ;; a contains Y value
+        add a, levelTopmostRow
+        ld b, a
         ret
