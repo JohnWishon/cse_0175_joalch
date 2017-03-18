@@ -114,12 +114,14 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
-        ld hl, catOneHandBgCache
-        ld ix, fuP1UpdatesBase
-        call renderFrameHandPos
-        ld e, 2
-        ld d, 2
-        call renderReadRectangle
+        ;; ld hl, catOneHandBgCache
+        ;; ld c, fuP1UpdatesNewPosX
+        ;; ld b, fuP1UpdatesNewPosY
+        ;; ld d, fuP1UpdatesNewPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderReadRectangle
 
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
@@ -132,12 +134,14 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
-        ld hl, catTwoHandBgCache
-        ld ix, fuP2UpdatesBase
-        call renderFrameHandPos
-        ld e, 2
-        ld d, 2
-        call renderReadRectangle
+        ;; ld hl, catTwoHandBgCache
+        ;; ld c, fuP2UpdatesNewPosX
+        ;; ld b, fuP2UpdatesNewPosY
+        ;; ld d, fuP2UpdatesNewPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderReadRectangle
 
 	ld hl, mouseBgCache
 	ld a, (mouseUpdatesNewTilePosX)
@@ -232,6 +236,16 @@ renderFrame:
         ld d, 1
         call renderDrawRectangle
 
+        ;; erase cat hand 2
+        ;; ld hl, catTwoHandBgCache
+        ;; ld c, fuP2UpdatesOldPosX
+        ;; ld b, fuP2UpdatesOldPosY
+        ;; ld d, fuP2UpdatesOldPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderDrawRectangle
+
         ;; erase cat 2
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesOldTilePosX)
@@ -243,6 +257,16 @@ renderFrame:
         ld e, 3
         ld d, 3
         call renderDrawRectangle
+
+        ;; erase cat hand 1
+        ;; ld hl, catOneHandBgCache
+        ;; ld c, fuP1UpdatesOldPosX
+        ;; ld b, fuP1UpdatesOldPosY
+        ;; ld d, fuP1UpdatesOldPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderDrawRectangle
 
         ;; erase cat 1
         ld hl, catOneBgCache
@@ -348,6 +372,28 @@ renderFrameMouseHoleTileLoopSkip:
         ld d, 3
         call renderDrawRectangle
 
+        ;; read area behind cat hand 1
+        ;; ld hl, catOneHandBgCache
+        ;; ld c, fuP1UpdatesNewPosX
+        ;; ld b, fuP1UpdatesNewPosY
+        ;; ld d, fuP1UpdatesNewPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderReadRectangle
+
+        ;; ;; TODO: blit stuff
+
+        ;; ;; draw cat hand 1
+        ;; ld hl, catHandCanvas
+        ;; ld c, fuP1UpdatesNewPosX
+        ;; ld b, fuP1UpdatesNewPosY
+        ;; ld d, fuP1UpdatesNewPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderDrawRectangle
+
         ;; read area behind cat 2
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
@@ -377,6 +423,28 @@ renderFrameMouseHoleTileLoopSkip:
         ld e, 3
         ld d, 3
         call renderDrawRectangle
+
+        ;; read area behind cat hand 2
+        ;; ld hl, catTwoHandBgCache
+        ;; ld c, fuP2UpdatesNewPosX
+        ;; ld b, fuP2UpdatesNewPosY
+        ;; ld d, fuP2UpdatesNewPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderReadRectangle
+
+        ;; ;; TODO: blit stuff
+
+        ;; ;; draw cat hand 2
+        ;; ld hl, catHandCanvas
+        ;; ld c, fuP2UpdatesNewPosX
+        ;; ld b, fuP2UpdatesNewPosY
+        ;; ld d, fuP2UpdatesNewPose
+        ;; call renderFrameHandPos
+        ;; ld e, 2
+        ;; ld d, 2
+        ;; call renderDrawRectangle
 
         ;; read area behind mouse
         ld hl, mouseBgCache
@@ -2072,40 +2140,43 @@ renderFrameTransferCatRow:
 ;;; Misc utility stuff
 ;;; ----------------------------------------------------------------------------
 
+
         ;; ---------------------------------------------------------------------
         ;; handPos
-        ;; Pre: IX contains fuPNUpdatesBase
+        ;; Pre: c contains cat pos X
+        ;;      b contains cat pos Y
+        ;;      d contains cat pose
         ;;      Cat must be in an attack pose (will return a value even if
         ;;         it isn't)
         ;; Post: c contains hand tile pos X
         ;;       b contains hand tile pos Y
         ;; ---------------------------------------------------------------------
 renderFrameHandPos:
-        ld a, (IX + renderPNUpdatesNewPose)
+        ld a, d
         and catPoseFaceLeft
         jp z, renderFrameHandPosLeft
         ;; If we're here, cat is facing right
-        ld a, (IX + renderPNUpdatesNewPosX)
+        ld a, c
         inc a
         inc a
         add a, levelLeftmostCol
         ld c, a
         jp renderFrameHandPosLeftRightEnd
 renderFrameHandPosLeft:
-        ld a, (IX + renderPNUpdatesNewPosX)
+        ld a, c
         dec a
         add a, levelLeftmostCol
         ld c, a
         ;; If we're here, cat is facing left
 renderFrameHandPosLeftRightEnd:
-        ld a, (IX + renderPNUpdatesNewPose)
+        ld a, d
         and catPoseAttackLow
         jp z, renderFrameIsLowPunch
         ;; If we're here, then it is not a low punch
-        ld a, (IX + renderPNUpdatesNewPosY)
+        ld a, b
         jp renderFramePunchHeightEnd
 renderFrameIsLowPunch:
-        ld a, (IX + renderPNUpdatesNewPosY)
+        ld a, b
         dec a
 renderFramePunchHeightEnd:
         ;; a contains Y value
