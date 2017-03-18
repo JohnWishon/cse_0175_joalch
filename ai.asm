@@ -170,11 +170,12 @@ activateWall1:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
-    ld a, mouseHoleActive - dynamicTileInstanceBase             ; ptr to tile
-    ld (ix + 6), a                                              ; load change ptr
+    ld hl, mouseHoleActive  ; ptr to tile
+    ld (ix + 6), h
+    ld (ix + 7), l
 
-    ld a, (mouseHoleActive - dynamicTileInstanceBase)           ; tile OR'd with health
-    or 1
+    ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
+    or 00000001
     ld (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a  ; add to gamelevel
 
     jp wall1End
@@ -185,8 +186,8 @@ wall1Escape:
     jp nz, wall1End
 
     call random             ; does the mouse go away?
-    and 9
-    cp spawnChance
+    and 1
+    cp wallSpawn
     jr nc, wall1End         ; no - it stays
 
     ld (ix + 2), 0          ; inactive
@@ -198,60 +199,136 @@ wall1Escape:
     ld a, (ix + 1)          ; load y tile into change y
     ld (ix + 5), a
 
-    ld a, staticTileMouseHole               ; load change ptr with static mouse Hold
-    ld (ix + 6), a
+    ld hl, staticTileMouseHole               ; load change ptr with static mouse Hold
+    ld (ix + 6), h
+    ld (ix + 7), l
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a
 
 wall1End:
     inc (ix + 3)
-    ; ld ix, mouseWall2
-    ; ld a, (ix + 6)      ; load inactive setting
-    ; cp 1
-    ; jr z, wall2End
+    ld ix, mouseWall2
+    ld a, (ix + 2)      ; load active setting
+    cp 1
+    jr z, wall2Escape
+activateWall2:
+    ld a, (ix + 3)      ; load the counter for when to check spawning
+    cp wallTime         ; compare against the random check timer
+    jp nz, wall2End     ; rand timer hasn't reached max
 
-; activateWall2:
-;     ld a, (ix + 7)      ; load the counter for when to check spawning
-;     cp wallTime         ; compare against the random check timer
-;     jp nz, wall2End     ; this should happen every sec (25 frames)
-;
-;     call random
-;     and 1
-;     cp wallSpawn
-;     jr nc, wall2End
-;
-;     ld (ix + 6), 1
-; wall2End:
-;     inc (ix + 7)
-;     ld ix, mouseWall3
-;     ld a, (ix + 6)      ; load inactive setting
-;     cp 1
-;     jr z, wall3End
-; activateWall3:
-;     ld a, (ix + 7)      ; load the counter for when to check spawning
-;     cp wallTime         ; compare against the random check timer
-;     jp nz, wall3End     ; this should happen every sec (25 frames)
-;
-;     ld (ix + 7), 0
-;     call random
-;     and 1
-;
-;     ; push af
-;     ; ld b, 0
-;     ; ld c, a
-;     ; call $2d2b
-;     ; call $2de3
-;     ; pop af
-;
-;     cp wallSpawn
-;     jr nc, wall3End
-;     ; ld  de,wall3Str
-;     ; ld  bc,Xwall3Str-wall3Str
-;     ; call    print
-;     ld (ix + 6), 1
-; wall3End:
-;     inc (ix + 7)
+    call random
+    and 1
+    cp wallSpawn        ; check if we should activate the wall mouse
+    jr nc, wall2End
+
+    ld (ix + 2), 1      ; active
+    ld (ix + 3), 0      ; reset timer
+
+    ld a, (ix)              ; load x tile into change x
+    ld (ix + 4), a
+
+    ld a, (ix + 1)          ; load y tile into change y
+    ld (ix + 5), a
+
+    ld hl, mouseHoleActive  ; ptr to tile
+    ld (ix + 6), h
+    ld (ix + 7), l
+
+    ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
+    or 00000001
+    ld (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a  ; add to gamelevel
+
+    jp wall2End
+
+wall2Escape:
+    ld a, (ix + 3)          ; check if we should check this frame
+    cp wallTime
+    jp nz, wall2End
+
+    call random             ; does the mouse go away?
+    and 1
+    cp wallSpawn
+    jr nc, wall2End         ; no - it stays
+
+    ld (ix + 2), 0          ; inactive
+    ld (ix + 3), 0          ; reset timer
+
+    ld a, (ix)              ; load x tile into change x
+    ld (ix + 4), a
+
+    ld a, (ix + 1)          ; load y tile into change y
+    ld (ix + 5), a
+
+    ld hl, staticTileMouseHole               ; load change ptr with static mouse Hold
+    ld (ix + 6), h
+    ld (ix + 7), l
+
+    ld a, tgaPassable                       ; load gameLevel with static mouse hole
+    ld  (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a
+
+wall2End:
+    inc (ix + 3)
+    ld ix, mouseWall3
+    ld a, (ix + 2)      ; load active setting
+    cp 1
+    jr z, wall3Escape
+activateWall3:
+    ld a, (ix + 3)      ; load the counter for when to check spawning
+    cp wallTime         ; compare against the random check timer
+    jp nz, wall3End     ; rand timer hasn't reached max
+
+    call random
+    and 1
+    cp wallSpawn        ; check if we should activate the wall mouse
+    jr nc, wall3End
+
+    ld (ix + 2), 1      ; active
+    ld (ix + 3), 0      ; reset timer
+
+    ld a, (ix)              ; load x tile into change x
+    ld (ix + 4), a
+
+    ld a, (ix + 1)          ; load y tile into change y
+    ld (ix + 5), a
+
+    ld hl, mouseHoleActive  ; ptr to tile
+    ld (ix + 6), h
+    ld (ix + 7), l
+
+    ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
+    or 1
+    ld (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a  ; add to gamelevel
+
+    jp wall3End
+
+wall3Escape:
+    ld a, (ix + 3)          ; check if we should check this frame
+    cp wallTime
+    jp nz, wall3End
+
+    call random             ; does the mouse go away?
+    and 1
+    cp wallSpawn
+    jr nc, wall3End         ; no - it stays
+
+    ld (ix + 2), 0          ; inactive
+    ld (ix + 3), 0          ; reset timer
+
+    ld a, (ix)              ; load x tile into change x
+    ld (ix + 4), a
+
+    ld a, (ix + 1)          ; load y tile into change y
+    ld (ix + 5), a
+
+    ld hl, staticTileMouseHole               ; load change ptr with static mouse Hold
+    ld (ix + 6), h
+    ld (ix + 7), l
+
+    ld a, tgaPassable                       ; load gameLevel with static mouse hole
+    ld  (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a
+wall3End:
+    inc (ix + 3)
     ret
 
 ;;---------------------------------------------------------
@@ -269,204 +346,16 @@ random:
     ld (seed), hl
     ret
 
-wall1Str:
-    defb    "1"
-Xwall1Str:
-
-wall2Str:
-    defb    "2"
-Xwall2Str:
-
-wall3Str:
-    defb    "3"
-Xwall3Str:
-
-checkStr:
-    defb    "C"
-XcheckStr:
-
-escapeStr:
-    defb    "E"
-XescapeStr:
-
-stayStr:
-    defb    "S"
-XstayStr:
-
-updateEndStr:
-    defb    "D"
-XupdatEndStr:
-
-maxStr:
-    defb    "M"
-XmaxStr:
-
-noMaxStr:
-    defb    "N"
-XnoMaxStr:
-
-noMouseStr:
-    defb    "A"
-XnoMouseStr:
 
 mousePace:  equ 4
-maxY:       equ levelBottommostPixel - mousePixelHeight
+maxY:       equ levelBottommostPixel
 minY:       equ levelTopmostPixel
-maxX:       equ levelRightmostPixel - mousePixelWidth - 3
+maxX:       equ levelRightmostPixel - 3
 minX:       equ levelLeftmostPixel
-couchX:     equ 200
-holeX:      equ 100
+couchX:     equ 120
+holeX:      equ 40
 spawnTime:  equ 125
 floorTime:  equ 25
 wallTime:   equ 25
 spawnChance:    equ 4
 wallSpawn:  equ 1
-
-; cp 1
-; jr z, firstOne
-; firstZero:
-; call random
-; and 1
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, zeroOne
-; zeroZero:
-; ld a, 0
-; jr decisionCp
-; zeroOne:
-; ld a, 1
-; jr decisionCp
-; firstOne:
-; call random
-; and 1
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, oneOne
-; oneZero:
-; ld a, 2
-; jr decisionCp
-; oneOne:
-; ld a, 3
-
-
-
-
-
-
-; cp 1
-; jr z, firstOne
-; firstZero:
-; call random         ; get random number
-; and 1             ; range 0-99
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, zeroOne
-; zeroZero:
-; call random         ; get random number
-; and 1             ; range 0-99
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, zero2One
-; zero3:
-; ld a, 0
-; jr decisionCp
-; zero2One:
-; ld a, 1
-; jr decisionCp
-; zeroOne:
-; call random         ; get random number
-; and 1             ; range 0-99
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, zeroOne2
-; zeroOneZero:
-; ld a, 2
-; jr decisionCp
-; zeroOne2:
-; ld a, 3
-; jr decisionCp
-; firstOne:
-; call random         ; get random number
-; and 1             ; range 0-99
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, oneOne
-; oneZero:
-; call random         ; get random number
-; and 1             ; range 0-99
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, oneZeroOne
-; oneZero2:
-; ld a, 4
-; jr decisionCp
-; oneZeroOne:
-; ld a, 5
-; jr decisionCp
-; oneOne:
-; call random         ; get random number
-; and 1             ; range 0-99
-;
-; push af
-; ld b, 0
-; ld c, a
-; call $2d2b
-; call $2de3
-; pop af
-;
-; cp 1
-; jr z, one3
-; one2Zero:
-; ld a, 6
-; jr decisionCp
-; one3:
-; ld a, 7

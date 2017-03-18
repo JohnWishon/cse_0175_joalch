@@ -28,8 +28,8 @@ catNonLateralSpriteWidth: equ 74
 
 mouseHoleXOffset:       equ mouseW1X - mouseWall1
 mouseHoleYOffset:       equ mouseW1Y - mouseWall1
-mouseHolePointerHigh:   equ wall1ChangePtr - mouseWall1
-mouseHolePointerLow:   equ wall1ChangePtr - mouseWall1 + 1
+mouseHolePointerHigh:   equ mouseW1TileChangePtr - mouseWall1
+mouseHolePointerLow:   equ mouseW1TileChangePtr - mouseWall1 + 1
 mouseHoleStructSize:    equ mouseWall2 - mouseWall1
 
 ;;; Cat 1
