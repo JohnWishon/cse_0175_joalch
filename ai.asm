@@ -348,9 +348,9 @@ random:
 
 
 mousePace:  equ 4
-maxY:       equ levelBottommostPixel
+maxY:       equ levelBottommostPixel - mousePixelHeight
 minY:       equ levelTopmostPixel
-maxX:       equ levelRightmostPixel - 3
+maxX:       equ levelRightmostPixel - 3 - mousePixelWidth
 minX:       equ levelLeftmostPixel
 couchX:     equ 120
 holeX:      equ 40

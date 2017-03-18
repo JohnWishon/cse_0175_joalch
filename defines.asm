@@ -310,7 +310,7 @@ mouseUpdatesDirection:      defb 1      ; ix
 mouseUpdatesOldPosX:        defb 0      ; ix + 1
 mouseUpdatesNewPosX:        defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:        defb 0      ; ix + 3
-mouseUpdatesNewPosY:        defb levelBottommostPixel - 4      ; ix + 4
+mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight- 4 ; ix + 4
 mouseActive:                defb 0      ; ix + 5
 spawnCtr:                   defb 0      ; ix + 6
 randomCtr:                  defb 0      ; ix + 7 - timer for the random call

@@ -453,17 +453,15 @@ renderTempMouse:
         ;; ---------------------------------------------------------------------
         ;; precomputeSprites
         ;; ---------------------------------------------------------------------
-        ;; TODO: real precomputation that depends on finalized binary sprite
-        ;;       layout
         ;; POST: Sprite layout lookup table populated
 renderPrecomputeSprites:
         ld b, renderCatMouseNumShifts
         ld ix, 24
-        jp renderPrecomputeSpritesCopyLoopFirstIter
-renderPrecomputeSpritesCopyLoop:
+        jp renderPrecomputeSpritesCatCopyLoopFirstIter
+renderPrecomputeSpritesCatCopyLoop:
         ld de, 9 * 8
         add ix, de
-renderPrecomputeSpritesCopyLoopFirstIter:
+renderPrecomputeSpritesCatCopyLoopFirstIter:
         push bc
         ;; Stand
         ld de, catOneStandLeft
@@ -536,7 +534,7 @@ renderPrecomputeSpritesCopyLoopFirstIter:
         pop bc
         dec b
 
-        jp nz, renderPrecomputeSpritesCopyLoop
+        jp nz, renderPrecomputeSpritesCatCopyLoop
 
         ;; Load special case walking sprites
 
