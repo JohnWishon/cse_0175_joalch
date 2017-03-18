@@ -164,7 +164,7 @@ mouseHoleActive: defb $66, $99, $7E, $81, $A5, $81, $66, $18, $F0  ; tile - base
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
-        defb HIGH(couchTopDamaged) | 3     ; gameLevel index next
+        defb HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -174,7 +174,7 @@ couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged) | 3
+        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -184,7 +184,7 @@ couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged) | 3
+        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
         defb tgaStandable | tgaPassable | 3
