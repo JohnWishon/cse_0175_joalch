@@ -353,8 +353,6 @@ logicDigitNumVal:
         pop de
         ret
 
-statusBarZero: equ 0
-
 initWallMouse:
         ld ix, mouseWall1
         ld (ix), 3
