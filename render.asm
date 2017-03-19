@@ -1534,7 +1534,11 @@ renderFrameBuildCatFacingLeft:
         and catPoseJump
         jp nz, renderFrameBuildCatJump
 
-        jp renderFrameBuildCatWalk
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseWalk
+        jp nz, renderFrameBuildCatWalk
+
+        jp renderFrameBuildCatStand
 
 renderFrameBuildCatAttackLow:
         ld de, catOneAttackLowLeft - catOneSprites + 24
