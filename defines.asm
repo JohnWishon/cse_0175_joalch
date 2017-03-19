@@ -118,7 +118,7 @@ p1MovementState: defb movementStateGround
 p1CollisionState: defb 0
 p1PunchX:         defb 0
 p1PunchY:         defb 0
-p1Interest: defb playerMaxInterest
+p1Interest: defb playerMaxInterest - 8
 p1Score:    defw 0
 p1PatrolMouseHit:   defb 0
 
@@ -133,9 +133,11 @@ p2MovementState: defb movementStateGround
 p2CollisionState: defb 0
 p2PunchX:         defb 0
 p2PunchY:         defb 0
-p2Interest: defb playerMaxInterest
+p2Interest: defb playerMaxInterest - 8
 p2Score:    defw 0
 p2PatrolMouseHit:   defb 0
+
+interestDrainCounter: defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -310,7 +312,7 @@ mouseUpdatesDirection:      defb 1      ; ix
 mouseUpdatesOldPosX:        defb 0      ; ix + 1
 mouseUpdatesNewPosX:        defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:        defb 0      ; ix + 3
-mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight- 4 ; ix + 4
+mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight - 4 ; ix + 4
 mouseActive:                defb 0      ; ix + 5
 spawnCtr:                   defb 0      ; ix + 6
 randomCtr:                  defb 0      ; ix + 7 - timer for the random call

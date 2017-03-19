@@ -150,6 +150,28 @@ updateGameLogic:
         ;;*    If mouse
         ;;*      inc interest gauge / score
         ;;*      signal mouse kill
+
+        ld  a,(interestDrainCounter)    ; Get the interest drain counter
+        cp  25 * 8                      ; 25 * sec, 8 secs for now
+        jp  c,logicNoDrainYet           ; If the counter is lower than the bar, no drain
+        ld  a, 0
+        ld  (interestDrainCounter),a    ; Reset the counter
+        ld  a,(p1Interest)              ; Check if the interest value is high enough for draining
+        cp  0
+        jp  z,logicP1NoDrainInterest
+        dec a
+        ld  (p1Interest),a                ; If so, drain
+logicP1NoDrainInterest:
+        ld  a,(p2Interest)              ; Same here
+        cp  0
+        jp  z,logicNoDrainYet
+        dec a
+        ld  (p2Interest),a
+logicNoDrainYet:
+        ld  a,(interestDrainCounter)
+        inc a
+        ld  (interestDrainCounter),a
+
         ld  d,2     ; Counter for # of players processed
         push    iy  ; Save iy, to be restored before ret.
                     ; otherwise the BASIC loader freaks out.
