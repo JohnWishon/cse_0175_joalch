@@ -119,7 +119,7 @@ p1CollisionState: defb 0
 p1PunchX:         defb 0
 p1PunchY:         defb 0
 p1Interest: defb playerMaxInterest - 8
-p1Score:    defw 0
+p1Score:    defb "00000"
 p1PatrolMouseHit:   defb 0
 
 p2StateBase:
@@ -134,7 +134,7 @@ p2CollisionState: defb 0
 p2PunchX:         defb 0
 p2PunchY:         defb 0
 p2Interest: defb playerMaxInterest - 8
-p2Score:    defw 0
+p2Score:    defb "00000"
 p2PatrolMouseHit:   defb 0
 
 interestDrainCounter: defb 0

@@ -189,7 +189,7 @@ testGameLogic3:
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
-    cp  HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3
+    cp  LOW(couchTopDamaged - dynamicTileInstanceBase) | 3
     ld  b,0
     ld  c,1
     call    nz,testGameLogic_errorExit
@@ -409,7 +409,7 @@ testGameLogic12:
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
-    cp  HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3
+    cp  LOW(couchTopDamaged - dynamicTileInstanceBase) | 3
     ld  b,0
     ld  c,1
     call    nz,testGameLogic_errorExit
