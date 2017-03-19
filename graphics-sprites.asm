@@ -2,32 +2,32 @@
 ;			MOUSE SPRITES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; mouse moving left ;;
-
-MOUSE_LEFT_ONE:
-	defb $01, $01, $07, $D8, $A8, $40, $FF, $08
-	defb $00, $01, $C1, $21, $1E, $10, $E0, $40
-
-MOUSE_LEFT_TWO:
-	defb $02, $01, $07, $D8, $A8, $40, $FF, $08
-	defb $80, $01, $C1, $21, $1E, $10, $E0, $40
-
-MOUSE_LEFT_THREE:
-	defb $06, $01, $07, $D8, $A8, $40, $FF, $08
-	defb $C0, $01, $C1, $21, $1E, $10, $E0, $40
-
 ;; mouse moving right ;;
 
 MOUSE_RIGHT_ONE:
+	defb $01, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $00, $01, $C1, $21, $1E, $10, $E0, $40
+
+MOUSE_RIGHT_TWO:
+	defb $02, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $80, $01, $C1, $21, $1E, $10, $E0, $40
+
+MOUSE_RIGHT_THREE:
+	defb $06, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $C0, $01, $C1, $21, $1E, $10, $E0, $40
+
+;; mouse moving left ;;
+
+MOUSE_LEFT_ONE:
 	defb $00, $80, $83, $84, $78, $08, $07, $02
 	defb $80, $80, $E0, $1B, $15, $02, $FF, $10
 
-MOUSE_RIGHT_TWO:
+MOUSE_LEFT_TWO:
 	defb $01, $80, $83, $84, $78, $08, $07, $02
 	defb $40, $80, $E0, $1B, $15, $02, $FF, $10
 
 
-MOUSE_RIGHT_THREE:
+MOUSE_LEFT_THREE:
 	defb $03, $80, $83, $84, $78, $08, $07, $02
 	defb $60, $80, $E0, $1B, $15, $02, $FF, $10
 
