@@ -57,7 +57,15 @@ MOUSE_NOT_SHOWING_IN_HOLE:
 ; blocks at pixel positionn (y=0):
 
 CAT_CLAW:
-	defb $00, $00, $28, $F0, $F8, $F0, $08, $00
+        defb %00000000
+        defb %00110011
+        defb %01000100
+        defb %10001000
+        defb %10010011
+        defb %00100100
+        defb %00101000
+        defb %00001000
+	;; defb $00, $00, $28, $F0, $F8, $F0, $08, $00
 
 CAT_STEP_ONE:
 	defb $3F, $3F, $3F, $3F, $3F, $38, $5C, $6C
