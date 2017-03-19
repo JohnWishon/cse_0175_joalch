@@ -88,6 +88,7 @@ mouseCanvas: equ $D868
 
 secondFramebuffer: equ $C000
 
+
 ;;; What to add to a pointer returned by renderFrameTileAddress to get an
 ;;; address into the second framebuffer
 secondFramebufferLogicalOffset: equ secondFramebuffer - $4000
