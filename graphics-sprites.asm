@@ -63,7 +63,7 @@ CAT_STEP_ONE:
 	defb $3F, $3F, $3F, $3F, $3F, $38, $5C, $6C
 	defb $FC, $FC, $FC, $FC, $FC, $1C, $2E, $36
 
-CAT_SETP_TWO:
+CAT_STEP_TWO:
 	defb $3F, $3F, $3F, $3F, $3F, $38, $74, $6C
 	defb $FC, $FC, $FC, $FC, $FC, $1C, $3A, $36
 
@@ -95,7 +95,7 @@ CAT_RIGHT_UPPERBODY_PLAYER_1:
 	; line based output of pixel data:
 ;;	defb $1C, $88, $25, $54, $46, $72, $8C, $01, $95, $8D, $94, $21, $9C, $51, $82, $02, $81, $04, $40, $02, $40, $02, $40, $02, $44, $92, $23, $12, $12, $B4, $0C, $58
 
-CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP::
+CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP:
 	defb $3F, $3F, $3F, $3F, $3F, $76, $EC, $D8
 	defb $FC, $FC, $FC, $FC, $EE, $77, $3B, $18
 
@@ -109,4 +109,3 @@ CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP::
 ;;CAT_RIGHT_LOW_STRIKE:	; this is 2x3 for now
 	; line based output of pixel data:
 ;;	defb $00, $11, $38, $00, $2A, $A4, $00, $4E, $62, $00, $80, $31, $00, $B1, $A9, $00, $84, $29, $00, $8A, $39, $00, $40, $41, $00, $20, $81, $14, $40, $02, $0B, $80, $02, $10, $10, $02, $10, $20, $02, $0B, $C7, $F2, $14, $48, $52, $00, $30, $6C
-	

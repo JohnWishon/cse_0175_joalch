@@ -550,70 +550,70 @@ renderPrecomputeSpritesCatCopyLoopFirstIter:
         push bc
         ;; Stand
         ld de, catOneStandLeft
-        ld hl, CAT_LEFT_STANDING
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneStandRight
-        ld hl, CAT_RIGHT_STANDING
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoStandLeft
-        ld hl, CAT_LEFT_STANDING
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoStandRight
-        ld hl, CAT_RIGHT_STANDING
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
         call renderPrecomputeCopyCatSprite
 
         ;; Jump
         ld de, catOneJumpLeft
-        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneJumpRight
-        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpLeft
-        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpRight
-        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
         call renderPrecomputeCopyCatSprite
 
         ;; Attack High
         ld de, catOneAttackHighLeft
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackHighRight
-        ld hl, CAT_RIGHT_HIGH_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighLeft
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighRight
-        ld hl, CAT_RIGHT_HIGH_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ;; Attack Low
         ld de, catOneAttackLowLeft
-        ld hl, CAT_LEFT_LOW_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackLowRight
-        ld hl, CAT_RIGHT_LOW_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowLeft
-        ld hl, CAT_LEFT_LOW_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowRight
-        ld hl, CAT_RIGHT_LOW_STRIKE
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         pop bc
@@ -625,36 +625,36 @@ renderPrecomputeSpritesCatCopyLoopFirstIter:
 
         ld ix, 24
         ld de, catOneWalkLeft
-        ld hl, CAT_LEFT_NEUTRAL_STEP
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneWalkRight
-        ld hl, CAT_RIGHT_NEUTRAL_STEP
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkLeft
-        ld hl, CAT_LEFT_NEUTRAL_STEP
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkRight
-        ld hl, CAT_LEFT_NEUTRAL_STEP
+        ld hl, CAT_STEP_ONE
         call renderPrecomputeCopyCatSprite
 
         ld ix, 24 + (9 * 8)
         ld de, catOneWalkLeft
-        ld hl, CAT_LEFT_INWARD_STEP
+        ld hl, CAT_STEP_TWO
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneWalkRight
-        ld hl, CAT_RIGHT_INWARD_STEP
+        ld hl, CAT_STEP_TWO
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkLeft
-        ld hl, CAT_LEFT_INWARD_STEP
+        ld hl, CAT_STEP_TWO
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkRight
-        ld hl, CAT_LEFT_INWARD_STEP
+        ld hl, CAT_STEP_TWO
         call renderPrecomputeCopyCatSprite
 
         ;; ---------------------------------------------------------------------
@@ -670,35 +670,35 @@ renderPrecomputeSpritesCatHandCopyLoop:
 renderPrecomputeSpritesCatHandCopyLoopFirstIter:
         push bc
 
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, CAT_CLAW
         ld de, catOneHandLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, CAT_CLAW
         ld de, catTwoHandLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_LEFT_LOW_STRIKE + (8 * 3)
+        ld hl, CAT_CLAW
         ld de, catOneHandLowLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_LEFT_LOW_STRIKE + (8 * 3)
+        ld hl, CAT_CLAW
         ld de, catTwoHandLowLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_HIGH_STRIKE + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catOneHandRight
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_HIGH_STRIKE + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catTwoHandRight
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_LOW_STRIKE + (8 * 3) + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catOneHandLowRight
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_LOW_STRIKE + (8 * 3) + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catTwoHandLowRight
         call renderPrecomputeCopyCatHandSprite
 
