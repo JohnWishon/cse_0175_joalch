@@ -44,7 +44,7 @@ collisionStateBlockedRight:     equ %0000$1000
 tgaNone:            equ %0000$0000
 tgaPassable:        equ %0001$0000
 tgaStandable:       equ %0010$0000
-;tgaClimbable:       equ %0100$0000
+tgaGiveInterest:    equ %0100$0000
 tgaDrainsInterest:  equ %1000$0000
 tgaDestroyableMask: equ %0000$1111
 
@@ -118,7 +118,7 @@ p1MovementState: defb movementStateGround
 p1CollisionState: defb 0
 p1PunchX:         defb 0
 p1PunchY:         defb 0
-p1Interest: defb playerMaxInterest
+p1Interest: defb playerMaxInterest - 8
 p1Score:    defw 0
 p1PatrolMouseHit:   defb 0
 
@@ -133,9 +133,11 @@ p2MovementState: defb movementStateGround
 p2CollisionState: defb 0
 p2PunchX:         defb 0
 p2PunchY:         defb 0
-p2Interest: defb playerMaxInterest
+p2Interest: defb playerMaxInterest - 8
 p2Score:    defw 0
 p2PatrolMouseHit:   defb 0
+
+interestDrainCounter: defb 0
 
 IF (LOW($) & %0000$1111) != 0
         org (($ + 16) & #FFF0)
@@ -157,14 +159,14 @@ ENDIF
 
 dynamicTileInstanceBase:
 mouseHoleActive: defb $66, $99, $7E, $81, $A5, $81, $66, $18, $F0  ; tile - base OR'd health : inactive -> active: gamelevel array active - base -- changeptr: mouseHoleActive
-        defb tgaPassable | 1
+        defb tgaGiveInterest | tgaPassable | 1
         defw staticTileMouseHole    ; active -> inactive: changeptr
         defb tgaPassable            ; active -> inactive: gamelevel array
         defb 0, 0, 0
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
-        defb HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
+        defb LOW(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -174,7 +176,7 @@ couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
+        defb LOW(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -184,7 +186,7 @@ couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
+        defb LOW(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
         defb tgaStandable | tgaPassable | 3
@@ -283,10 +285,10 @@ fuP1UpdatesNewPose:       defb catPoseJump | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
-fuP1UpdatesOldTilePosX:   defb 6
-fuP1UpdatesNewTilePosX:   defb 6
-fuP1UpdatesOldTilePosY:   defb 9
-fuP1UpdatesNewTilePosY:   defb 9
+fuP1UpdatesOldTilePosX:   defb 0
+fuP1UpdatesNewTilePosX:   defb 0
+fuP1UpdatesOldTilePosY:   defb 0
+fuP1UpdatesNewTilePosY:   defb 0
 
 fuP2UpdatesBase:
 fuP2UpdatesOldPosX:       defb 8 * 8
@@ -298,10 +300,10 @@ fuP2UpdatesNewPose:       defb catPoseJump | catPoseFaceLeft
 fuP2UpdatesTileChangeX:   defb 10
 fuP2UpdatesTileChangeY:   defb 0
 fuP2UpdatesTileChangePtr: defw 0
-fuP2UpdatesOldTilePosX:   defb 4
-fuP2UpdatesNewTilePosX:   defb 4
-fuP2UpdatesOldTilePosY:   defb 3
-fuP2UpdatesNewTilePosY:   defb 3
+fuP2UpdatesOldTilePosX:   defb 0
+fuP2UpdatesNewTilePosX:   defb 0
+fuP2UpdatesOldTilePosY:   defb 0
+fuP2UpdatesNewTilePosY:   defb 0
 
 ; Mouse data tables
 mouseUpdatesBase:
@@ -310,7 +312,7 @@ mouseUpdatesDirection:      defb 1      ; ix
 mouseUpdatesOldPosX:        defb 0      ; ix + 1
 mouseUpdatesNewPosX:        defb levelLeftmostPixel + 4    ; ix + 2
 mouseUpdatesOldPosY:        defb 0      ; ix + 3
-mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight- 4 ; ix + 4
+mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight - 4 ; ix + 4
 mouseActive:                defb 0      ; ix + 5
 spawnCtr:                   defb 0      ; ix + 6
 randomCtr:                  defb 0      ; ix + 7 - timer for the random call

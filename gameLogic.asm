@@ -64,12 +64,12 @@ setupGameLogic:
         ;; Couch
         ;; Couch top
         ld  hl, gameLevel + 10 + (14 * levelTileWidth)
-        ld  (hl), HIGH(couchTop - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchTop - dynamicTileInstanceBase) | 1
         ld  de, gameLevel + 10 + (14 * levelTileWidth) + 1
         ld  bc, 10
         ldir
         ld  hl, gameLevel + 10 + (15 * levelTileWidth) - 1
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
         ld  hl, gameLevel + 10 + (14 * levelTileWidth)
         ld  de, gameLevel + 10 + (15 * levelTileWidth)
         ld  bc, 11
@@ -77,18 +77,18 @@ setupGameLogic:
         ;; At this point de should be pointing to the right side of the couch
         push    de
         pop hl
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
 
         ;; Couch cushion
         ld  hl, gameLevel + 10 + (16 * levelTileWidth) - 1
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
         inc hl
-        ld  (hl), HIGH(couchCushion - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchCushion - dynamicTileInstanceBase) | 1
         ld  de, gameLevel + 10 + (16 * levelTileWidth) + 1
         ld  bc, 10
         ldir
         ld  hl, gameLevel + 10 + (17 * levelTileWidth) - 1
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
         ld  hl, gameLevel + 10 + (16 * levelTileWidth)
         ld  de, gameLevel + 10 + (17 * levelTileWidth)
         ld  bc, 11
@@ -96,8 +96,43 @@ setupGameLogic:
         ;; At this point de should be pointing to the right side of the couch
         push    de
         pop hl
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
 
+        ;; Media set impassable
+        ld  hl, gameLevel + 0 + (14 * levelTileWidth)
+        ld  (hl), tgaNone
+        ld  de, gameLevel + 0 + (14 * levelTileWidth) + 1
+        ld  bc, 3
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  (hl), tgaNone
+        ld  de, gameLevel + 0 + (15 * levelTileWidth) + 1
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (16 * levelTileWidth)
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (17 * levelTileWidth)
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (18 * levelTileWidth)
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (19 * levelTileWidth)
+        ld  bc, 3
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (20 * levelTileWidth)
+        ld  bc, 2
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (21 * levelTileWidth)
+        ld  bc, 1
+        ldir
         ret
 
 updateGameLogic:
@@ -115,6 +150,28 @@ updateGameLogic:
         ;;*    If mouse
         ;;*      inc interest gauge / score
         ;;*      signal mouse kill
+
+        ld  a,(interestDrainCounter)    ; Get the interest drain counter
+        cp  25 * 8                      ; 25 * sec, 8 secs for now
+        jp  c,logicNoDrainYet           ; If the counter is lower than the bar, no drain
+        ld  a, 0
+        ld  (interestDrainCounter),a    ; Reset the counter
+        ld  a,(p1Interest)              ; Check if the interest value is high enough for draining
+        cp  0
+        jp  z,logicP1NoDrainInterest
+        dec a
+        ld  (p1Interest),a                ; If so, drain
+logicP1NoDrainInterest:
+        ld  a,(p2Interest)              ; Same here
+        cp  0
+        jp  z,logicNoDrainYet
+        dec a
+        ld  (p2Interest),a
+logicNoDrainYet:
+        ld  a,(interestDrainCounter)
+        inc a
+        ld  (interestDrainCounter),a
+
         ld  d,2     ; Counter for # of players processed
         push    iy  ; Save iy, to be restored before ret.
                     ; otherwise the BASIC loader freaks out.
@@ -127,6 +184,8 @@ logicP2Init:
         ld  ix,p2DirPressed
         ld  iy,fuP2UpdatesNewPosX
 logicBody:
+        ld  (iy+7), 0
+        ld  (iy+8), 0
         ld  a,(ix+5)
         cp  playerNotPunch
         jp  z,logicUpdateMovementState  ; If punch is not pressed, no need to check punch
@@ -156,10 +215,10 @@ logicBody:
         and levelDummyTileMask
         jp  z,logicUpdateMovementState   ; 0 = static tile, no destruction happens to it.
 
-        ;; TODO: Mouse hole attrib?
-
-        ;; The whack-a-mole scoring will be implemented here.
-        call logicGainScore  ; So destruction definitely happens, calc interest gain first
+        ld  a,(hl)
+        and tgaGiveInterest
+        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
+        call logicGainScore  ; So destruction definitely happens, calc score gain first
         ld  a,(hl)  ; reload raw data
         dec a       ; -1 to raw data, dec the HP by 1
         ld  (hl),a

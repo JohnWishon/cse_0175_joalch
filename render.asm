@@ -88,20 +88,29 @@ mouseCanvas: equ $D868
 
 secondFramebuffer: equ $C000
 
+secondFramebufferScratchCat1Left: equ secondFramebuffer
+secondFramebufferScratchCat1Right: equ secondFramebufferScratchCat1Left + (8*4)
+secondFramebufferScratchCat2Left: equ secondFramebufferScratchCat1Right + (8*4)
+secondFramebufferScratchCat2Right: equ secondFramebufferScratchCat2Left + (8*4)
+secondFramebufferLowerBodyOffset: equ 8 * 2
+
+
 ;;; What to add to a pointer returned by renderFrameTileAddress to get an
 ;;; address into the second framebuffer
 secondFramebufferLogicalOffset: equ secondFramebuffer - $4000
 
 setupRenderer:
-        ;; get the contents of the front buffer
+        ;; uses the second framebuffer as a scratch area.
+        call renderPrecomputeSprites
 
-
+        ;; second framebuffer is now off limits for anything but use as a
+        ;; framebuffer
         ld de, secondFramebuffer
         ld hl, $4000
         ld bc, 32 * 24 * 8
         ldir
 
-        call renderPrecomputeSprites
+        ;; get the contents of the front buffer
 
         ld hl, catOneBgCache
         ld a, (fuP1UpdatesNewTilePosX)
@@ -114,6 +123,18 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
+        ld hl, catOneHandBgCache
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
+
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
         add a, levelLeftmostCol
@@ -123,6 +144,18 @@ setupRenderer:
         ld b, a
         ld e, 3
         ld d, 3
+        call renderReadRectangle
+
+        ld hl, catTwoHandBgCache
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
         call renderReadRectangle
 
 	ld hl, mouseBgCache
@@ -186,7 +219,7 @@ renderFrame:
         inc a
         ld (fuP2UpdatesNewTilePosY), a
 
-        ;;  calculate new tile positions
+        ;;  calculate new mouse tile positions
         ld a, (mouseUpdatesNewPosX)
         srl a
         srl a
@@ -202,7 +235,7 @@ renderFrame:
         ;ld a,2              ; 2 is the code for red.
         ;out (254),a         ; write to port 254.
 
-        call renderFrameSwapBuffers
+
 
         ;; clear old sprites
 
@@ -218,6 +251,19 @@ renderFrame:
         ld d, 1
         call renderDrawRectangle
 
+        ;; erase cat hand 2
+        ld hl, catTwoHandBgCache
+        ld a, (fuP2UpdatesOldTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesOldTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesOldPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderDrawRectangle
+
         ;; erase cat 2
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesOldTilePosX)
@@ -228,6 +274,19 @@ renderFrame:
         ld b, a
         ld e, 3
         ld d, 3
+        call renderDrawRectangle
+
+        ;; erase cat hand 1
+        ld hl, catOneHandBgCache
+        ld a, (fuP1UpdatesOldTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesOldTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesOldPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
         call renderDrawRectangle
 
         ;; erase cat 1
@@ -334,6 +393,37 @@ renderFrameMouseHoleTileLoopSkip:
         ld d, 3
         call renderDrawRectangle
 
+        ;; read area behind cat hand 1
+        ld hl, catOneHandBgCache
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
+
+        ;; TODO: blit stuff
+        ld ix, fuP1UpdatesBase
+        ld de, catOneHandBgCache
+        call renderFrameBuildCatHand
+
+        ;; draw cat hand 1
+        ld hl, catHandCanvas
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderDrawRectangle
+
         ;; read area behind cat 2
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
@@ -362,6 +452,37 @@ renderFrameMouseHoleTileLoopSkip:
         ld b, a
         ld e, 3
         ld d, 3
+        call renderDrawRectangle
+
+        ;; read area behind cat hand 2
+        ld hl, catTwoHandBgCache
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
+
+        ;; TODO: blit stuff
+        ld ix, fuP2UpdatesBase
+        ld de, catTwoHandBgCache
+        call renderFrameBuildCatHand
+
+        ;; draw cat hand 2
+        ld hl, catHandCanvas
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
         call renderDrawRectangle
 
         ;; read area behind mouse
@@ -398,65 +519,38 @@ renderFrameMouseHoleTileLoopSkip:
 
 
 
-        ;; Some random blocks, used for testing
-cat1SpritesBase:
-cat1SpritesWalk:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesJump:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesAttackHigh:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesAttackLow:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesHand:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
 
-cat2SpritesBase:
-cat2SpritesWalk:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesJump:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesAttackHigh:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesAttackLow:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesHand:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-
-mouseSpritesBase:
-renderTempMouse:
-        defb $C0, $FF, $EE, $EE, $C0, $FF, $EE, $EE
-        defb $C0, $FF, $EE, $EE, $C0, $FF, $EE, $EE
 
         ;; ---------------------------------------------------------------------
         ;; precomputeSprites
         ;; ---------------------------------------------------------------------
         ;; POST: Sprite layout lookup table populated
 renderPrecomputeSprites:
+        ;; initialize cat 1 scratch area
+        ld de, secondFramebufferScratchCat1Left
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        ld bc, 16
+        ldir
+
+
+        ;; initialize cat 2 scratch area
+        ld de, secondFramebufferScratchCat2Left
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        ld bc, 16
+        ldir
+
+        ;; scratch area initialized
+
         ld b, renderCatMouseNumShifts
         ld ix, 24
         jp renderPrecomputeSpritesCatCopyLoopFirstIter
@@ -465,72 +559,153 @@ renderPrecomputeSpritesCatCopyLoop:
         add ix, de
 renderPrecomputeSpritesCatCopyLoopFirstIter:
         push bc
+
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
         ;; Stand
         ld de, catOneStandLeft
-        ld hl, CAT_LEFT_STANDING
+        ld hl, secondFramebufferScratchCat1Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneStandRight
-        ld hl, CAT_RIGHT_STANDING
+        ld hl, secondFramebufferScratchCat1Right
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoStandLeft
-        ld hl, CAT_LEFT_STANDING
+        ld hl, secondFramebufferScratchCat2Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoStandRight
-        ld hl, CAT_RIGHT_STANDING
+        ld hl, secondFramebufferScratchCat2Right
         call renderPrecomputeCopyCatSprite
 
         ;; Jump
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
         ld de, catOneJumpLeft
-        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
+        ld hl, secondFramebufferScratchCat1Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneJumpRight
-        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
+        ld hl, secondFramebufferScratchCat1Right
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpLeft
-        ld hl, CAT_LEFT_OUTWARD_STEP_OR_JUMP
+        ld hl, secondFramebufferScratchCat2Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoJumpRight
-        ld hl, CAT_RIGHT_OUTWARD_STEP_OR_JUMP
+        ld hl, secondFramebufferScratchCat2Right
         call renderPrecomputeCopyCatSprite
 
         ;; Attack High
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
         ld de, catOneAttackHighLeft
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, secondFramebufferScratchCat1Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackHighRight
-        ld hl, CAT_RIGHT_HIGH_STRIKE
+        ld hl, secondFramebufferScratchCat1Right
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighLeft
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, secondFramebufferScratchCat2Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackHighRight
-        ld hl, CAT_RIGHT_HIGH_STRIKE
+        ld hl, secondFramebufferScratchCat2Right
         call renderPrecomputeCopyCatSprite
 
         ;; Attack Low
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
+        ld bc, 16
+        ldir
+
         ld de, catOneAttackLowLeft
-        ld hl, CAT_LEFT_LOW_STRIKE
+        ld hl, secondFramebufferScratchCat1Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneAttackLowRight
-        ld hl, CAT_RIGHT_LOW_STRIKE
+        ld hl, secondFramebufferScratchCat1Right
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowLeft
-        ld hl, CAT_LEFT_LOW_STRIKE
+        ld hl, secondFramebufferScratchCat2Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoAttackLowRight
-        ld hl, CAT_RIGHT_LOW_STRIKE
+        ld hl, secondFramebufferScratchCat2Right
         call renderPrecomputeCopyCatSprite
 
         pop bc
@@ -540,38 +715,82 @@ renderPrecomputeSpritesCatCopyLoopFirstIter:
 
         ;; Load special case walking sprites
 
+        ;; Step zero offset
+
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_ONE
+        ld bc, 16
+        ldir
+
         ld ix, 24
         ld de, catOneWalkLeft
-        ld hl, CAT_LEFT_NEUTRAL_STEP
+        ld hl, secondFramebufferScratchCat1Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneWalkRight
-        ld hl, CAT_RIGHT_NEUTRAL_STEP
+        ld hl, secondFramebufferScratchCat1Right
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkLeft
-        ld hl, CAT_LEFT_NEUTRAL_STEP
+        ld hl, secondFramebufferScratchCat2Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkRight
-        ld hl, CAT_LEFT_NEUTRAL_STEP
+        ld hl, secondFramebufferScratchCat2Right
         call renderPrecomputeCopyCatSprite
+
+        ;; step four offset
+
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_TWO
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_TWO
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_TWO
+        ld bc, 16
+        ldir
+
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld hl, CAT_STEP_TWO
+        ld bc, 16
+        ldir
 
         ld ix, 24 + (9 * 8)
         ld de, catOneWalkLeft
-        ld hl, CAT_LEFT_INWARD_STEP
+        ld hl, secondFramebufferScratchCat1Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catOneWalkRight
-        ld hl, CAT_RIGHT_INWARD_STEP
+        ld hl, secondFramebufferScratchCat1Right
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkLeft
-        ld hl, CAT_LEFT_INWARD_STEP
+        ld hl, secondFramebufferScratchCat2Left
         call renderPrecomputeCopyCatSprite
 
         ld de, catTwoWalkRight
-        ld hl, CAT_LEFT_INWARD_STEP
+        ld hl, secondFramebufferScratchCat2Right
         call renderPrecomputeCopyCatSprite
 
         ;; ---------------------------------------------------------------------
@@ -587,35 +806,35 @@ renderPrecomputeSpritesCatHandCopyLoop:
 renderPrecomputeSpritesCatHandCopyLoopFirstIter:
         push bc
 
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, CAT_CLAW
         ld de, catOneHandLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_LEFT_HIGH_STRIKE
+        ld hl, CAT_CLAW
         ld de, catTwoHandLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_LEFT_LOW_STRIKE + (8 * 3)
+        ld hl, CAT_CLAW
         ld de, catOneHandLowLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_LEFT_LOW_STRIKE + (8 * 3)
+        ld hl, CAT_CLAW
         ld de, catTwoHandLowLeft
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_HIGH_STRIKE + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catOneHandRight
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_HIGH_STRIKE + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catTwoHandRight
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_LOW_STRIKE + (8 * 3) + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catOneHandLowRight
         call renderPrecomputeCopyCatHandSprite
 
-        ld hl, CAT_RIGHT_LOW_STRIKE + (8 * 3) + (8 * 2)
+        ld hl, CAT_CLAW
         ld de, catTwoHandLowRight
         call renderPrecomputeCopyCatHandSprite
 
@@ -639,11 +858,11 @@ renderPrecomputeSpritesCatHandCopyLoopFirstIter:
 
         ld ix, 8 + 24
         ld de, mouseWalkLeft
-        ld hl, MOUSE_LEFT_ONE
+        ld hl, MOUSE_LEFT_TWO
         call renderPrecomputeCopyMouseSprite
 
         ld de, mouseWalkRight
-        ld hl, MOUSE_RIGHT_ONE
+        ld hl, MOUSE_RIGHT_TWO
         call renderPrecomputeCopyMouseSprite
 
         ;; ---------------------------------------------------------------------
@@ -957,7 +1176,7 @@ renderPrecomputeCopyCatSprite:
         ld bc, 8
         ldir
 
-        ld bc, 16
+        ld bc, 8
         add hl, bc
         ld bc, 8
         ;; hl contains tile 3
@@ -1596,6 +1815,109 @@ renderFrameBuildCatOrBGLoop:
 
         ret
 
+
+        ;; ---------------------------------------------------------------------
+        ;; buildCatHand
+        ;; ---------------------------------------------------------------------
+        ;; PRE: IX contains fuPNUpdatesBase
+        ;;      DE contains catNBgCache
+        ;;      HL contains catNSprites
+        ;;      N = 1 or 2
+        ;; POST: catCanvas contains tile data suitable for drawRectangle
+renderFrameBuildCatHand:
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseAttack | catPoseAttackLow
+        jp nz, renderFrameBuildCatHandIsAttackPose
+        ;; If we're here, then we're not attacking. Just draw bg cache
+
+        ld h, d
+        ld l, e
+        ld de, catHandCanvas
+        ld bc, 8 * 4
+        ldir
+        ret
+
+renderFrameBuildCatHandIsAttackPose:
+        push de
+
+        ;; all cat hands are the same
+        ld hl, catOneHandLeft + 16
+
+        ;; At this point, HL points to the beginning of the sprite sequence
+        ;; of the correct pose
+
+        ld a, (IX + renderPNUpdatesNewPosX)
+        and %0000$0100          ; posX can be X0 or X4
+
+        jp z, renderFrameBuildCatHandSelectY ; if a == 0, then hl is on correct idx
+
+        ;; Otherwise a must equal 4. After all, it's not like anybody
+        ;; ever violated an invariant! That'd be madness!
+        ld de, 4 * 8
+        add hl, de
+
+renderFrameBuildCatHandSelectY:
+        ;; HL points to correct sprite in sequence
+
+        ld a, (IX + renderPNUpdatesNewPosY)
+        and %0000$0111
+
+        ld bc, 0
+        ld c, a
+        ld a, %0000$1000
+        sub c
+        ld c, a
+        add hl, bc              ; hl now points to correct sprite
+
+        ;; top left
+        push hl
+        ld de, catHandCanvas
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; top right
+        push hl
+        ld bc, 16
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom left
+        push hl
+        ld bc, 8
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom right
+        push hl
+        ld bc, 24
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; prepare to copy data
+        ld b, 8 * 4
+        pop de
+        ld IY, catHandCanvas
+renderFrameBuildCatHandOrBGLoop:
+        ld c, (IY)
+        ld a, (DE)
+        or c
+
+        ld (IY), a
+        inc hl
+        inc de
+        inc iy
+        djnz renderFrameBuildCatHandOrBGLoop
+
+        ret
+
+
         ;; ---------------------------------------------------------------------
         ;; buildMouse
         ;; ---------------------------------------------------------------------
@@ -1644,29 +1966,6 @@ renderFrameBuildMouseSelectY:
         ld bc, 8 * 3
         ldir
         pop hl
-
-        ;; top left
-        ;; push hl
-        ;; ld de, mouseCanvas
-        ;; ld bc, 8
-        ;; ldir
-        ;; pop hl
-
-        ;; ;; top center
-        ;; push hl
-        ;; ld bc, 8
-        ;; add hl, bc
-        ;; ld bc, 8
-        ;; ldir
-        ;; pop hl
-
-        ;; ;; top right
-        ;; push hl
-        ;; ld bc, 16
-        ;; add hl, bc
-        ;; ld bc, 8
-        ;; ldir
-        ;; pop hl
 
 renderFrameBuildMouseOrBGLoopPre:
         ;; prepare to copy data
@@ -2052,4 +2351,52 @@ renderFrameTransferCatRow:
 
         ld sp, (renderFrameTransferStackPtr) ; restore the stack pointer
         pop bc
+        ret
+
+;;; ----------------------------------------------------------------------------
+;;; Misc utility stuff
+;;; ----------------------------------------------------------------------------
+
+
+        ;; ---------------------------------------------------------------------
+        ;; handPos
+        ;; Pre: c contains cat pos X
+        ;;      b contains cat pos Y
+        ;;      d contains cat pose
+        ;;      Cat must be in an attack pose (will return a value even if
+        ;;         it isn't)
+        ;; Post: c contains hand tile pos X
+        ;;       b contains hand tile pos Y
+        ;; ---------------------------------------------------------------------
+renderFrameHandPos:
+        ld a, d
+        and catPoseFaceLeft
+        jp nz, renderFrameHandPosLeft
+        ;; If we're here, cat is facing right
+        ld a, c
+        inc a
+        inc a
+        add a, levelLeftmostCol
+        ld c, a
+        jp renderFrameHandPosLeftRightEnd
+renderFrameHandPosLeft:
+        ld a, c
+        dec a
+        add a, levelLeftmostCol
+        ld c, a
+        ;; If we're here, cat is facing left
+renderFrameHandPosLeftRightEnd:
+        ld a, d
+        and catPoseAttackLow
+        jp nz, renderFrameIsLowPunch
+        ;; If we're here, then it is not a low punch
+        ld a, b
+        jp renderFramePunchHeightEnd
+renderFrameIsLowPunch:
+        ld a, b
+        inc a
+renderFramePunchHeightEnd:
+        ;; a contains Y value
+        add a, levelTopmostRow
+        ld b, a
         ret
