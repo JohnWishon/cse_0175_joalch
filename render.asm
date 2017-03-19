@@ -48,11 +48,9 @@ catOneAttackLowRight: equ $E060
 catOneStandRight: equ $E108
 catOneBgCache: equ $E1B0
 
-catOneHandLeft: equ $E1F8
-catOneHandLowLeft: equ $E248
-catOneHandRight: equ $E298
-catOneHandLowRight: equ $E2E8
+catHandSprite: equ $E1F8
 catOneHandBgCache: equ $E338
+catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
 
 ;;; Cat 2
 catTwoSprites: equ $E358
@@ -68,12 +66,6 @@ catTwoAttackHighRight: equ catTwoSprites + catOneAttackHighRight - catOneSprites
 catTwoAttackLowRight: equ catTwoSprites + catOneAttackLowRight - catOneSprites
 catTwoStandRight: equ catTwoSprites + catOneStandRight- catOneSprites
 catTwoBgCache: equ catTwoSprites + catOneBgCache - catOneSprites
-
-catTwoHandLeft: equ catTwoSprites + catOneHandLeft - catOneSprites
-catTwoHandLowLeft: equ catTwoSprites + catOneHandLowLeft - catOneSprites
-catTwoHandRight: equ catTwoSprites + catOneHandRight - catOneSprites
-catTwoHandLowRight: equ catTwoSprites + catOneHandLowRight - catOneSprites
-catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
 
 ;;; Mouse
 mouseSprites: equ $EB90
@@ -807,35 +799,7 @@ renderPrecomputeSpritesCatHandCopyLoopFirstIter:
         push bc
 
         ld hl, CAT_CLAW
-        ld de, catOneHandLeft
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catTwoHandLeft
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catOneHandLowLeft
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catTwoHandLowLeft
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catOneHandRight
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catTwoHandRight
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catOneHandLowRight
-        call renderPrecomputeCopyCatHandSprite
-
-        ld hl, CAT_CLAW
-        ld de, catTwoHandLowRight
+        ld de, catHandSprite
         call renderPrecomputeCopyCatHandSprite
 
         pop bc
@@ -986,19 +950,7 @@ renderPrecomputeSpritesCatHandShiftLoop:
         inc b
 
 
-        ld ix, catOneHandLeft
-        add ix, de
-        call renderPrecomputeShiftCatHandSprite
-
-        ld ix, catOneHandRight
-        add ix, de
-        call renderPrecomputeShiftCatHandSprite
-
-        ld ix, catOneHandLowLeft
-        add ix, de
-        call renderPrecomputeShiftCatHandSprite
-
-        ld ix, catOneHandLowRight
+        ld ix, catHandSprite
         add ix, de
         call renderPrecomputeShiftCatHandSprite
 
@@ -1841,7 +1793,7 @@ renderFrameBuildCatHandIsAttackPose:
         push de
 
         ;; all cat hands are the same
-        ld hl, catOneHandLeft + 16
+        ld hl, catHandSprite + 16
 
         ;; At this point, HL points to the beginning of the sprite sequence
         ;; of the correct pose
