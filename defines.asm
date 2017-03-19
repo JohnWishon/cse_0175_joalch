@@ -285,10 +285,10 @@ fuP1UpdatesNewPose:       defb catPoseJump | catPoseFaceLeft
 fuP1UpdatesTileChangeX:   defb 10
 fuP1UpdatesTileChangeY:   defb 0
 fuP1UpdatesTileChangePtr: defw 0
-fuP1UpdatesOldTilePosX:   defb 6
-fuP1UpdatesNewTilePosX:   defb 6
-fuP1UpdatesOldTilePosY:   defb 9
-fuP1UpdatesNewTilePosY:   defb 9
+fuP1UpdatesOldTilePosX:   defb 0
+fuP1UpdatesNewTilePosX:   defb 0
+fuP1UpdatesOldTilePosY:   defb 0
+fuP1UpdatesNewTilePosY:   defb 0
 
 fuP2UpdatesBase:
 fuP2UpdatesOldPosX:       defb 8 * 8
@@ -300,10 +300,10 @@ fuP2UpdatesNewPose:       defb catPoseJump | catPoseFaceLeft
 fuP2UpdatesTileChangeX:   defb 10
 fuP2UpdatesTileChangeY:   defb 0
 fuP2UpdatesTileChangePtr: defw 0
-fuP2UpdatesOldTilePosX:   defb 4
-fuP2UpdatesNewTilePosX:   defb 4
-fuP2UpdatesOldTilePosY:   defb 3
-fuP2UpdatesNewTilePosY:   defb 3
+fuP2UpdatesOldTilePosX:   defb 0
+fuP2UpdatesNewTilePosX:   defb 0
+fuP2UpdatesOldTilePosY:   defb 0
+fuP2UpdatesNewTilePosY:   defb 0
 
 ; Mouse data tables
 mouseUpdatesBase:
