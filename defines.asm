@@ -44,9 +44,7 @@ collisionStateBlockedRight:     equ %0000$1000
 tgaNone:            equ %0000$0000
 tgaPassable:        equ %0001$0000
 tgaStandable:       equ %0010$0000
-
-;tgaClimbable:       equ %0100$0000
-
+tgaGiveInterest:    equ %0100$0000
 tgaDrainsInterest:  equ %1000$0000
 tgaDestroyableMask: equ %0000$1111
 
