@@ -8,7 +8,7 @@ collisionPNMoveState:       equ 8
 collisionPNCollisionState:  equ 9
 collisionPNPunchX:          equ 10
 collisionPNPunchY:          equ 11
-collisionPNMouseHit:        equ 14
+collisionPNMouseHit:        equ 18
 
 collisionTileFirstMask:  equ %1111$1000
 collisionTilePixelsMask: equ %0000$0111

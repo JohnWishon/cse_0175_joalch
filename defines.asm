@@ -119,7 +119,7 @@ p1CollisionState: defb 0
 p1PunchX:         defb 0
 p1PunchY:         defb 0
 p1Interest: defb playerMaxInterest - 8
-p1Score:    defw 0
+p1Score:    defb "00000"
 p1PatrolMouseHit:   defb 0
 
 p2StateBase:
@@ -134,7 +134,7 @@ p2CollisionState: defb 0
 p2PunchX:         defb 0
 p2PunchY:         defb 0
 p2Interest: defb playerMaxInterest - 8
-p2Score:    defw 0
+p2Score:    defb "00000"
 p2PatrolMouseHit:   defb 0
 
 interestDrainCounter: defb 0
@@ -166,7 +166,7 @@ mouseHoleActive: defb $66, $99, $7E, $81, $A5, $81, $66, $18, $F0  ; tile - base
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
         defw couchTopDamaged               ; graphics tile next
-        defb HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
+        defb LOW(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -176,7 +176,7 @@ couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
+        defb LOW(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 3
@@ -186,7 +186,7 @@ couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 couchSide: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 1
         defw couchCushionDamaged
-        defb HIGH(couchCushionDamaged - dynamicTileInstanceBase) | 3
+        defb LOW(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
 couchSideDamaged: defb $CA, $FE, 0, 0, $BA, $BE, 0, 0, %10$100$001
         defb tgaStandable | tgaPassable | 3
