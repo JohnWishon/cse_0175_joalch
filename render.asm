@@ -115,13 +115,13 @@ setupRenderer:
         call renderReadRectangle
 
         ;; ld hl, catOneHandBgCache
-        ;; ld c, fuP1UpdatesNewPosX
-        ;; ld b, fuP1UpdatesNewPosY
+        ;; ld c, fuP1UpdatesNewTilePosX
+        ;; ld b, fuP1UpdatesNewTilePosY
         ;; ld d, fuP1UpdatesNewPose
         ;; call renderFrameHandPos
         ;; ld e, 2
         ;; ld d, 2
-        ;; call renderReadRectangle
+        ;;  call renderReadRectangle
 
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
@@ -135,8 +135,8 @@ setupRenderer:
         call renderReadRectangle
 
         ;; ld hl, catTwoHandBgCache
-        ;; ld c, fuP2UpdatesNewPosX
-        ;; ld b, fuP2UpdatesNewPosY
+        ;; ld c, fuP2UpdatesNewTilePosX
+        ;; ld b, fuP2UpdatesNewTilePosY
         ;; ld d, fuP2UpdatesNewPose
         ;; call renderFrameHandPos
         ;; ld e, 2
@@ -238,8 +238,8 @@ renderFrame:
 
         ;; erase cat hand 2
         ;; ld hl, catTwoHandBgCache
-        ;; ld c, fuP2UpdatesOldPosX
-        ;; ld b, fuP2UpdatesOldPosY
+        ;; ld c, fuP2UpdatesOldTilePosX
+        ;; ld b, fuP2UpdatesOldTilePosY
         ;; ld d, fuP2UpdatesOldPose
         ;; call renderFrameHandPos
         ;; ld e, 2
@@ -260,8 +260,8 @@ renderFrame:
 
         ;; erase cat hand 1
         ;; ld hl, catOneHandBgCache
-        ;; ld c, fuP1UpdatesOldPosX
-        ;; ld b, fuP1UpdatesOldPosY
+        ;; ld c, fuP1UpdatesOldTilePosX
+        ;; ld b, fuP1UpdatesOldTilePosY
         ;; ld d, fuP1UpdatesOldPose
         ;; call renderFrameHandPos
         ;; ld e, 2
