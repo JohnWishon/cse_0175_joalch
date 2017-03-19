@@ -191,12 +191,10 @@ logicBody:
         and levelDummyTileMask
         jp  z,logicUpdateMovementState   ; 0 = static tile, no destruction happens to it.
 
-
-        ;; TODO: Mouse hole attrib?
-
-        ;; The whack-a-mole scoring will be implemented here.
-        call logicGainScore  ; So destruction definitely happens, calc interest gain first
-
+        ld  a,(hl)
+        and tgaGiveInterest
+        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
+        call logicGainScore  ; So destruction definitely happens, calc score gain first
         ld  a,(hl)  ; reload raw data
         dec a       ; -1 to raw data, dec the HP by 1
         ld  (hl),a
