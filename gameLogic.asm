@@ -64,12 +64,12 @@ setupGameLogic:
         ;; Couch
         ;; Couch top
         ld  hl, gameLevel + 10 + (14 * levelTileWidth)
-        ld  (hl), HIGH(couchTop - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchTop - dynamicTileInstanceBase) | 1
         ld  de, gameLevel + 10 + (14 * levelTileWidth) + 1
         ld  bc, 10
         ldir
         ld  hl, gameLevel + 10 + (15 * levelTileWidth) - 1
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
         ld  hl, gameLevel + 10 + (14 * levelTileWidth)
         ld  de, gameLevel + 10 + (15 * levelTileWidth)
         ld  bc, 11
@@ -77,18 +77,18 @@ setupGameLogic:
         ;; At this point de should be pointing to the right side of the couch
         push    de
         pop hl
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
 
         ;; Couch cushion
         ld  hl, gameLevel + 10 + (16 * levelTileWidth) - 1
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
         inc hl
-        ld  (hl), HIGH(couchCushion - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchCushion - dynamicTileInstanceBase) | 1
         ld  de, gameLevel + 10 + (16 * levelTileWidth) + 1
         ld  bc, 10
         ldir
         ld  hl, gameLevel + 10 + (17 * levelTileWidth) - 1
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
         ld  hl, gameLevel + 10 + (16 * levelTileWidth)
         ld  de, gameLevel + 10 + (17 * levelTileWidth)
         ld  bc, 11
@@ -96,7 +96,7 @@ setupGameLogic:
         ;; At this point de should be pointing to the right side of the couch
         push    de
         pop hl
-        ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
+        ld  (hl), LOW(couchSide - dynamicTileInstanceBase) | 1
 
         ;; Media set impassable
         ld  hl, gameLevel + 0 + (14 * levelTileWidth)
@@ -184,6 +184,8 @@ logicP2Init:
         ld  ix,p2DirPressed
         ld  iy,fuP2UpdatesNewPosX
 logicBody:
+        ld  (iy+7), 0
+        ld  (iy+8), 0
         ld  a,(ix+5)
         cp  playerNotPunch
         jp  z,logicUpdateMovementState  ; If punch is not pressed, no need to check punch

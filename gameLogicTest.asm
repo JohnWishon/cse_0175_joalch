@@ -13,6 +13,11 @@ main:
 
     ld a,2                 ; upper screen
     call openChannel
+    ld  hl,gameLevel
+    ld  (hl), tgaPassable
+    ld  de,gameLevel+1
+    ld  bc,levelTileWidth * levelTileHeight - 1
+    ldir
 
     ;; I'm using a different approach to testing this time.
     ;; It's more like an unit testing, where I set up input vals for
@@ -184,7 +189,7 @@ testGameLogic3:
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
-    cp  HIGH(couchTopDamaged) | 3
+    cp  HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3
     ld  b,0
     ld  c,1
     call    nz,testGameLogic_errorExit
@@ -228,6 +233,14 @@ testGameLogic_t3LoopCR:
     cp  $F2
     ld  b,0
     ld  c,5
+    call    nz,testGameLogic_errorExit
+
+    ld  bc,(fuP1UpdatesTileChangePtr)
+    ld  a,b
+    cp  HIGH(couchTopDamaged)
+    call    nz,testGameLogic_errorExit
+    ld  a,c
+    cp  LOW(couchTopDamaged)
     call    nz,testGameLogic_errorExit
 
     call    testGameLogic_testPassed
@@ -396,7 +409,7 @@ testGameLogic12:
     call    updateGameLogic
 
     ld  a,(gameLevel + 1*levelTileWidth + 10)    ; Grab the tile, the tile should have become another tile
-    cp  HIGH(couchTopDamaged) | 3
+    cp  HIGH(couchTopDamaged - dynamicTileInstanceBase) | 3
     ld  b,0
     ld  c,1
     call    nz,testGameLogic_errorExit
