@@ -92,6 +92,8 @@ checkMouseX:
     jr z, canEscape     ; if yes, random roll escape
     cp holeX            ; is the mouse at the mouse hole
     jr z, canEscape     ; if yes, random roll escape
+    cp rightX
+    jr z, canEscape
     ret                 ; otherwise can't escape so keep moving
 
 canEscape:
@@ -407,6 +409,7 @@ XdespawnStr:
 mousePace:      equ 4
 couchX:         equ 120
 holeX:          equ 40
+rightX:         equ 200
 
 maxY:           equ levelBottommostPixel - mousePixelHeight
 minY:           equ levelTopmostPixel
