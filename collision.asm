@@ -103,13 +103,13 @@ collisionPrepareUpdates:
         ;;       IX regester preserved
         ;;       IY register preserved
 collisionResolvePunch:
+        ld b, 0
         ld c, 0
-        ld d, 0
         ld a, (IX + collisionPNPressedPunch)
         cp playerLowPunch
         jp nz, collisionResolvePunchNotLow
-        ld c, 1                ; c contains low punch tile offset
-        ld d, 8                ; d contains low punch pixel offset
+        ld b, 1                ; b contains low punch tile offset
+        ld c, 8                ; c contains low punch pixel offset
         ld (IY + collisionPNUpdatesNewPose), catPoseAttackLow
         jp collisionResolvePunchHighLowNoEnd
 collisionResolvePunchNotLow:
@@ -134,19 +134,21 @@ collisionResolvePunchHighLowNoEnd:
         srl a
         srl a
         srl a                   ; a contains tile y of top left corner of cat
-        add a, c                ; a contains tile y of top left if high or no
+        add a, b                ; a contains tile y of top left if high or no
         ;; punch. otherwise y of top left - 1. Punch Y is now correct
         ld (IX + collisionPNPunchY), a
-        ld a, d                 ; a contains low punch pixel offset
+
+        ld a, c                 ; a contains low punch pixel offset
         add a, e                ; a contains low punch pixel Y location
         ld e, a                 ; e contains low punch pixel Y location
 
         ;; Facing left or right?
 
-        ld a, (IX + collisionPNMovX)
-        cp 0
-        jp z, collisionResolvePunchFacingUnchanged
-        jp p, collisionResolvePunchFacingRightLeftEnd
+        ld  a, (IX + collisionPNMovX)
+        cp  0
+        jp  z, collisionResolvePunchFacingUnchanged
+        jp  p, collisionResolvePunchFacingRight
+        jp  m, collisionResolvePunchFacingLeft
 collisionResolvePunchFacingLeft:
         ;; If we're here, then we're facing left
 
@@ -170,24 +172,23 @@ collisionResolvePunchFacingUnchanged:
 collisionResolvePunchFacingRight:
         ;; If we're here, then we're facing right
         ld a, (IX + collisionPNPunchX)
-        add a, 3
+        add a, 2
         ld (IX + collisionPNPunchX), a
-        ;; punchX = tileposX + 3
+        ;; punchX = tileposX + 2
 
         ld a, d                 ; a contains posX
-        add a, 24
-        ld d, a                 ; d contains posX + 24
+        add a, 16
+        ld d, a                 ; d contains posX + 16
 
 collisionResolvePunchFacingRightLeftEnd:
-        ;; d contains correct punch pixel location
-
+        ;; d,e contains correct punch pixel location
 
         ld a, (IX + collisionPNPressedPunch)
         cp playerNotPunch
         ret z                   ; if punch not pressed, then we're done
 
         ld a, (mouseActive)
-        cp 0                    ; TODO: this the falsey value?
+        cp 0
         ret z                   ; if mouse not active, then we're done
 
         ld a, e                 ; e contains punch Y
@@ -195,15 +196,17 @@ collisionResolvePunchFacingRightLeftEnd:
 
         ld b, a
         ld a, (mouseUpdatesNewPosY) ; a contains mouse y location
-
+        sub 16                  ; NewPosY is not at the expected upper left corner
+                                ; but lower left corner, thus use sub to shift to an easier Y
         cp b
-        ret m                   ; If punch Y + 8 < mouse Y, then the bottom of
+        ret nc
+        ret z                  ; If punch Y + 8 <= mouse Y (topleft corner), then the bottom of
         ;; the cat's fist is above the top of the mouse's body. no hit occurred
-
-        dec e                 ; e contains punch Y - 1
-        cp e                    ; e contains punch Y - 1, a contains mouse y
+collisionResolvePunchMouse1:
         add a, mousePixelHeight ; a contains mouse Y + mouse height
-        ret p                   ; If punch Y - 1 >= mouse Y + mouse height, then
+        cp e                    ; e contains punch Y, a contains mouse y
+        ret c
+        ret z                   ; If punch Y >= mouse Y + mouse height, then
         ;; the bottom of the mouse's body is above the top of the cat's fist.
         ;; no hit occurred
 
@@ -214,19 +217,22 @@ collisionResolvePunchFacingRightLeftEnd:
         ld a, (mouseUpdatesNewPosX) ; a contains mouse x location
 
         cp b
-        ret m                   ; If punch X + 8 < mouse X, then the right side
+        ret z
+        ret nc                  ; If punch X + 8 < mouse X, then the right side
         ;; of the cat's fist is to the left of the left side of the mouse's body
         ;; no hit occurred
-
-        dec d                   ; d contains punch X - 1
-        cp d                    ; d contains punch X - 1, a contains mouse x
+collisionResolvePunchMouse2:
         add a, mousePixelWidth  ; a contains mouse X + mouse width
-        ret p                   ; If punch X - 1 >= mouse X, then the right side
+        cp d                    ; d contains punch X, a contains mouse x
+        ret c
+        ret z                   ; If punch X >= mouse X, then the right side
         ;; of the mouse's body is to the left of the left side of the cat's fist
         ;; no hit occurred
 
-        ;; If we made it here, then a hit must have occurred.
-        ld (IX + collisionPNMouseHit), 1 ; TODO: is this the truthy value?
+        ;; If we made it here, then a hit on running mouse must have occurred.
+        ld  (IX + collisionPNMouseHit), 1
+        ld  a, 0
+        ld  (mouseActive), a            ; Set mouse to be inactive
 
         ret
 

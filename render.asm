@@ -123,14 +123,17 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
-        ;; ld hl, catOneHandBgCache
-        ;; ld c, fuP1UpdatesNewTilePosX
-        ;; ld b, fuP1UpdatesNewTilePosY
-        ;; ld d, fuP1UpdatesNewPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;;  call renderReadRectangle
+        ld hl, catOneHandBgCache
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
 
         ld hl, catTwoBgCache
         ld a, (fuP2UpdatesNewTilePosX)
@@ -143,14 +146,17 @@ setupRenderer:
         ld d, 3
         call renderReadRectangle
 
-        ;; ld hl, catTwoHandBgCache
-        ;; ld c, fuP2UpdatesNewTilePosX
-        ;; ld b, fuP2UpdatesNewTilePosY
-        ;; ld d, fuP2UpdatesNewPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderReadRectangle
+        ld hl, catTwoHandBgCache
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
 
 	ld hl, mouseBgCache
 	ld a, (mouseUpdatesNewTilePosX)
@@ -213,7 +219,7 @@ renderFrame:
         inc a
         ld (fuP2UpdatesNewTilePosY), a
 
-        ;;  calculate new tile positions
+        ;;  calculate new mouse tile positions
         ld a, (mouseUpdatesNewPosX)
         srl a
         srl a
@@ -229,7 +235,7 @@ renderFrame:
         ;ld a,2              ; 2 is the code for red.
         ;out (254),a         ; write to port 254.
 
-        call renderFrameSwapBuffers
+
 
         ;; clear old sprites
 
@@ -246,14 +252,17 @@ renderFrame:
         call renderDrawRectangle
 
         ;; erase cat hand 2
-        ;; ld hl, catTwoHandBgCache
-        ;; ld c, fuP2UpdatesOldTilePosX
-        ;; ld b, fuP2UpdatesOldTilePosY
-        ;; ld d, fuP2UpdatesOldPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderDrawRectangle
+        ld hl, catTwoHandBgCache
+        ld a, (fuP2UpdatesOldTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesOldTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesOldPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderDrawRectangle
 
         ;; erase cat 2
         ld hl, catTwoBgCache
@@ -268,14 +277,17 @@ renderFrame:
         call renderDrawRectangle
 
         ;; erase cat hand 1
-        ;; ld hl, catOneHandBgCache
-        ;; ld c, fuP1UpdatesOldTilePosX
-        ;; ld b, fuP1UpdatesOldTilePosY
-        ;; ld d, fuP1UpdatesOldPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderDrawRectangle
+        ld hl, catOneHandBgCache
+        ld a, (fuP1UpdatesOldTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesOldTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesOldPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderDrawRectangle
 
         ;; erase cat 1
         ld hl, catOneBgCache
@@ -382,26 +394,35 @@ renderFrameMouseHoleTileLoopSkip:
         call renderDrawRectangle
 
         ;; read area behind cat hand 1
-        ;; ld hl, catOneHandBgCache
-        ;; ld c, fuP1UpdatesNewPosX
-        ;; ld b, fuP1UpdatesNewPosY
-        ;; ld d, fuP1UpdatesNewPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderReadRectangle
+        ld hl, catOneHandBgCache
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
 
-        ;; ;; TODO: blit stuff
+        ;; TODO: blit stuff
+        ld ix, fuP1UpdatesBase
+        ld de, catOneHandBgCache
+        call renderFrameBuildCatHand
 
-        ;; ;; draw cat hand 1
-        ;; ld hl, catHandCanvas
-        ;; ld c, fuP1UpdatesNewPosX
-        ;; ld b, fuP1UpdatesNewPosY
-        ;; ld d, fuP1UpdatesNewPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderDrawRectangle
+        ;; draw cat hand 1
+        ld hl, catHandCanvas
+        ld a, (fuP1UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP1UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP1UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderDrawRectangle
 
         ;; read area behind cat 2
         ld hl, catTwoBgCache
@@ -434,26 +455,35 @@ renderFrameMouseHoleTileLoopSkip:
         call renderDrawRectangle
 
         ;; read area behind cat hand 2
-        ;; ld hl, catTwoHandBgCache
-        ;; ld c, fuP2UpdatesNewPosX
-        ;; ld b, fuP2UpdatesNewPosY
-        ;; ld d, fuP2UpdatesNewPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderReadRectangle
+        ld hl, catTwoHandBgCache
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderReadRectangle
 
-        ;; ;; TODO: blit stuff
+        ;; TODO: blit stuff
+        ld ix, fuP2UpdatesBase
+        ld de, catTwoHandBgCache
+        call renderFrameBuildCatHand
 
-        ;; ;; draw cat hand 2
-        ;; ld hl, catHandCanvas
-        ;; ld c, fuP2UpdatesNewPosX
-        ;; ld b, fuP2UpdatesNewPosY
-        ;; ld d, fuP2UpdatesNewPose
-        ;; call renderFrameHandPos
-        ;; ld e, 2
-        ;; ld d, 2
-        ;; call renderDrawRectangle
+        ;; draw cat hand 2
+        ld hl, catHandCanvas
+        ld a, (fuP2UpdatesNewTilePosX)
+        ld c, a
+        ld a, (fuP2UpdatesNewTilePosY)
+        ld b, a
+        ld a, (fuP2UpdatesNewPose)
+        ld d, a
+        call renderFrameHandPos
+        ld e, 2
+        ld d, 2
+        call renderDrawRectangle
 
         ;; read area behind mouse
         ld hl, mouseBgCache
@@ -489,59 +519,7 @@ renderFrameMouseHoleTileLoopSkip:
 
 
 
-        ;; Some random blocks, used for testing
-cat1SpritesBase:
-cat1SpritesWalk:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesJump:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesAttackHigh:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesAttackLow:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
-cat1SpritesHand:
-        defb $DE, $AD, $BE, $EF, $DE, $AD, $BE, $EF
 
-cat2SpritesBase:
-cat2SpritesWalk:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesJump:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesAttackHigh:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesAttackLow:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-cat2SpritesHand:
-        defb $EF, $BE, $AD, $DE, $EF, $BE, $AD, $DE
-
-mouseSpritesBase:
-renderTempMouse:
-        defb $C0, $FF, $EE, $EE, $C0, $FF, $EE, $EE
-        defb $C0, $FF, $EE, $EE, $C0, $FF, $EE, $EE
 
         ;; ---------------------------------------------------------------------
         ;; precomputeSprites
@@ -1837,6 +1815,109 @@ renderFrameBuildCatOrBGLoop:
 
         ret
 
+
+        ;; ---------------------------------------------------------------------
+        ;; buildCatHand
+        ;; ---------------------------------------------------------------------
+        ;; PRE: IX contains fuPNUpdatesBase
+        ;;      DE contains catNBgCache
+        ;;      HL contains catNSprites
+        ;;      N = 1 or 2
+        ;; POST: catCanvas contains tile data suitable for drawRectangle
+renderFrameBuildCatHand:
+        ld a, (IX + renderPNUpdatesNewPose)
+        and catPoseAttack | catPoseAttackLow
+        jp nz, renderFrameBuildCatHandIsAttackPose
+        ;; If we're here, then we're not attacking. Just draw bg cache
+
+        ld h, d
+        ld l, e
+        ld de, catHandCanvas
+        ld bc, 8 * 4
+        ldir
+        ret
+
+renderFrameBuildCatHandIsAttackPose:
+        push de
+
+        ;; all cat hands are the same
+        ld hl, catOneHandLeft + 16
+
+        ;; At this point, HL points to the beginning of the sprite sequence
+        ;; of the correct pose
+
+        ld a, (IX + renderPNUpdatesNewPosX)
+        and %0000$0100          ; posX can be X0 or X4
+
+        jp z, renderFrameBuildCatHandSelectY ; if a == 0, then hl is on correct idx
+
+        ;; Otherwise a must equal 4. After all, it's not like anybody
+        ;; ever violated an invariant! That'd be madness!
+        ld de, 4 * 8
+        add hl, de
+
+renderFrameBuildCatHandSelectY:
+        ;; HL points to correct sprite in sequence
+
+        ld a, (IX + renderPNUpdatesNewPosY)
+        and %0000$0111
+
+        ld bc, 0
+        ld c, a
+        ld a, %0000$1000
+        sub c
+        ld c, a
+        add hl, bc              ; hl now points to correct sprite
+
+        ;; top left
+        push hl
+        ld de, catHandCanvas
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; top right
+        push hl
+        ld bc, 16
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom left
+        push hl
+        ld bc, 8
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; bottom right
+        push hl
+        ld bc, 24
+        add hl, bc
+        ld bc, 8
+        ldir
+        pop hl
+
+        ;; prepare to copy data
+        ld b, 8 * 4
+        pop de
+        ld IY, catHandCanvas
+renderFrameBuildCatHandOrBGLoop:
+        ld c, (IY)
+        ld a, (DE)
+        or c
+
+        ld (IY), a
+        inc hl
+        inc de
+        inc iy
+        djnz renderFrameBuildCatHandOrBGLoop
+
+        ret
+
+
         ;; ---------------------------------------------------------------------
         ;; buildMouse
         ;; ---------------------------------------------------------------------
@@ -1885,29 +1966,6 @@ renderFrameBuildMouseSelectY:
         ld bc, 8 * 3
         ldir
         pop hl
-
-        ;; top left
-        ;; push hl
-        ;; ld de, mouseCanvas
-        ;; ld bc, 8
-        ;; ldir
-        ;; pop hl
-
-        ;; ;; top center
-        ;; push hl
-        ;; ld bc, 8
-        ;; add hl, bc
-        ;; ld bc, 8
-        ;; ldir
-        ;; pop hl
-
-        ;; ;; top right
-        ;; push hl
-        ;; ld bc, 16
-        ;; add hl, bc
-        ;; ld bc, 8
-        ;; ldir
-        ;; pop hl
 
 renderFrameBuildMouseOrBGLoopPre:
         ;; prepare to copy data
@@ -2313,7 +2371,7 @@ renderFrameTransferCatRow:
 renderFrameHandPos:
         ld a, d
         and catPoseFaceLeft
-        jp z, renderFrameHandPosLeft
+        jp nz, renderFrameHandPosLeft
         ;; If we're here, cat is facing right
         ld a, c
         inc a
@@ -2330,13 +2388,13 @@ renderFrameHandPosLeft:
 renderFrameHandPosLeftRightEnd:
         ld a, d
         and catPoseAttackLow
-        jp z, renderFrameIsLowPunch
+        jp nz, renderFrameIsLowPunch
         ;; If we're here, then it is not a low punch
         ld a, b
         jp renderFramePunchHeightEnd
 renderFrameIsLowPunch:
         ld a, b
-        dec a
+        inc a
 renderFramePunchHeightEnd:
         ;; a contains Y value
         add a, levelTopmostRow

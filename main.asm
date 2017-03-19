@@ -24,7 +24,7 @@ waitSpaceKey:
 startGame:
         ld a, ($5c78)
         ld (seed), a
-        
+
         call setupGameLogic
         call setupGraphics
         call setupRenderer
@@ -63,6 +63,8 @@ updateIteration:
         call updateCollision
 
         call updateGameLogic
+
+        call renderFrameSwapBuffers
 
         ;; End of iteration
 
