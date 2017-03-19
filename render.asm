@@ -34,25 +34,25 @@ mouseHoleStructSize:    equ mouseWall2 - mouseWall1
 
 ;;; Cat 1
 
-catOneSprites: equ $DB20
 
-catOneWalkLeft: equ $DB20
-catOneJumpLeft: equ $DBC8
-catOneAttackHighLeft: equ $DC70
-catOneAttackLowLeft: equ $DD18
-catOneStandLeft: equ $DDC0
-catOneWalkRight: equ $DE68
-catOneJumpRight: equ $DF10
-catOneAttackHighRight: equ $DFB8
-catOneAttackLowRight: equ $E060
-catOneStandRight: equ $E108
-catOneBgCache: equ $E1B0
+catOneSprites: equ $C000
 
-catOneHandLeft: equ $E1F8
-catOneHandLowLeft: equ $E248
-catOneHandRight: equ $E298
-catOneHandLowRight: equ $E2E8
-catOneHandBgCache: equ $E338
+catOneWalkLeft: equ $C000
+catOneJumpLeft: equ $C138
+catOneAttackHighLeft: equ $C270
+catOneAttackLowLeft: equ $C3A8
+catOneStandLeft: equ $C4E0
+catOneWalkRight: equ $C4E0
+catOneJumpRight: equ $C618
+catOneAttackHighRight: equ $C750
+catOneAttackLowRight: equ $C888
+catOneStandRight: equ $CC60
+catOneBgCache: equ $CF00
+
+catOneHandLeft: equ $CF48
+catOneHandRight: equ $CFD8
+catOneHandBgCache: equ $D068
+
 
 ;;; Cat 2
 catTwoSprites: equ $E358
@@ -1451,11 +1451,7 @@ renderFrameBuildCatFacingLeft:
         and catPoseJump
         jp nz, renderFrameBuildCatJump
 
-        ld a, (IX + renderPNUpdatesNewPose)
-        and catPoseWalk
-        jp nz, renderFrameBuildCatWalk
-
-        jp renderFrameBuildCatStand
+        jp renderFrameBuildCatWalk
 
 renderFrameBuildCatAttackLow:
         ld de, catOneAttackLowLeft - catOneSprites + 24
