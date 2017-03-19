@@ -98,6 +98,41 @@ setupGameLogic:
         pop hl
         ld  (hl), HIGH(couchSide - dynamicTileInstanceBase) | 1
 
+        ;; Media set impassable
+        ld  hl, gameLevel + 0 + (14 * levelTileWidth)
+        ld  (hl), tgaNone
+        ld  de, gameLevel + 0 + (14 * levelTileWidth) + 1
+        ld  bc, 3
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  (hl), tgaNone
+        ld  de, gameLevel + 0 + (15 * levelTileWidth) + 1
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (16 * levelTileWidth)
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (17 * levelTileWidth)
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (18 * levelTileWidth)
+        ld  bc, 4
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (19 * levelTileWidth)
+        ld  bc, 3
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (20 * levelTileWidth)
+        ld  bc, 2
+        ldir
+        ld  hl, gameLevel + 0 + (15 * levelTileWidth)
+        ld  de, gameLevel + 0 + (21 * levelTileWidth)
+        ld  bc, 1
+        ldir
         ret
 
 updateGameLogic:
@@ -156,10 +191,10 @@ logicBody:
         and levelDummyTileMask
         jp  z,logicUpdateMovementState   ; 0 = static tile, no destruction happens to it.
 
-        ;; TODO: Mouse hole attrib?
-
-        ;; The whack-a-mole scoring will be implemented here.
-        call logicGainScore  ; So destruction definitely happens, calc interest gain first
+        ld  a,(hl)
+        and tgaGiveInterest
+        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
+        call logicGainScore  ; So destruction definitely happens, calc score gain first
         ld  a,(hl)  ; reload raw data
         dec a       ; -1 to raw data, dec the HP by 1
         ld  (hl),a

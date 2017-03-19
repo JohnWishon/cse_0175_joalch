@@ -44,7 +44,7 @@ collisionStateBlockedRight:     equ %0000$1000
 tgaNone:            equ %0000$0000
 tgaPassable:        equ %0001$0000
 tgaStandable:       equ %0010$0000
-;tgaClimbable:       equ %0100$0000
+tgaGiveInterest:    equ %0100$0000
 tgaDrainsInterest:  equ %1000$0000
 tgaDestroyableMask: equ %0000$1111
 
@@ -157,7 +157,7 @@ ENDIF
 
 dynamicTileInstanceBase:
 mouseHoleActive: defb $66, $99, $7E, $81, $A5, $81, $66, $18, $F0  ; tile - base OR'd health : inactive -> active: gamelevel array active - base -- changeptr: mouseHoleActive
-        defb tgaPassable | 1
+        defb tgaGiveInterest | tgaPassable | 1
         defw staticTileMouseHole    ; active -> inactive: changeptr
         defb tgaPassable            ; active -> inactive: gamelevel array
         defb 0, 0, 0
