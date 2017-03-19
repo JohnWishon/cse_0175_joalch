@@ -552,153 +552,39 @@ renderPrecomputeSpritesCatCopyLoop:
 renderPrecomputeSpritesCatCopyLoopFirstIter:
         push bc
 
-        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
         ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
+        call renderPrecomputePrepareSymmetricScratchArea
 
         ;; Stand
         ld de, catOneStandLeft
-        ld hl, secondFramebufferScratchCat1Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catOneStandRight
-        ld hl, secondFramebufferScratchCat1Right
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoStandLeft
-        ld hl, secondFramebufferScratchCat2Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoStandRight
-        ld hl, secondFramebufferScratchCat2Right
-        call renderPrecomputeCopyCatSprite
+        ld hl, catOneStandRight
+        call renderPrecomputeCopySymmetricSprite
 
         ;; Jump
-        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
         ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
+        call renderPrecomputePrepareSymmetricScratchArea
 
         ld de, catOneJumpLeft
-        ld hl, secondFramebufferScratchCat1Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catOneJumpRight
-        ld hl, secondFramebufferScratchCat1Right
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoJumpLeft
-        ld hl, secondFramebufferScratchCat2Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoJumpRight
-        ld hl, secondFramebufferScratchCat2Right
-        call renderPrecomputeCopyCatSprite
+        ld hl, catOneJumpRight
+        call renderPrecomputeCopySymmetricSprite
 
         ;; Attack High
-        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
 
-        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
         ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
+        call renderPrecomputePrepareSymmetricScratchArea
 
         ld de, catOneAttackHighLeft
-        ld hl, secondFramebufferScratchCat1Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catOneAttackHighRight
-        ld hl, secondFramebufferScratchCat1Right
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoAttackHighLeft
-        ld hl, secondFramebufferScratchCat2Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoAttackHighRight
-        ld hl, secondFramebufferScratchCat2Right
-        call renderPrecomputeCopyCatSprite
+        ld hl, catOneAttackHighRight
+        call renderPrecomputeCopySymmetricSprite
 
         ;; Attack Low
-        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
 
-        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
         ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP
-        ld bc, 16
-        ldir
+        call renderPrecomputePrepareSymmetricScratchArea
 
         ld de, catOneAttackLowLeft
-        ld hl, secondFramebufferScratchCat1Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catOneAttackLowRight
-        ld hl, secondFramebufferScratchCat1Right
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoAttackLowLeft
-        ld hl, secondFramebufferScratchCat2Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoAttackLowRight
-        ld hl, secondFramebufferScratchCat2Right
-        call renderPrecomputeCopyCatSprite
+        ld hl, catOneAttackLowRight
+        call renderPrecomputeCopySymmetricSprite
 
         pop bc
         dec b
@@ -709,81 +595,23 @@ renderPrecomputeSpritesCatCopyLoopFirstIter:
 
         ;; Step zero offset
 
-        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
         ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_ONE
-        ld bc, 16
-        ldir
+        call renderPrecomputePrepareSymmetricScratchArea
 
         ld ix, 24
         ld de, catOneWalkLeft
-        ld hl, secondFramebufferScratchCat1Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catOneWalkRight
-        ld hl, secondFramebufferScratchCat1Right
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoWalkLeft
-        ld hl, secondFramebufferScratchCat2Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoWalkRight
-        ld hl, secondFramebufferScratchCat2Right
-        call renderPrecomputeCopyCatSprite
+        ld hl, catOneWalkRight
+        call renderPrecomputeCopySymmetricSprite
 
         ;; step four offset
 
-        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
         ld hl, CAT_STEP_TWO
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_TWO
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_TWO
-        ld bc, 16
-        ldir
-
-        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
-        ld hl, CAT_STEP_TWO
-        ld bc, 16
-        ldir
+        call renderPrecomputePrepareSymmetricScratchArea
 
         ld ix, 24 + (9 * 8)
         ld de, catOneWalkLeft
-        ld hl, secondFramebufferScratchCat1Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catOneWalkRight
-        ld hl, secondFramebufferScratchCat1Right
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoWalkLeft
-        ld hl, secondFramebufferScratchCat2Left
-        call renderPrecomputeCopyCatSprite
-
-        ld de, catTwoWalkRight
-        ld hl, secondFramebufferScratchCat2Right
-        call renderPrecomputeCopyCatSprite
+        ld hl, catOneWalkRight
+        call renderPrecomputeCopySymmetricSprite
 
         ;; ---------------------------------------------------------------------
         ;; Cat hand copying
@@ -993,8 +821,6 @@ renderPrecomputeSpritesMouseShiftLoop:
         jp renderPrecomputeSpritesMouseShiftLoop
 renderPrecomputeSpritesMouseShiftLoopEnd:
 
-        ;; TODO: mice
-
         ret
 
         ;; ---------------------------------------------------------------------
@@ -1147,6 +973,86 @@ renderPrecomputeCopyCatSprite:
         ldir
 
         ret
+
+
+        ;; ---------------------------------------------------------------------
+        ;;  prepareSymmetricScratchArea
+        ;; ---------------------------------------------------------------------
+        ;; PRE: hl contains source of bottom half of cat-sized sprite
+        ;; POST: scratch area prepared for cat sprite copy
+renderPrecomputePrepareSymmetricScratchArea:
+        push hl
+        ld de, secondFramebufferScratchCat1Left + secondFramebufferLowerBodyOffset
+        ld bc, 16
+        ldir
+        pop hl
+
+        push hl
+        ld de, secondFramebufferScratchCat1Right + secondFramebufferLowerBodyOffset
+        ld bc, 16
+        ldir
+        pop hl
+
+        push hl
+        ld de, secondFramebufferScratchCat2Left + secondFramebufferLowerBodyOffset
+        ld bc, 16
+        ldir
+        pop hl
+
+        push hl
+        ld de, secondFramebufferScratchCat2Right + secondFramebufferLowerBodyOffset
+        ld bc, 16
+        ldir
+        pop hl
+
+        ret
+
+        ;; ---------------------------------------------------------------------
+        ;; copySymmetricSprite
+        ;; ---------------------------------------------------------------------
+        ;; pre: de contains thingCat1Left
+        ;;      hl contains thingCat1Right
+        ;;      thingCat1Left - cat1Base + cat2Base = thingCat2Left
+        ;;      thingCat1Right - cat1Base + cat2Base = thingCat2Right
+        ;;      IX contains offset past DE that copyCatSprite needs
+        ;; post: cat 1 and 2 both copied
+renderPrecomputeCopySymmetricSprite:
+        push de
+        push hl
+
+        ;; de contains thingCat1Left
+        ld hl, secondFramebufferScratchCat1Left
+        push de
+        call renderPrecomputeCopyCatSprite
+        pop de
+
+        ld hl, catTwoSprites - catOneSprites
+        add hl, de
+        ex de, hl
+        ;; de contains thingCat1Left - cat1Base + cat2Base = thingCat2Left
+        ld hl, secondFramebufferScratchCat2Left
+        call renderPrecomputeCopyCatSprite
+
+        pop hl
+        pop de
+
+        ex de, hl
+
+        ;; de contains thingCat1Right
+        ld hl, secondFramebufferScratchCat1Right
+        push de
+        call renderPrecomputeCopyCatSprite
+        pop de
+
+        ld hl, catTwoSprites - catOneSprites
+        add hl, de
+        ex de, hl
+        ;; de contains thingCat1Right - cat1Base + cat2Base = thingCat2Right
+        ld hl, secondFramebufferScratchCat2Right
+        call renderPrecomputeCopyCatSprite
+
+        ret
+
 
         ;; ---------------------------------------------------------------------
         ;; shiftCatSprite
