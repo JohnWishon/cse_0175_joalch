@@ -92,6 +92,7 @@ secondFramebufferLowerBodyOffset: equ 8 * 2
 secondFramebufferLogicalOffset: equ secondFramebuffer - $4000
 
 setupRenderer:
+
         ;; uses the second framebuffer as a scratch area.
         call renderPrecomputeSprites
 
@@ -101,6 +102,8 @@ setupRenderer:
         ld hl, $4000
         ld bc, 32 * 24 * 8
         ldir
+
+
 
         ;; get the contents of the front buffer
 
@@ -160,6 +163,8 @@ setupRenderer:
 	ld e, 3
 	ld d, 1
 	call renderReadRectangle
+
+        call statusBarSetup
 
         ret
 
@@ -1419,6 +1424,7 @@ renderFrameWriteTile:
         ;; POST: tile pixel data written to screen at (x, y)
         ;; https://chuntey.wordpress.com/2013/09/08/how-to-write-zx-spectrum-games-chapter-9/
 renderFrameWriteTilePixels:
+        push de
         push bc
         push de
 
@@ -1439,6 +1445,7 @@ renderFrameWriteTilePixelsLoop:
         djnz renderFrameWriteTilePixelsLoop ; repeat
 
         pop bc
+        pop de
         ret
 
         ;; ---------------------------------------------------------------------
@@ -2257,4 +2264,103 @@ renderFramePunchHeightEnd:
         ;; a contains Y value
         add a, levelTopmostRow
         ld b, a
+        ret
+
+;;; ----------------------------------------------------------------------------
+;;; Status bar
+;;; ----------------------------------------------------------------------------
+
+statusBarTextAttr:      equ 0
+
+statusBarCapitalP:      equ $3E80
+statusBarL:             equ $3F60
+statusBarA:             equ $3F08
+statusBarY:             equ $3FC8
+statusBarE:             equ $3F28
+statusBarR:             equ $3F90
+
+statusBarZero:          equ $3D80
+statusBarOne:           equ statusBarZero + 8 * 1
+statusBarTwo:           equ statusBarZero + 8 * 2
+statusBarThree:         equ statusBarZero + 8 * 3
+statusBarFour:          equ statusBarZero + 8 * 4
+statusBarFive:          equ statusBarZero + 8 * 5
+statusBarSix:           equ statusBarZero + 8 * 6
+statusBarSeven:         equ statusBarZero + 8 * 7
+statusBarEight:         equ statusBarZero + 8 * 8
+statusBarNine:          equ statusBarZero + 8 * 9
+
+mouseStretched: defb $00, $00, $FF, $00, $00, $00, $FF, $00
+
+statusBarSetup:
+        ld de, secondFramebufferLogicalOffset
+        ld c, 0
+        ld b, 0
+        ld hl, statusBarZero
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, statusBarZero
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, statusBarZero
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, statusBarZero
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, statusBarZero
+        call renderFrameWriteTilePixels
+
+        inc c
+        inc c
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1 + 8
+        call renderFrameWriteTilePixels
+
+        inc c
+        inc c
+        ld hl, MOUSE_RIGHT_ONE
+        call renderFrameWriteTilePixels
+
+        ld c, 9
+statusBarSetupP1InterestLoop:
+        inc c
+        ld hl, mouseStretched
+        call renderFrameWriteTilePixels
+
+        ld a, c
+        cp 9 + 16
+        jp nz, statusBarSetupP1InterestLoop
+
+
+        inc c
+        ld hl, MOUSE_RIGHT_ONE + 8
+        call renderFrameWriteTilePixels
+
+
+
+
+        ld c, 0
+        ld b, 1
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1 + 8
+        call renderFrameWriteTilePixels
+
+
+        ret
+
+statusBarUpdateScore:
+
+
+
         ret
