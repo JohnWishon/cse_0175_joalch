@@ -2,7 +2,7 @@
 ;			MOUSE SPRITES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; mouse moving left ;;
+;; mouse moving right ;;
 
 MOUSE_RIGHT_ONE:
 	defb $01, $01, $07, $D8, $A8, $40, $FF, $08
@@ -16,7 +16,7 @@ MOUSE_RIGHT_THREE:
 	defb $06, $01, $07, $D8, $A8, $40, $FF, $08
 	defb $C0, $01, $C1, $21, $1E, $10, $E0, $40
 
-;; mouse moving right ;;
+;; mouse moving left ;;
 
 MOUSE_LEFT_ONE:
 	defb $00, $80, $83, $84, $78, $08, $07, $02
