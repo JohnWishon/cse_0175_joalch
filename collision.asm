@@ -147,8 +147,8 @@ collisionResolvePunchHighLowNoEnd:
         ld  a, (IX + collisionPNMovX)
         cp  0
         jp  z, collisionResolvePunchFacingUnchanged
-        jp  nc, collisionResolvePunchFacingRight
-        jp  c, collisionResolvePunchFacingLeft
+        jp  p, collisionResolvePunchFacingRight
+        jp  m, collisionResolvePunchFacingLeft
 collisionResolvePunchFacingLeft:
         ;; If we're here, then we're facing left
 
