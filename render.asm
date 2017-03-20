@@ -2387,7 +2387,8 @@ statusBarUpdateInterest:
 statusBarUpdateInterestPlayer1:
         ld c, 30
         ld b, 0
-        ld d, 8                 ;TODO: (p1Interest)
+        ld a, (p1Interest)                 ;TODO: (p1Interest)
+        ld  d,a
         ld e, 0
         ld hl, mouseStretched
         ld a, d
@@ -2420,7 +2421,8 @@ statusBarUpdateInterestPlayer1LoopEnd:
 statusBarUpdateInterestPlayer2:
         ld c, 1
         ld b, 1
-        ld d, 8                 ; TODO: (p2Interest)
+        ld a, (p2Interest)                 ; TODO: (p2Interest)
+        ld  d,a
         ld e, 0
         ld hl, mouseStretched
         ld a, d
