@@ -181,14 +181,17 @@ activateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+
     ld b, levelTileWidth
     ld c, (ix + 1)
     ld d, (ix)
+    xor a
 
-    call getGameLevelMouseIndex
+    call getGameLevelMouseAddr
+
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (bc), a  ; add to gamelevel
+    ld (hl), a  ; add to gamelevel
 
     jp wall1End
 
@@ -229,9 +232,12 @@ deactivateWall1:
     ld b, levelTileWidth
     ld c, (ix + 1)
     ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (bc), a
+    ld  (hl), a
 
 wall1End:
     inc (ix + 3)
@@ -271,10 +277,13 @@ activateWall2:
     ld b, levelTileWidth
     ld c, (ix + 1)
     ld d, (ix)
+    xor a
 
-    ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
+    call getGameLevelMouseAddr
+    ld a, mouseHoleActive - dynamicTileInstanceBase     ; tile OR'd with health
     or 1
-    ld (bc), a  ; add to gamelevel
+
+    ld (hl), a
 
     jp wall2End
 
@@ -314,9 +323,12 @@ deactivateWall2:
     ld b, levelTileWidth
     ld c, (ix + 1)
     ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (bc), a
+    ld  (hl), a
 
 wall2End:
     inc (ix + 3)
@@ -357,10 +369,12 @@ activateWall3:
     ld b, levelTileWidth
     ld c, (ix + 1)
     ld d, (ix)
+    xor a
 
+    call getGameLevelMouseAddr
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (bc), a  ; add to gamelevel
+    ld (hl), a  ; add to gamelevel
 
     jp wall3End
 
@@ -400,9 +414,12 @@ deactivateWall3:
     ld b, levelTileWidth
     ld c, (ix + 1)
     ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (bc), a
+    ld  (hl), a
 
 wall3End:
     inc (ix + 3)
@@ -423,17 +440,19 @@ random:
     ld (seed), hl
     ret
 
-; b = # of loops
-; c = mouseW1Y -> return offset
-; d = mouseW1X
-getGameLevelMouseIndex:
+; b = tileWidth
+; c = mouseY -> return offset
+; d = mouseX
+getGameLevelMouseAddr:
     add a, c
+    djnz getGameLevelMouseAddr      ; a = tile width * mouseY
 
-    djnz getGameLevelMouseIndex
+    add a, d                        ; a = (tileWidth * mouseY) + mouseX
 
-    add a, d
-    add a, gameLevel
     ld c, a
+    ld hl, gameLevel
+    add hl,bc
+
     ret
 
 spawnStr:
