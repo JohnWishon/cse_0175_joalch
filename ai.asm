@@ -141,15 +141,27 @@ decisionCp:
 activateMouse:
     ld (ix + 5), 1      ; Activate mouse
 
-    call random
+    call random                 ; get rng for direction
+    and 9                       ; 0 or 1 = right, 2 or 3 = left
+
+    cp 5
+    jr c, setMouseRight
+
+    ld (ix), 3                  ; 2 or 3 happened, mouse will start going left
+    jr setMouseSpawn
+setMouseRight:
+    ld (ix), 1                  ; 0 or 1 happened, mouse will start going right
+
+setMouseSpawn:
+    call random         ; Randomize mouse spawn
     and maxX
     cp holeX
-    jr c, spawnHole
+    jr c, spawnHole     ; if carry, spawn at hole
 
     cp couchX
-    jr c, spawnCouch
+    jr c, spawnCouch    ; if carry, spawn at couch
 
-    ld (ix + 2), rightX
+    ld (ix + 2), rightX     ; spawn at right
     jr endActivateMouse
 spawnHole:
     ld (ix + 2), holeX
