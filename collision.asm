@@ -13,7 +13,7 @@ collisionPNMouseHit:        equ 18
 collisionTileFirstMask:  equ %1111$1000
 collisionTilePixelsMask: equ %0000$0111
 
-collisionGameplayAttrOffset:    equ 10
+collisionGameplayAttrOffset:    equ 9
 
 collisionPNUpdatesOldX:    equ 0
 collisionPNUpdatesNewX:    equ 1
@@ -196,7 +196,7 @@ collisionResolvePunchFacingRightLeftEnd:
 
         ld b, a
         ld a, (mouseUpdatesNewPosY) ; a contains mouse y location
-        sub 16                  ; NewPosY is not at the expected upper left corner
+        sub 10                  ; NewPosY is not at the expected upper left corner
                                 ; but lower left corner, thus use sub to shift to an easier Y
         cp b
         ret p

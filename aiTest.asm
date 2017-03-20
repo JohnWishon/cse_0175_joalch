@@ -6,6 +6,7 @@ main:
     ;; ---------------------------------------------------------------------
     ;; Setup program state, interrupt handling scheme
     ;; ---------------------------------------------------------------------
+    call setupGameLogic
 
     ld a,2                 ; upper screen
     call openChannel
@@ -37,6 +38,8 @@ updateIteration:
     call updatePhysics
     call test_ai_state
     call updateAI
+
+    call updateGameLogic
 
     call updateCollision
 

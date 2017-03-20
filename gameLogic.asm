@@ -3,8 +3,11 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
+        call initShelfLife
         call initGroundMouse
         call initWallMouse
+
+	call setupGameLogicInitialState
 
         ;; Flood the map with passable attr.
         ld  hl, gameLevel
@@ -137,6 +140,69 @@ setupGameLogic:
         ldir
         ret
 
+setupGameLogicInitialState:
+	ld a, 0
+	ld (p1DirPressed), a
+	ld (p1DirPressed+1), a
+	ld (p1DirPressed+2), a
+	ld (p1DirPressed+3), a
+	ld (p1JPressed), a
+	ld (p1PPressed), a
+	ld (p1MovX), a
+	ld (p1MovY), a
+	ld (p1CollisionState), a
+	ld (p1PunchX), a
+	ld (p1PunchY), a
+	ld a, playerMaxInterest - 8
+	ld (p1Interest), a
+	ld a, '0'
+	ld (p1Score), a
+	ld (p1Score+1), a
+	ld (p1Score+2), a
+	ld (p1Score+3), a
+	ld (p1Score+4), a
+	ld a, 0
+	ld (p1PatrolMouseHit), a
+
+	ld a, 4
+	ld (fuP1UpdatesNewPosX), a
+	ld a, 20
+	ld (fuP1UpdatesNewPosY), a
+	ld a, catPoseJump
+	ld (fuP1UpdatesNewPose), a
+
+	ld a, 0
+	ld (p2DirPressed), a
+	ld (p2DirPressed+1), a
+	ld (p2DirPressed+2), a
+	ld (p2DirPressed+3), a
+	ld (p2JPressed), a
+	ld (p2PPressed), a
+	ld (p2MovX), a
+	ld (p2MovY), a
+	ld (p2CollisionState), a
+	ld (p2PunchX), a
+	ld (p2PunchY), a
+	ld a, playerMaxInterest - 8
+	ld (p2Interest), a
+	ld a, '0'
+	ld (p2Score), a
+	ld (p2Score+1), a
+	ld (p2Score+2), a
+	ld (p2Score+3), a
+	ld (p2Score+4), a
+	ld a, 0
+	ld (p2PatrolMouseHit), a
+
+	ld a, levelPixelWidth - catPixelWidth - 4
+	ld (fuP2UpdatesNewPosX), a
+	ld a, 20
+	ld (fuP2UpdatesNewPosY), a
+	ld a, catPoseJump | catPoseFaceLeft
+	ld (fuP2UpdatesNewPose), a
+
+	ret
+
 updateGameLogic:
         ;; TODO: score, interest, RNG, etc...
 
@@ -154,7 +220,7 @@ updateGameLogic:
         ;;*      signal mouse kill
 
         ld  a,(interestDrainCounter)    ; Get the interest drain counter
-        cp  25 * 8                      ; 25 * sec, 8 secs for now
+        cp  25 * 2                      ; 25 * sec, 8 secs for now
         jp  c,logicNoDrainYet           ; If the counter is lower than the bar, no drain
         ld  a, 0
         ld  (interestDrainCounter),a    ; Reset the counter
@@ -411,3 +477,52 @@ initWallMouse:
         ld (ix + 7), h
         ld (ix + 8), l
         ret
+
+initShelfLife:
+        ; init top shelf
+        ld b, topShelfMax
+        ld e, 9
+initTopShelfItem:
+        call random                 ; Get a random 1 or 2
+        and 1
+        add a, 1
+
+        add a, e                    ; Get a space on the shelf
+        ld e, a
+
+        push bc                     ; save loop counter
+        ld b, levelTileWidth        ; set up for getGameLevelAddr
+        ld c, topShelfY
+        ld d, e
+
+        call getGameLevelAddr       ; Get the addr for the tile
+        ld a, shelfItem0 - dynamicTileInstanceBase             ; tile OR'd with health
+        or 1
+        ld (hl), a                  ; add to gamelevel
+        ;
+        ; push de
+        ; ld b, h
+        ; ld c, l
+        ; call $2d2b                  ; print number
+        ; call $2de3
+        ; pop de
+
+        ld hl, shelfItem0
+
+        ld c, e
+
+        ld b, topShelfY
+
+        push de
+        ld de, secondFramebufferLogicalOffset
+        call renderFrameWriteTile
+        pop de
+        pop bc          ; restore loop counter
+
+        djnz initTopShelfItem       ; repeat for the number of squares available
+        ret
+
+topShelfMax:            equ 7
+topShelfY:              equ 4
+mbShelfMax:             equ 4
+fishShelfMax:           equ 1
