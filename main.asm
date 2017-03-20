@@ -29,9 +29,6 @@ startGame:
         call setupGraphics
         call setupRenderer
 
-
-
-
         di                      ; disable interrupts
         ld hl, interrupt        ; interrupt handler addr
         ld ix, $fff0            ; addr to stick code
@@ -45,8 +42,6 @@ startGame:
         ei                      ; enable interrupts again
 
         jp endProg
-
-
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
