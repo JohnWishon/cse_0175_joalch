@@ -43,12 +43,9 @@ startGame:
         ld a, ($5c78)
         ld (seed), a
 
-        call setupGameLogic
         call setupGraphics
+	call setupGameLogic
         call setupRenderer
-
-
-
 
         di                      ; disable interrupts
         ld hl, interrupt        ; interrupt handler addr
@@ -63,8 +60,6 @@ startGame:
         ei                      ; enable interrupts again
 
         jp endProg
-
-
 
 updateIteration:
         ;; Read state machine, jump to correct iteration type
