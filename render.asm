@@ -175,7 +175,13 @@ renderFrame:
         call statusBarUpdateInterest
 
         ld ix, p1StateBase
+        ld c, 1
+        ld b, 0
+        ld de, secondFramebufferLogicalOffset
         call statusBarUpdateScore
+
+        ld c, 26
+        ld b, 1
         ld ix, p2StateBase
         call statusBarUpdateScore
 
@@ -2388,7 +2394,7 @@ statusBarUpdateInterestPlayer1:
         ld c, 30
         ld b, 0
         ld a, (p1Interest)                 ;TODO: (p1Interest)
-        ld  d,a
+        ld d, a
         ld e, 0
         ld hl, mouseStretched
         ld a, d
@@ -2422,7 +2428,7 @@ statusBarUpdateInterestPlayer2:
         ld c, 1
         ld b, 1
         ld a, (p2Interest)                 ; TODO: (p2Interest)
-        ld  d,a
+        ld d, a
         ld e, 0
         ld hl, mouseStretched
         ld a, d
