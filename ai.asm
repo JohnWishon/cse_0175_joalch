@@ -92,6 +92,8 @@ checkMouseX:
     jr z, canEscape     ; if yes, random roll escape
     cp holeX            ; is the mouse at the mouse hole
     jr z, canEscape     ; if yes, random roll escape
+    cp rightX
+    jr z, canEscape
     ret                 ; otherwise can't escape so keep moving
 
 canEscape:
@@ -179,9 +181,17 @@ activateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a  ; add to gamelevel
+    ld (hl), a  ; add to gamelevel
 
     jp wall1End
 
@@ -219,8 +229,15 @@ deactivateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a
+    ld  (hl), a
 
 wall1End:
     inc (ix + 3)
@@ -257,9 +274,16 @@ activateWall2:
     ld (ix + 7), h
     ld (ix + 8), l
 
-    ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+    ld a, mouseHoleActive - dynamicTileInstanceBase     ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a  ; add to gamelevel
+
+    ld (hl), a
 
     jp wall2End
 
@@ -296,8 +320,15 @@ deactivateWall2:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a
+    ld  (hl), a
 
 wall2End:
     inc (ix + 3)
@@ -335,9 +366,15 @@ activateWall3:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a  ; add to gamelevel
+    ld (hl), a  ; add to gamelevel
 
     jp wall3End
 
@@ -374,8 +411,15 @@ deactivateWall3:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a
+    ld  (hl), a
 
 wall3End:
     inc (ix + 3)
@@ -396,6 +440,21 @@ random:
     ld (seed), hl
     ret
 
+; b = tileWidth
+; c = mouseY -> return offset
+; d = mouseX
+getGameLevelMouseAddr:
+    add a, c
+    djnz getGameLevelMouseAddr      ; a = tile width * mouseY
+
+    add a, d                        ; a = (tileWidth * mouseY) + mouseX
+
+    ld c, a
+    ld hl, gameLevel
+    add hl,bc
+
+    ret
+
 spawnStr:
         defb    "S"
 XspawnStr:
@@ -407,6 +466,7 @@ XdespawnStr:
 mousePace:      equ 4
 couchX:         equ 120
 holeX:          equ 40
+rightX:         equ 200
 
 maxY:           equ levelBottommostPixel - mousePixelHeight
 minY:           equ levelTopmostPixel
