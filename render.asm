@@ -46,14 +46,14 @@ catOneJumpRight: equ $DF10
 catOneAttackHighRight: equ $DFB8
 catOneAttackLowRight: equ $E060
 catOneStandRight: equ $E108
-catOneBgCache: equ $E1B0
+catOneBgCache: equ $E1C8
 
-catHandSprite: equ $E1F8
-catOneHandBgCache: equ $E338
+catHandSprite: equ $E210
+catOneHandBgCache: equ $E360
 catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
 
 ;;; Cat 2
-catTwoSprites: equ $E358
+catTwoSprites: equ $E380
 
 catTwoWalkLeft: equ catTwoSprites + catOneWalkLeft - catOneSprites
 catTwoJumpLeft: equ catTwoSprites + catOneJumpLeft - catOneSprites
@@ -68,10 +68,10 @@ catTwoStandRight: equ catTwoSprites + catOneStandRight- catOneSprites
 catTwoBgCache: equ catTwoSprites + catOneBgCache - catOneSprites
 
 ;;; Mouse
-mouseSprites: equ $EB90
-mouseWalkLeft: equ $EB90
-mouseWalkRight: equ $EBC8
-mouseBgCache: equ $EC00
+mouseSprites: equ $EBE0
+mouseWalkLeft: equ $EBE0
+mouseWalkRight: equ $EC18
+mouseBgCache: equ $EC58
 
 ;;; Canvi
 catCanvas: equ $D800
@@ -175,7 +175,13 @@ renderFrame:
         call statusBarUpdateInterest
 
         ld ix, p1StateBase
+        ld c, 1
+        ld b, 0
+        ld de, secondFramebufferLogicalOffset
         call statusBarUpdateScore
+
+        ld c, 26
+        ld b, 1
         ld ix, p2StateBase
         call statusBarUpdateScore
 
@@ -2021,213 +2027,6 @@ renderFrameSwapBuffersCopyLoop:
         jp nz, renderFrameSwapBuffersCopyLoop
         ret
 
-renderFrameSwapBuffersStackPtr: defw 0
-
-        ;; ---------------------------------------------------------------------
-        ;; transferCat
-        ;; ---------------------------------------------------------------------
-        ;; PRE: c contains x offset
-        ;;      b contains y offset
-        ;; INVARIANT: interrupts disabled during transfer. Any iterrupt that
-        ;;            fires will be lost
-        ;; POST: specified 4x3 region of back buffer transferred to front buffer
-renderFrameTransferCat:
-        di                      ; Disable interrupts during transfer
-        dec b
-
-        call renderFrameTransferCatRow
-
-        inc b
-        call renderFrameTransferCatRow
-
-        inc b
-        call renderFrameTransferCatRow
-
-        ei                                   ; Re-enable interrupts
-        ret
-
-        ;; ---------------------------------------------------------------------
-        ;; transferCatRow
-        ;; ---------------------------------------------------------------------
-        ;; PRE: c contains x offset
-        ;;      b contains y offset
-        ;;      interrupts are disabled
-        ;; POST: specified 6x1 region of back buffer transferred to front buffer
-renderFrameTransferCatRow:
-        push bc
-        call renderFrameTileAddress
-        ex de, hl
-        push hl
-        ld de, 6
-        add hl, de
-        ld (renderFrameTransferDestLastColumn), hl
-        ;; transferDestLastColumn contains pointer to the first pixel row of
-        ;; the top right tile of the front buffer
-
-        pop hl
-        ld de, secondFramebufferLogicalOffset
-        add hl, de
-        ld (renderFrameTransferSourceFirstColumn), hl
-        ;; transferSourceFirstColumn contains pointer to the first pixel row of
-        ;; the top left tile of the back buffer
-
-        ld (renderFrameTransferStackPtr), sp ; save the stack pointer
-        ;; pixel row 0
-
-
-        ld sp, (renderFrameTransferSourceFirstColumn)
-        pop af
-        pop bc
-        pop de
-
-        ld sp, (renderFrameTransferDestLastColumn)
-        push de
-        push bc
-        push af
-
-        ;; pixel row 1
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 255
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 255
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ;; pixel row 2
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 511
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 511
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ;; pixel row 3
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 767
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 767
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ;; pixel row 4
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 1023
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 1023
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ;; pixel row 5
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 1279
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 1279
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ;; pixel row 6
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 1535
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 1535
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ;; pixel row 7
-
-        ld ix, (renderFrameTransferSourceFirstColumn)
-        ld de, 1791
-        add ix, de
-        ld sp, ix
-
-        pop af
-        pop bc
-        pop hl
-
-        ld ix, (renderFrameTransferDestLastColumn)
-        ld de, 1791
-        add ix, de
-        ld sp, ix
-
-        push hl
-        push bc
-        push af
-
-        ld sp, (renderFrameTransferStackPtr) ; restore the stack pointer
-        pop bc
-        ret
 
 ;;; ----------------------------------------------------------------------------
 ;;; Misc utility stuff
@@ -2388,7 +2187,7 @@ statusBarUpdateInterestPlayer1:
         ld c, 30
         ld b, 0
         ld a, (p1Interest)                 ;TODO: (p1Interest)
-        ld  d,a
+        ld d, a
         ld e, 0
         ld hl, mouseStretched
         ld a, d
@@ -2422,7 +2221,7 @@ statusBarUpdateInterestPlayer2:
         ld c, 1
         ld b, 1
         ld a, (p2Interest)                 ; TODO: (p2Interest)
-        ld  d,a
+        ld d, a
         ld e, 0
         ld hl, mouseStretched
         ld a, d
