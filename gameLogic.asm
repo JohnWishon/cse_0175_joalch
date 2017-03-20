@@ -3,6 +3,7 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
+        call initGroundMouse
         call initWallMouse
 
         ;; Flood the map with passable attr.
@@ -357,16 +358,56 @@ logicDigitNumVal:
         pop de
         ret
 
+initGroundMouse:
+        ld ix, mouseUpdatesBase
+
+        call random                 ; get rng for direction
+        and 9                       ; 0 or 1 = right, 2 or 3 = left
+
+        cp 5
+        jr c, setGroundRight
+
+        ld (ix), 3                  ; 2 or 3 happened, mouse will start going left
+        jr endInitGroundMouse
+setGroundRight:
+        ld (ix), 1                  ; 0 or 1 happened, mouse will start going right
+endInitGroundMouse:
+        ret
+
 initWallMouse:
         ld ix, mouseWall1
-        ld (ix), 3
-        ld (ix + 1), 4
+        ld (ix), 3                  ; wall 1 x
+        ld (ix + 1), 4              ; wall 1 y
+        ld (ix + 2), 0              ; set wall 1 inactive
+        ld a, (ix)                  ; load x tile into change x
+        ld (ix + 4), a
+        ld a, (ix + 1)              ; load y tile into change y
+        ld (ix + 5), a
+        ld hl, staticTileMouseHole  ; load change ptr with static mouse Hold
+        ld (ix + 7), h
+        ld (ix + 8), l
 
         ld ix, mouseWall2
-        ld (ix), 12
-        ld (ix + 1), 7
+        ld (ix), 12                 ; wall 2 x
+        ld (ix + 1), 7              ; wall 2 y
+        ld (ix + 2), 0              ; set wall 2 inactive
+        ld a, (ix)                  ; load x tile into change x
+        ld (ix + 4), a
+        ld a, (ix + 1)              ; load y tile into change y
+        ld (ix + 5), a
+        ld hl, staticTileMouseHole  ; load change ptr with static mouse Hold
+        ld (ix + 7), h
+        ld (ix + 8), l
 
         ld ix, mouseWall3
-        ld (ix), 24
-        ld (ix + 1), 2
+        ld (ix), 24                 ; wall 3 x
+        ld (ix + 1), 2              ; wall 3 y
+        ld (ix + 2), 0              ; set wall 3 inactive
+        ld a, (ix)                  ; load x tile into change x
+        ld (ix + 4), a
+        ld a, (ix + 1)              ; load y tile into change y
+        ld (ix + 5), a
+        ld hl, staticTileMouseHole  ; load change ptr with static mouse Hold
+        ld (ix + 7), h
+        ld (ix + 8), l
         ret

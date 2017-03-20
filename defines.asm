@@ -308,9 +308,9 @@ fuP2UpdatesNewTilePosY:   defb 2
 ; Mouse data tables
 mouseUpdatesBase:
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
-mouseUpdatesDirection:      defb 1      ; ix
+mouseUpdatesDirection:      defb 0      ; ix
 mouseUpdatesOldPosX:        defb 0      ; ix + 1
-mouseUpdatesNewPosX:        defb levelLeftmostPixel + 4    ; ix + 2
+mouseUpdatesNewPosX:        defb 0    ; ix + 2
 mouseUpdatesOldPosY:        defb 0      ; ix + 3
 mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight - 4 ; ix + 4
 mouseActive:                defb 0      ; ix + 5
@@ -327,8 +327,8 @@ mouseUpdatesNewTilePosY:   defb levelBottommostRow
 mouseWallNumHoles:      equ 3
 
 mouseWall1:
-mouseW1X:               defb 0     ; 0 - Current X tile
-mouseW1Y:               defb 0     ; 1 - Current Y tile
+mouseW1X:               defb 3     ; 0 - Current X tile
+mouseW1Y:               defb 4     ; 1 - Current Y tile
 mouseW1Active:          defb 0      ; 2 - Active/inactive
 wall1Rnd:               defb 0      ; 3 - timer for random call
 mouseW1TileChangeX:     defb 0      ; 4

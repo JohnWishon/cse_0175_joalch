@@ -92,6 +92,8 @@ checkMouseX:
     jr z, canEscape     ; if yes, random roll escape
     cp holeX            ; is the mouse at the mouse hole
     jr z, canEscape     ; if yes, random roll escape
+    cp rightX
+    jr z, canEscape
     ret                 ; otherwise can't escape so keep moving
 
 canEscape:
@@ -138,6 +140,35 @@ decisionCp:
     jr nc, noSpawn      ; If the answer is 1 (01) then we init
 activateMouse:
     ld (ix + 5), 1      ; Activate mouse
+
+    call random                 ; get rng for direction
+    and 9                       ; 0 or 1 = right, 2 or 3 = left
+
+    cp 5
+    jr c, setMouseRight
+
+    ld (ix), 3                  ; 2 or 3 happened, mouse will start going left
+    jr setMouseSpawn
+setMouseRight:
+    ld (ix), 1                  ; 0 or 1 happened, mouse will start going right
+
+setMouseSpawn:
+    call random         ; Randomize mouse spawn
+    and maxX
+    cp holeX
+    jr c, spawnHole     ; if carry, spawn at hole
+
+    cp couchX
+    jr c, spawnCouch    ; if carry, spawn at couch
+
+    ld (ix + 2), rightX     ; spawn at right
+    jr endActivateMouse
+spawnHole:
+    ld (ix + 2), holeX
+    jr endActivateMouse
+spawnCouch:
+    ld (ix + 2), couchX
+endActivateMouse:
     ret
 noSpawn:
     inc (ix + 6)        ; increment the spawn counter
@@ -179,9 +210,17 @@ activateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a  ; add to gamelevel
+    ld (hl), a  ; add to gamelevel
 
     jp wall1End
 
@@ -219,8 +258,15 @@ deactivateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a
+    ld  (hl), a
 
 wall1End:
     inc (ix + 3)
@@ -257,9 +303,16 @@ activateWall2:
     ld (ix + 7), h
     ld (ix + 8), l
 
-    ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+    ld a, mouseHoleActive - dynamicTileInstanceBase     ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a  ; add to gamelevel
+
+    ld (hl), a
 
     jp wall2End
 
@@ -296,8 +349,15 @@ deactivateWall2:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a
+    ld  (hl), a
 
 wall2End:
     inc (ix + 3)
@@ -335,9 +395,15 @@ activateWall3:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a  ; add to gamelevel
+    ld (hl), a  ; add to gamelevel
 
     jp wall3End
 
@@ -374,8 +440,15 @@ deactivateWall3:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+    xor a
+
+    call getGameLevelMouseAddr
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a
+    ld  (hl), a
 
 wall3End:
     inc (ix + 3)
@@ -396,22 +469,30 @@ random:
     ld (seed), hl
     ret
 
-spawnStr:
-        defb    "S"
-XspawnStr:
+; b = tileWidth
+; c = mouseY
+; d = mouseX
+; hl -> return addr into gameLevel
+getGameLevelMouseAddr:
+    add a, c
+    djnz getGameLevelMouseAddr      ; a = tile width * mouseY
 
-despawnStr:
-        defb    "D"
-XdespawnStr:
+    add a, d                        ; a = (tileWidth * mouseY) + mouseX
+
+    ld c, a
+    ld hl, gameLevel
+    add hl,bc
+
+    ret
 
 mousePace:      equ 4
 couchX:         equ 120
-holeX:          equ 40
-
+holeX:          equ 44
+rightX:         equ 180
 maxY:           equ levelBottommostPixel - mousePixelHeight
 minY:           equ levelTopmostPixel
 maxX:           equ levelRightmostPixel - 3 - mousePixelWidth
-minX:           equ levelLeftmostPixel
+minX:           equ 32
 
 floorSpawnTime:     equ 125     ; spawn time (in frames) to force floor mouse to spawn
 floorRndTime:       equ 25      ; # of frames to wait for random call for floor mouse
