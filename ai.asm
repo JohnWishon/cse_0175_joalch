@@ -181,9 +181,14 @@ activateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+
+    call getGameLevelMouseIndex
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a  ; add to gamelevel
+    ld (bc), a  ; add to gamelevel
 
     jp wall1End
 
@@ -221,8 +226,12 @@ deactivateWall1:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW1Y*levelTileWidth) + mouseW1X)), a
+    ld  (bc), a
 
 wall1End:
     inc (ix + 3)
@@ -259,9 +268,13 @@ activateWall2:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a  ; add to gamelevel
+    ld (bc), a  ; add to gamelevel
 
     jp wall2End
 
@@ -298,8 +311,12 @@ deactivateWall2:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW2Y*levelTileWidth) + mouseW2X)), a
+    ld  (bc), a
 
 wall2End:
     inc (ix + 3)
@@ -337,9 +354,13 @@ activateWall3:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a  ; add to gamelevel
+    ld (bc), a  ; add to gamelevel
 
     jp wall3End
 
@@ -376,8 +397,12 @@ deactivateWall3:
     ld (ix + 7), h
     ld (ix + 8), l
 
+    ld b, levelTileWidth
+    ld c, (ix + 1)
+    ld d, (ix)
+
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
-    ld  (gameLevel + ((mouseW3Y*levelTileWidth) + mouseW3X)), a
+    ld  (bc), a
 
 wall3End:
     inc (ix + 3)
@@ -396,6 +421,19 @@ random:
     xor l               ; more randomness
     inc hl              ; Incr pointer
     ld (seed), hl
+    ret
+
+; b = # of loops
+; c = mouseW1Y -> return offset
+; d = mouseW1X
+getGameLevelMouseIndex:
+    add a, c
+
+    djnz getGameLevelMouseIndex
+
+    add a, d
+    add a, gameLevel
+    ld c, a
     ret
 
 spawnStr:
