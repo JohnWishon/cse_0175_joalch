@@ -3,6 +3,7 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
+        call initShelfLife
         call initGroundMouse
         call initWallMouse
 
@@ -476,3 +477,52 @@ initWallMouse:
         ld (ix + 7), h
         ld (ix + 8), l
         ret
+
+initShelfLife:
+        ; init top shelf
+        ld b, topShelfMax
+        ld e, 9
+initTopShelfItem:
+        call random                 ; Get a random 1 or 2
+        and 1
+        add a, 1
+
+        add a, e                    ; Get a space on the shelf
+        ld e, a
+
+        push bc                     ; save loop counter
+        ld b, levelTileWidth        ; set up for getGameLevelAddr
+        ld c, topShelfY
+        ld d, e
+
+        call getGameLevelAddr       ; Get the addr for the tile
+        ld a, shelfItem0 - dynamicTileInstanceBase             ; tile OR'd with health
+        or 1
+        ld (hl), a                  ; add to gamelevel
+        ;
+        ; push de
+        ; ld b, h
+        ; ld c, l
+        ; call $2d2b                  ; print number
+        ; call $2de3
+        ; pop de
+
+        ld hl, shelfItem0
+
+        ld c, e
+
+        ld b, topShelfY
+
+        push de
+        ld de, secondFramebufferLogicalOffset
+        call renderFrameWriteTile
+        pop de
+        pop bc          ; restore loop counter
+
+        djnz initTopShelfItem       ; repeat for the number of squares available
+        ret
+
+topShelfMax:            equ 7
+topShelfY:              equ 4
+mbShelfMax:             equ 4
+fishShelfMax:           equ 1
