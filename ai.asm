@@ -139,18 +139,23 @@ decisionCp:
     cp floorSpawnChance ; Change variable to change %
     jr nc, noSpawn      ; If the answer is 1 (01) then we init
 activateMouse:
+    call random         ; random call to see if spawning a floor mouse
+    and 9
+    cp 7
+    jr c, noSpawn
+
     ld (ix + 5), 1      ; Activate mouse
 
-    call random                 ; get rng for direction
-    and 9                       ; 0 or 1 = right, 2 or 3 = left
+    call random         ; get rng for direction
+    and 9               ; 0 or 1 = right, 2 or 3 = left
 
     cp 5
     jr c, setMouseRight
 
-    ld (ix), 3                  ; 2 or 3 happened, mouse will start going left
+    ld (ix), 3          ; 2 or 3 happened, mouse will start going left
     jr setMouseSpawn
 setMouseRight:
-    ld (ix), 1                  ; 0 or 1 happened, mouse will start going right
+    ld (ix), 1          ; 0 or 1 happened, mouse will start going right
 
 setMouseSpawn:
     call random         ; Randomize mouse spawn
@@ -220,7 +225,7 @@ activateWall1:
 
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (hl), a  ; add to gamelevel
+    ld (hl), a              ; add to gamelevel
 
     jp wall1End
 
@@ -279,17 +284,17 @@ wall1End:
     jr z, wall2Escape
 activateWall2:
     ld a, (ix + 3)      ; load the counter for when to check spawning
-    cp wallRndTime         ; compare against the random check timer
+    cp wallRndTime      ; compare against the random check timer
     jp nz, wall2End     ; rand timer hasn't reached max
 
     ld (ix + 3), 0      ; reset timer
 
     call random
     and 9
-    cp wallSpawnChance        ; check if we should activate the wall mouse
+    cp wallSpawnChance      ; check if we should activate the wall mouse
     jr nc, wall2End
 
-    ld (ix + 2), 1      ; active
+    ld (ix + 2), 1          ; active
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -321,7 +326,7 @@ wall2Escape:
     cp wallRndTime
     jp nz, wall2End
 
-    ld (ix + 3), 0      ; reset timer
+    ld (ix + 3), 0          ; reset timer
 
     inc (ix + 6)            ; Increment deactivate timer
 
@@ -371,17 +376,17 @@ wall2End:
 
 activateWall3:
     ld a, (ix + 3)      ; load the counter for when to check spawning
-    cp wallRndTime         ; compare against the random check timer
+    cp wallRndTime      ; compare against the random check timer
     jp nz, wall3End     ; rand timer hasn't reached max
 
     ld (ix + 3), 0      ; reset timer
 
     call random
     and 9
-    cp wallSpawnChance        ; check if we should activate the wall mouse
+    cp wallSpawnChance      ; check if we should activate the wall mouse
     jr nc, wall3End
 
-    ld (ix + 2), 1      ; active
+    ld (ix + 2), 1          ; active
 
     ld a, (ix)              ; load x tile into change x
     ld (ix + 4), a
@@ -403,7 +408,7 @@ activateWall3:
     call getGameLevelMouseAddr
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
-    ld (hl), a  ; add to gamelevel
+    ld (hl), a              ; add to gamelevel
 
     jp wall3End
 
@@ -412,7 +417,7 @@ wall3Escape:
     cp wallRndTime
     jp nz, wall3End
 
-    ld (ix + 3), 0      ; reset timer
+    ld (ix + 3), 0          ; reset timer
 
     inc (ix + 6)            ; Increment deactivate timer
 
