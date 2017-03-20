@@ -221,7 +221,7 @@ activateWall1:
     ld d, (ix)
     xor a
 
-    call getGameLevelMouseAddr
+    call getGameLevelAddr
 
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
@@ -268,7 +268,7 @@ deactivateWall1:
     ld d, (ix)
     xor a
 
-    call getGameLevelMouseAddr
+    call getGameLevelAddr
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (hl), a
@@ -313,7 +313,7 @@ activateWall2:
     ld d, (ix)
     xor a
 
-    call getGameLevelMouseAddr
+    call getGameLevelAddr
     ld a, mouseHoleActive - dynamicTileInstanceBase     ; tile OR'd with health
     or 1
 
@@ -359,7 +359,7 @@ deactivateWall2:
     ld d, (ix)
     xor a
 
-    call getGameLevelMouseAddr
+    call getGameLevelAddr
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (hl), a
@@ -405,7 +405,7 @@ activateWall3:
     ld d, (ix)
     xor a
 
-    call getGameLevelMouseAddr
+    call getGameLevelAddr
     ld a, mouseHoleActive - dynamicTileInstanceBase             ; tile OR'd with health
     or 1
     ld (hl), a              ; add to gamelevel
@@ -450,7 +450,7 @@ deactivateWall3:
     ld d, (ix)
     xor a
 
-    call getGameLevelMouseAddr
+    call getGameLevelAddr
 
     ld a, tgaPassable                       ; load gameLevel with static mouse hole
     ld  (hl), a
@@ -478,9 +478,9 @@ random:
 ; c = mouseY
 ; d = mouseX
 ; hl -> return addr into gameLevel
-getGameLevelMouseAddr:
+getGameLevelAddr:
     add a, c
-    djnz getGameLevelMouseAddr      ; a = tile width * mouseY
+    djnz getGameLevelAddr      ; a = tile width * mouseY
 
     add a, d                        ; a = (tileWidth * mouseY) + mouseX
 

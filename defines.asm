@@ -198,6 +198,21 @@ dynamicTileTestImpassableOneHealth: defb 255, 127, 63, 31, 15, 7, 3, 1, %00$100$
         defw staticTileTestImpassableDestroyed
         defb tgaStandable
         defb 0, 0, 0
+shelfItem0: defb $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+        defb tgaPassable | 1
+        defw staticTileBackground
+        defb tgaPassable
+        defb 0, 0, 0
+shelfItem1: defb $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+        defb tgaPassable | 1
+        defw staticTileMouseHole
+        defb tgaPassable
+        defb 0, 0, 0
+shelfItem2: defb $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+        defb tgaPassable | 1
+        defw staticTileMouseHole
+        defb tgaPassable
+        defb 0, 0, 0
 
         ;; ... etc ...
 
@@ -335,7 +350,6 @@ mouseW1TileChangeX:     defb 0      ; 4
 mouseW1TileChangeY:     defb 0      ; 5
 mouseW1SpawnCtr:        defb 0      ; 6
 mouseW1TileChangePtr:   defw 0      ; 7 & 8
-
 ;mouseW1MinXTile:        defb 0      ; 2
 ;mouseW1MinYTile:        defb 0      ; 3
 ;mouseW1MaxXTile:        defb 10     ; 4
@@ -350,7 +364,6 @@ mouseW2TileChangeX:     defb 0      ; 4
 mouseW2TileChangeY:     defb 0      ; 5
 mouseW2SpawnCtr:        defb 0      ; 6
 mouseW2TileChangePtr:   defw 0      ; 7 & 8
-
 ;mouseW2MinXTile:        defb 15
 ;mouseW2MinYTile:        defb 10
 ;mouseW2MaxXTile:        defb 20
@@ -365,7 +378,6 @@ mouseW3TileChangeX:     defb 0      ; 4
 mouseW3TileChangeY:     defb 0      ; 5
 mouseW3SpawnCtr:        defb 0      ; 6
 mouseW3TileChangePtr:   defw 0      ; 7 & 8
-
 ;mouseW3MinXTile:        defb 25     ; X Tile Boundary
 ;mouseW3MinYTile:        defb 15     ; Y Tile Boundary
 ;mouseW3MaxXTile:        defb 30
