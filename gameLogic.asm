@@ -1,3 +1,4 @@
+logicAttribOffset:     equ 9
 logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
@@ -191,7 +192,7 @@ logicBody:
         jp  z,logicUpdateMovementState  ; If punch is not pressed, no need to check punch
 
         ;; First check if the cat punches a patrolling mouse
-        ld  a,(ix+15)
+        ld  a,(ix+18)
         cp  1
         call    z,logicGainScoreAndInterest
 
@@ -216,8 +217,6 @@ logicBody:
         jp  z,logicUpdateMovementState   ; 0 = static tile, no destruction happens to it.
 
         ld  a,(hl)
-        and tgaGiveInterest
-        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
         call logicGainScore  ; So destruction definitely happens, calc score gain first
         ld  a,(hl)  ; reload raw data
         dec a       ; -1 to raw data, dec the HP by 1
@@ -233,6 +232,9 @@ logicBody:
         ld  d,0
         ld  e,a
         add iy,de                 ; iy contains a pointer to the base of a dyna tile template
+        ld  a,(iy + logicAttribOffset)
+        and tgaGiveInterest
+        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
         ld  a,(iy + logicNextTileGLOffset)
                                   ; a contains the next tile gameLevel value
         ld  (hl),a                ; Write down the next tile gLv into gameLevel array
@@ -284,28 +286,75 @@ logicUpdatePoseEnd:
         push    de
         jp  logicP2Init
 
+logicGainScoreAndInterest:
+        call    logicGainInterest
+        call    logicGainScore
+        ret
+
 logicGainInterest:
         ld  a,(ix+12)
         cp playerMaxInterest
         ret z   ; z indicates that the interest is equal to max.
-        ret nc  ; nc indicates that the interest is higher than max.
+        ret p   ; p indicates that the interest is higher than max.
         inc a   ; Place holder interest inc val
         ld  (ix+12),a
         ret
 
 logicGainScore:
-        ld  a,(ix+13)
-        add a,10
-        ld  (ix+13),a
-        ret nc
-        ld  a,(ix+14)
-        inc a
-        ld  (ix+14),a
+        push    hl
+        push    ix
+        pop hl
+        ld  a,l
+        add a,16                ;; Since pXStates are away from a 2^8 byte boundary, add 16 to l is fine)
+                                ; We are now looking at tens digit
+        ld  l,a
+        call    logicUpdateScoreDigit ; Attribute: chuntey
+        pop hl
         ret
+logicUpdateScoreDigit:
+        ld  a,(hl)              ; current value of digit.
+        add a,1                 ; add 1 to this digit.
+        ld  (hl),a              ; place new digit back in string.
+        cp  58                  ; more than ASCII value '9'?
+        ret c                   ; no - relax.
+        sub 10                  ; subtract 10.
+        ld  (hl),a              ; put new character back in string.
+logicUpdateScoreDigitCarry:
+        dec hl                          ; previous character in string.
+        inc (hl)                        ; up this by one.
+        ld  a,(hl)                      ; what's the new value?
+        cp  58                          ; gone past ASCII nine?
+        ret c                           ; no, scoring done.
+        sub 10                          ; down by ten.
+        ld  (hl),a                      ; put it back
+        jp  logicUpdateScoreDigitCarry  ; go round again.
 
-logicGainScoreAndInterest:
-        call    logicGainInterest
-        call    logicGainScore
+;;  PRE: ix = pXStateX
+;;       b  = the digit to look at
+;;  return: hl = pointer to the graphic byte of the digit
+;;
+logicDigitNumVal:
+        push    de
+        push    af
+        push    ix
+        pop hl      ; hl = pXStateX
+        ld  a,l
+        add a,12
+        add a,b
+        ld  l,a     ; hl = pXStateX + 12 + b
+        ld  a,(hl)  ; Load digit
+        sub $30     ; Sub with ascii 0
+        sll a
+        sll a
+        sll a       ; a *= 8
+        ld  hl, statusBarZero
+        ld  d,0
+        ld  e,a     ; de = a
+        add hl,de   ; hl = statusBarZero + val(digit) * 8
+        ld de, -7
+        add hl, de
+        pop af
+        pop de
         ret
 
 initWallMouse:
