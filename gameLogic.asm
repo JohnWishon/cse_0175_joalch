@@ -1,3 +1,4 @@
+logicAttribOffset:     equ 9
 logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
@@ -216,8 +217,6 @@ logicBody:
         jp  z,logicUpdateMovementState   ; 0 = static tile, no destruction happens to it.
 
         ld  a,(hl)
-        and tgaGiveInterest
-        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
         call logicGainScore  ; So destruction definitely happens, calc score gain first
         ld  a,(hl)  ; reload raw data
         dec a       ; -1 to raw data, dec the HP by 1
@@ -233,6 +232,9 @@ logicBody:
         ld  d,0
         ld  e,a
         add iy,de                 ; iy contains a pointer to the base of a dyna tile template
+        ld  a,(iy + logicAttribOffset)
+        and tgaGiveInterest
+        call    nz, logicGainInterest   ; punched a tile that gives interest, so gain interest
         ld  a,(iy + logicNextTileGLOffset)
                                   ; a contains the next tile gameLevel value
         ld  (hl),a                ; Write down the next tile gLv into gameLevel array
@@ -293,7 +295,7 @@ logicGainInterest:
         ld  a,(ix+12)
         cp playerMaxInterest
         ret z   ; z indicates that the interest is equal to max.
-        ret nc  ; nc indicates that the interest is higher than max.
+        ret p   ; p indicates that the interest is higher than max.
         inc a   ; Place holder interest inc val
         ld  (ix+12),a
         ret

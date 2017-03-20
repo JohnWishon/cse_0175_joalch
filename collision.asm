@@ -199,13 +199,13 @@ collisionResolvePunchFacingRightLeftEnd:
         sub 16                  ; NewPosY is not at the expected upper left corner
                                 ; but lower left corner, thus use sub to shift to an easier Y
         cp b
-        ret nc
+        ret p
         ret z                  ; If punch Y + 8 <= mouse Y (topleft corner), then the bottom of
         ;; the cat's fist is above the top of the mouse's body. no hit occurred
 collisionResolvePunchMouse1:
         add a, mousePixelHeight ; a contains mouse Y + mouse height
         cp e                    ; e contains punch Y, a contains mouse y
-        ret c
+        ret m
         ret z                   ; If punch Y >= mouse Y + mouse height, then
         ;; the bottom of the mouse's body is above the top of the cat's fist.
         ;; no hit occurred
@@ -218,13 +218,13 @@ collisionResolvePunchMouse1:
 
         cp b
         ret z
-        ret nc                  ; If punch X + 8 < mouse X, then the right side
+        ret p                  ; If punch X + 8 < mouse X, then the right side
         ;; of the cat's fist is to the left of the left side of the mouse's body
         ;; no hit occurred
 collisionResolvePunchMouse2:
         add a, mousePixelWidth  ; a contains mouse X + mouse width
         cp d                    ; d contains punch X, a contains mouse x
-        ret c
+        ret m
         ret z                   ; If punch X >= mouse X, then the right side
         ;; of the mouse's body is to the left of the left side of the cat's fist
         ;; no hit occurred
