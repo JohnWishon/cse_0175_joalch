@@ -434,7 +434,7 @@ initTopShelfItem:
         ld a, shelfItem0 - dynamicTileInstanceBase             ; tile OR'd with health
         or 1
         ld (hl), a                  ; add to gamelevel
-        ; 
+        ;
         ; push de
         ; ld b, h
         ; ld c, l
@@ -444,13 +444,9 @@ initTopShelfItem:
 
         ld hl, shelfItem0
 
-        ld a, e
-        add a, levelLeftmostCol
-        ld c, a
+        ld c, e
 
-        ld a, topShelfY
-        add a, levelTopmostRow
-        ld b, a
+        ld b, topShelfY
 
         push de
         ld de, secondFramebufferLogicalOffset
@@ -462,6 +458,6 @@ initTopShelfItem:
         ret
 
 topShelfMax:            equ 7
-topShelfY:              equ 5
+topShelfY:              equ 4
 mbShelfMax:             equ 4
 fishShelfMax:           equ 1

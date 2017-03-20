@@ -25,8 +25,8 @@ startGame:
         ld a, ($5c78)
         ld (seed), a
 
-        call setupGameLogic
         call setupGraphics
+	call setupGameLogic
         call setupRenderer
 
         di                      ; disable interrupts
