@@ -308,9 +308,9 @@ fuP2UpdatesNewTilePosY:   defb 2
 ; Mouse data tables
 mouseUpdatesBase:
 ; direction - 0 = up, 1 = right, 2 = down, 3 = left
-mouseUpdatesDirection:      defb 1      ; ix
+mouseUpdatesDirection:      defb 0      ; ix
 mouseUpdatesOldPosX:        defb 0      ; ix + 1
-mouseUpdatesNewPosX:        defb levelLeftmostPixel + 4    ; ix + 2
+mouseUpdatesNewPosX:        defb 0    ; ix + 2
 mouseUpdatesOldPosY:        defb 0      ; ix + 3
 mouseUpdatesNewPosY:        defb levelBottommostPixel - mousePixelHeight - 4 ; ix + 4
 mouseActive:                defb 0      ; ix + 5

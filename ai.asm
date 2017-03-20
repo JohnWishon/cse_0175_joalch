@@ -140,6 +140,23 @@ decisionCp:
     jr nc, noSpawn      ; If the answer is 1 (01) then we init
 activateMouse:
     ld (ix + 5), 1      ; Activate mouse
+
+    call random
+    and maxX
+    cp holeX
+    jr c, spawnHole
+
+    cp couchX
+    jr c, spawnCouch
+
+    ld (ix + 2), rightX
+    jr endActivateMouse
+spawnHole:
+    ld (ix + 2), holeX
+    jr endActivateMouse
+spawnCouch:
+    ld (ix + 2), couchX
+endActivateMouse:
     ret
 noSpawn:
     inc (ix + 6)        ; increment the spawn counter
@@ -441,8 +458,9 @@ random:
     ret
 
 ; b = tileWidth
-; c = mouseY -> return offset
+; c = mouseY
 ; d = mouseX
+; hl -> return addr into gameLevel
 getGameLevelMouseAddr:
     add a, c
     djnz getGameLevelMouseAddr      ; a = tile width * mouseY
@@ -455,23 +473,14 @@ getGameLevelMouseAddr:
 
     ret
 
-spawnStr:
-        defb    "S"
-XspawnStr:
-
-despawnStr:
-        defb    "D"
-XdespawnStr:
-
 mousePace:      equ 4
 couchX:         equ 120
-holeX:          equ 40
-rightX:         equ 200
-
+holeX:          equ 44
+rightX:         equ 180
 maxY:           equ levelBottommostPixel - mousePixelHeight
 minY:           equ levelTopmostPixel
 maxX:           equ levelRightmostPixel - 3 - mousePixelWidth
-minX:           equ levelLeftmostPixel
+minX:           equ 32
 
 floorSpawnTime:     equ 125     ; spawn time (in frames) to force floor mouse to spawn
 floorRndTime:       equ 25      ; # of frames to wait for random call for floor mouse
