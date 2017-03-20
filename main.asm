@@ -13,10 +13,10 @@ SCheck:
         AND $02		;Keep only bit 0 of the result (ENTER, 0)
         CP $01		;Reset the zero flag if ENTER or 0 is being pressed
         RET
-ICheck:
-        LD BC,$DFFE	;Read keys Y-U-I-O-P
+CCheck:
+        LD BC,$FEFE	;Read keys V-C-X-Z-Shift
         IN A,(C)
-        AND $04		;Keep only bit 0 of the result (ENTER, 0)
+        AND $08		;Keep only bit 0 of the result (ENTER, 0)
         CP $01		;Reset the zero flag if ENTER or 0 is being pressed
         RET
 main:

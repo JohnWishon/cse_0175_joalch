@@ -53,7 +53,7 @@ runGreetz:
     jp  runMenu
 runMenu:
     ;; Menu drawing code
-    call    ICheck
+    call    CCheck
     JP  nz, runInstruction
     call    SCheck
     JP  nz, startGame
