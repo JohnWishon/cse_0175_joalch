@@ -22,6 +22,7 @@ waitSpaceKey:
 		call startGame      ; play the game.
 		jr waitSpaceKey     ; SPACE to restart game.
 startGame:
+
         ld a, ($5c78)
         ld (seed), a
 
@@ -66,6 +67,10 @@ updateIteration:
 
         call renderFrameSwapBuffers
 
+	call shouldGameEnd
+	ld a, b
+	cp 1
+	jp z, startGame
         ;; End of iteration
 
         ret
@@ -130,6 +135,17 @@ endProg:
 
 pretim:
         defb 0
+
+shouldGameEnd:
+	ld b, 1
+	ld a, (p1Interest)
+	cp 0
+	ret z
+	ld a, (p2Interest)
+	cp 0
+	ret z
+	ld b, 0
+	ret
 
         include "input.asm"
         include "physics.asm"
