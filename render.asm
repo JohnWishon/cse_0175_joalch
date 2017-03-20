@@ -169,6 +169,17 @@ setupRenderer:
         ret
 
 renderFrame:
+        ld a, 1
+        call statusBarUpdateInterest
+        ld a, 2
+        call statusBarUpdateInterest
+
+        ld ix, p1StateBase
+        call statusBarUpdateScore
+        ld ix, p2StateBase
+        call statusBarUpdateScore
+
+
         ;; TODO: this stuff probably belongs in gameLogic
         ;; Save old tile positions
         ld a, (fuP1UpdatesNewTilePosX)
@@ -2321,34 +2332,13 @@ statusBarSetup:
         ld hl, CAT_CLAW
         call renderFrameWriteTilePixels
 
-        inc c
-        inc c
-        ld hl, MOUSE_RIGHT_ONE
-        call renderFrameWriteTilePixels
-
-        ld c, 14
-statusBarSetupP1InterestLoop:
-        inc c
-        ld hl, mouseStretched
-        call renderFrameWriteTilePixels
-
-        ld a, c
-        cp 14 + 16
-        jp nz, statusBarSetupP1InterestLoop
-
-
-        inc c
+        ld c, 31
+        ld b, 0
         ld hl, MOUSE_RIGHT_ONE + 8
         call renderFrameWriteTilePixels
 
-        ;; ld c, 0
-        ;; ld b, 1
-        ;; ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
-        ;; call renderFrameWriteTilePixels
-
-        ;; inc c
-        ;; ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1 + 8
-        ;; call renderFrameWriteTilePixels
+        ld a, 1
+        call statusBarUpdateInterest
 
         ;; cat 2
         ld c, 0
@@ -2356,21 +2346,11 @@ statusBarSetupP1InterestLoop:
         ld hl, MOUSE_LEFT_ONE
         call renderFrameWriteTilePixels
 
-        ld c, 0
-statusBarSetupP2InterestLoop:
-        inc c
-        ld hl, mouseStretched
-        call renderFrameWriteTilePixels
+        ld a, 2
+        call statusBarUpdateInterest
 
-        ld a, c
-        cp 1 + 16
-        jp nz, statusBarSetupP2InterestLoop
 
-        ld hl, MOUSE_LEFT_ONE + 8
-        call renderFrameWriteTilePixels
-
-        inc c
-        inc c
+        ld c, 19
 
         ld hl, CAT_CLAW
         call renderFrameWriteTilePixels
@@ -2397,6 +2377,78 @@ statusBarSetupP2InterestLoop:
         ld ix, p2StateBase
         call statusBarUpdateScore
 
+        ret
+
+        ;; PRE a contains 1 or 2 for player 1 or player 2
+statusBarUpdateInterest:
+        push de
+        cp 2
+        jp z, statusBarUpdateInterestPlayer2
+statusBarUpdateInterestPlayer1:
+        ld c, 30
+        ld b, 0
+        ld d, 8                 ;TODO: (p1Interest)
+        ld e, 0
+        ld hl, mouseStretched
+        ld a, d
+        cp 0
+        jp z, statusBarUpdateInterestPlayer1LoopEnd
+statusBarUpdateInterestPlayer1Loop:
+        push de
+        ld de, secondFramebufferLogicalOffset
+        ld hl, mouseStretched
+        call renderFrameWriteTilePixels
+        pop de
+
+        dec c
+        inc e
+        ld a, e
+        cp d
+        jp nz, statusBarUpdateInterestPlayer1Loop
+statusBarUpdateInterestPlayer1LoopEnd:
+        ld de, secondFramebufferLogicalOffset
+        ld hl, MOUSE_RIGHT_ONE
+        call renderFrameWriteTilePixels
+
+
+        dec c
+        ld hl, zeroTile
+        call renderFrameWriteTilePixels
+
+        pop de
+        ret
+statusBarUpdateInterestPlayer2:
+        ld c, 1
+        ld b, 1
+        ld d, 8                 ; TODO: (p2Interest)
+        ld e, 0
+        ld hl, mouseStretched
+        ld a, d
+        cp 0
+        jp z, statusBarUpdateInterestPlayer2LoopEnd
+statusBarUpdateInterestPlayer2Loop:
+        push de
+        ld de, secondFramebufferLogicalOffset
+        ld hl, mouseStretched
+        call renderFrameWriteTilePixels
+        pop de
+
+        inc c
+        inc e
+        ld a, e
+        cp d
+        jp nz, statusBarUpdateInterestPlayer2Loop
+
+statusBarUpdateInterestPlayer2LoopEnd:
+        ld de, secondFramebufferLogicalOffset
+        ld hl, MOUSE_LEFT_ONE + 8
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, zeroTile
+        call renderFrameWriteTilePixels
+
+        pop de
         ret
 
         ;; PRE: IX contains pNStateBase
