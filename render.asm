@@ -46,14 +46,14 @@ catOneJumpRight: equ $DF10
 catOneAttackHighRight: equ $DFB8
 catOneAttackLowRight: equ $E060
 catOneStandRight: equ $E108
-catOneBgCache: equ $E1B0
+catOneBgCache: equ $E1C8
 
-catHandSprite: equ $E1F8
-catOneHandBgCache: equ $E338
+catHandSprite: equ $E210
+catOneHandBgCache: equ $E360
 catTwoHandBgCache: equ catTwoSprites + catOneHandBgCache - catOneSprites
 
 ;;; Cat 2
-catTwoSprites: equ $E358
+catTwoSprites: equ $E380
 
 catTwoWalkLeft: equ catTwoSprites + catOneWalkLeft - catOneSprites
 catTwoJumpLeft: equ catTwoSprites + catOneJumpLeft - catOneSprites
@@ -68,10 +68,10 @@ catTwoStandRight: equ catTwoSprites + catOneStandRight- catOneSprites
 catTwoBgCache: equ catTwoSprites + catOneBgCache - catOneSprites
 
 ;;; Mouse
-mouseSprites: equ $EB90
-mouseWalkLeft: equ $EB90
-mouseWalkRight: equ $EBC8
-mouseBgCache: equ $EC00
+mouseSprites: equ $EBE0
+mouseWalkLeft: equ $EBE0
+mouseWalkRight: equ $EC18
+mouseBgCache: equ $EC58
 
 ;;; Canvi
 catCanvas: equ $D800
