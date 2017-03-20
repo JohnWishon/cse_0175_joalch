@@ -349,6 +349,8 @@ logicDigitNumVal:
         ld  d,0
         ld  e,a     ; de = a
         add hl,de   ; hl = statusBarZero + val(digit) * 8
+        ld de, -7
+        add hl, de
         pop af
         pop de
         ret
