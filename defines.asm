@@ -169,7 +169,7 @@ couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb LOW(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-        defb tgaStandable | tgaPassable | 3
+        defb tgaStandable | tgaPassable | 16
         defw staticTileCouchTopDestroyed
         defb tgaStandable | tgaPassable
         defb 0, 0, 0

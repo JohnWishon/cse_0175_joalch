@@ -6,6 +6,8 @@ setupGameLogic:
         call initGroundMouse
         call initWallMouse
 
+	call setupGameLogicInitialState
+
         ;; Flood the map with passable attr.
         ld  hl, gameLevel
         ld  (hl), tgaPassable
@@ -136,6 +138,69 @@ setupGameLogic:
         ld  bc, 1
         ldir
         ret
+
+setupGameLogicInitialState:
+	ld a, 0
+	ld (p1DirPressed), a
+	ld (p1DirPressed+1), a
+	ld (p1DirPressed+2), a
+	ld (p1DirPressed+3), a
+	ld (p1JPressed), a
+	ld (p1PPressed), a
+	ld (p1MovX), a
+	ld (p1MovY), a
+	ld (p1CollisionState), a
+	ld (p1PunchX), a
+	ld (p1PunchY), a
+	ld a, playerMaxInterest - 8
+	ld (p1Interest), a
+	ld a, '0'
+	ld (p1Score), a
+	ld (p1Score+1), a
+	ld (p1Score+2), a
+	ld (p1Score+3), a
+	ld (p1Score+4), a
+	ld a, 0
+	ld (p1PatrolMouseHit), a
+
+	ld a, 4
+	ld (fuP1UpdatesNewPosX), a
+	ld a, 20
+	ld (fuP1UpdatesNewPosY), a
+	ld a, catPoseJump
+	ld (fuP1UpdatesNewPose), a
+
+	ld a, 0
+	ld (p2DirPressed), a
+	ld (p2DirPressed+1), a
+	ld (p2DirPressed+2), a
+	ld (p2DirPressed+3), a
+	ld (p2JPressed), a
+	ld (p2PPressed), a
+	ld (p2MovX), a
+	ld (p2MovY), a
+	ld (p2CollisionState), a
+	ld (p2PunchX), a
+	ld (p2PunchY), a
+	ld a, playerMaxInterest - 8
+	ld (p2Interest), a
+	ld a, '0'
+	ld (p2Score), a
+	ld (p2Score+1), a
+	ld (p2Score+2), a
+	ld (p2Score+3), a
+	ld (p2Score+4), a
+	ld a, 0
+	ld (p2PatrolMouseHit), a
+
+	ld a, levelPixelWidth - catPixelWidth - 4
+	ld (fuP2UpdatesNewPosX), a
+	ld a, 20
+	ld (fuP2UpdatesNewPosY), a
+	ld a, catPoseJump | catPoseFaceLeft
+	ld (fuP2UpdatesNewPose), a
+
+	ret
 
 updateGameLogic:
         ;; TODO: score, interest, RNG, etc...
