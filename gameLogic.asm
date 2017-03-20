@@ -154,7 +154,7 @@ updateGameLogic:
         ;;*      signal mouse kill
 
         ld  a,(interestDrainCounter)    ; Get the interest drain counter
-        cp  25 * 8                      ; 25 * sec, 8 secs for now
+        cp  25 * 4                      ; 25 * sec, 8 secs for now
         jp  c,logicNoDrainYet           ; If the counter is lower than the bar, no drain
         ld  a, 0
         ld  (interestDrainCounter),a    ; Reset the counter
