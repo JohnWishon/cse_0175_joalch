@@ -1,7 +1,24 @@
         org $8000
         jp main
         include "defines.asm"
-
+GCheck:
+        LD BC,$FDFE	;Read keys G-F-D-S-A
+        IN A,(C)
+        AND $10		;Keep only bit 0 of the result (ENTER, 0)
+        CP $01		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+SCheck:
+        LD BC,$FDFE	;Read keys G-F-D-S-A
+        IN A,(C)
+        AND $02		;Keep only bit 0 of the result (ENTER, 0)
+        CP $01		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+ICheck:
+        LD BC,$DFFE	;Read keys Y-U-I-O-P
+        IN A,(C)
+        AND $04		;Keep only bit 0 of the result (ENTER, 0)
+        CP $01		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
 main:
         ;; ---------------------------------------------------------------------
         ;; Setup program state, interrupt handling scheme
@@ -15,6 +32,12 @@ main:
 		;; TODO: should we keep this?
 
 		call runLoadingScreen
+mainLoadingScreenMusicPaused:
+	    CALL GCheck     ;Check whether G is pressed
+	    JP  NZ, runGreetz ; Jump to greetz screen if so.
+	    CALL SCheck
+	    JP  NZ, startGame
+	    jp  mainLoadingScreenMusicPaused
 waitSpaceKey:
 		ld a,(23560)        ; read keyboard.
 		cp 32               ; is SPACE pressed?
@@ -24,7 +47,7 @@ waitSpaceKey:
 startGame:
         ld a, ($5c78)
         ld (seed), a
-        
+
         call setupGameLogic
         call setupGraphics
         call setupRenderer

@@ -25,23 +25,27 @@ n96BE:
 	EX AF,AF'		; Restore the value of A
 	DEC C			;Decrement the short note counter in C
 	JR NZ,n96AC		;Jump back unless we've finished playing 50 short notes at the lower frequency
-	CALL EnterCheck	;Check whether ENTER, 0 or the fire button is being pressed
+	CALL MCheck     ;Check whether M is being pressed
 	RET NZ			;Return (with the zero flag reset) if it is
+	CALL GCheck     ;Check whether G is pressed
+	JP  NZ, runGreetz ; Jump to greetz screen if so.
+	CALL SCheck
+	JP  NZ, startGame
 	INC HL			;Move HL along to the next byte of tune data
 	JR n96A2		;Jump back to play the next batch of 100 short notes
 
 MoonlightSonata:
-	DEFB $51,$3C,$33,$51,$3C,$33,$51,$3C,$33,$51,$3C,$33,$51,$3C,$33,$51	
-	DEFB $3C,$33,$51,$3C,$33,$51,$3C,$33,$4C,$3C,$33,$4C,$3C,$33,$4C,$39	
-	DEFB $2D,$4C,$39,$2D,$51,$40,$2D,$51,$3C,$33,$51,$3C,$36,$5B,$40,$36	
-	DEFB $66,$51,$3C,$51,$3C,$33,$51,$3C,$33,$28,$3C,$28,$28,$36,$2D,$51	
-	DEFB $36,$2D,$51,$36,$2D,$28,$36,$28,$28,$3C,$33,$51,$3C,$33,$26,$3C	
-	DEFB $2D,$4C,$3C,$2D,$28,$40,$33,$51,$40,$33,$2D,$40,$36,$20,$40,$36	
+	DEFB $51,$3C,$33,$51,$3C,$33,$51,$3C,$33,$51,$3C,$33,$51,$3C,$33,$51
+	DEFB $3C,$33,$51,$3C,$33,$51,$3C,$33,$4C,$3C,$33,$4C,$3C,$33,$4C,$39
+	DEFB $2D,$4C,$39,$2D,$51,$40,$2D,$51,$3C,$33,$51,$3C,$36,$5B,$40,$36
+	DEFB $66,$51,$3C,$51,$3C,$33,$51,$3C,$33,$28,$3C,$28,$28,$36,$2D,$51
+	DEFB $36,$2D,$51,$36,$2D,$28,$36,$28,$28,$3C,$33,$51,$3C,$33,$26,$3C
+	DEFB $2D,$4C,$3C,$2D,$28,$40,$33,$51,$40,$33,$2D,$40,$36,$20,$40,$36
 	DEFB $3D,$79,$3D,$FF
 
-EnterCheck:
-	LD BC,$AFFE	;Read keys H-J-K-L-ENTER and 6-7-8-9-0
+MCheck:
+	LD BC,$7FFE	;Read keys B-N-M-Shift-Space
 	IN A,(C)
-	AND $01		;Keep only bit 0 of the result (ENTER, 0)
+	AND $04		;Keep only bit 0 of the result (ENTER, 0)
 	CP $01		;Reset the zero flag if ENTER or 0 is being pressed
 	RET
