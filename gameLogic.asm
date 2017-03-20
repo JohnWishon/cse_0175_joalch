@@ -293,7 +293,7 @@ logicGainInterest:
         ld  a,(ix+12)
         cp playerMaxInterest
         ret z   ; z indicates that the interest is equal to max.
-        ret nc  ; nc indicates that the interest is higher than max.
+        ret m  ; nc indicates that the interest is higher than max.
         inc a   ; Place holder interest inc val
         ld  (ix+12),a
         ret
