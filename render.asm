@@ -2294,34 +2294,31 @@ mouseStretched: defb $00, $00, $FF, $00, $00, $00, $FF, $00
 
 statusBarSetup:
         ld de, secondFramebufferLogicalOffset
-        ld c, 0
+        ld c, 1
         ld b, 0
-        ld hl, statusBarZero
-        call renderFrameWriteTilePixels
+        ld ix, p1StateBase
+        call statusBarUpdateScore
 
         inc c
-        ld hl, statusBarZero
-        call renderFrameWriteTilePixels
-
         inc c
-        ld hl, statusBarZero
-        call renderFrameWriteTilePixels
 
-        inc c
-        ld hl, statusBarZero
-        call renderFrameWriteTilePixels
-
-        inc c
-        ld hl, statusBarZero
+        ld hl, CAT_CLAW
         call renderFrameWriteTilePixels
 
         inc c
         inc c
+
         ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
         call renderFrameWriteTilePixels
 
         inc c
         ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1 + 8
+        call renderFrameWriteTilePixels
+
+        inc c
+        inc c
+
+        ld hl, CAT_CLAW
         call renderFrameWriteTilePixels
 
         inc c
@@ -2329,14 +2326,14 @@ statusBarSetup:
         ld hl, MOUSE_RIGHT_ONE
         call renderFrameWriteTilePixels
 
-        ld c, 9
+        ld c, 14
 statusBarSetupP1InterestLoop:
         inc c
         ld hl, mouseStretched
         call renderFrameWriteTilePixels
 
         ld a, c
-        cp 9 + 16
+        cp 14 + 16
         jp nz, statusBarSetupP1InterestLoop
 
 
@@ -2344,23 +2341,114 @@ statusBarSetupP1InterestLoop:
         ld hl, MOUSE_RIGHT_ONE + 8
         call renderFrameWriteTilePixels
 
+        ;; ld c, 0
+        ;; ld b, 1
+        ;; ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        ;; call renderFrameWriteTilePixels
 
+        ;; inc c
+        ;; ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1 + 8
+        ;; call renderFrameWriteTilePixels
 
-
+        ;; cat 2
         ld c, 0
         ld b, 1
-        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        ld hl, MOUSE_LEFT_ONE
+        call renderFrameWriteTilePixels
+
+        ld c, 0
+statusBarSetupP2InterestLoop:
+        inc c
+        ld hl, mouseStretched
+        call renderFrameWriteTilePixels
+
+        ld a, c
+        cp 1 + 16
+        jp nz, statusBarSetupP2InterestLoop
+
+        ld hl, MOUSE_LEFT_ONE + 8
         call renderFrameWriteTilePixels
 
         inc c
-        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1 + 8
+        inc c
+
+        ld hl, CAT_CLAW
         call renderFrameWriteTilePixels
 
+        inc c
+        inc c
+
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        call renderFrameWriteTilePixels
+
+        inc c
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1 + 8
+        call renderFrameWriteTilePixels
+
+        inc c
+        inc c
+
+        ld hl, CAT_CLAW
+        call renderFrameWriteTilePixels
+
+        inc c
+        inc c
+
+        ld ix, p2StateBase
+        call statusBarUpdateScore
 
         ret
 
+        ;; PRE: IX contains pNStateBase
+        ;;      c contains x of first digit
+        ;;      b contains y of first digit
 statusBarUpdateScore:
+        push ix
+        push bc
+        ld b, 1
+        call logicDigitNumVal
+        pop bc
+        call renderFrameWriteTilePixels
+        pop ix
 
+        inc c
 
+        push ix
+        push bc
+        ld b, 2
+        call logicDigitNumVal
+        pop bc
+        call renderFrameWriteTilePixels
+        pop ix
+
+        inc c
+
+        push ix
+        push bc
+        ld b, 3
+        call logicDigitNumVal
+        pop bc
+        call renderFrameWriteTilePixels
+        pop ix
+
+        inc c
+
+        push ix
+        push bc
+        ld b, 4
+        call logicDigitNumVal
+        pop bc
+        call renderFrameWriteTilePixels
+        pop ix
+
+        inc c
+
+        push ix
+        push bc
+        ld b, 5
+        call logicDigitNumVal
+        pop bc
+        call renderFrameWriteTilePixels
+        pop ix
 
         ret
