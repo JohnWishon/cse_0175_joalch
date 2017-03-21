@@ -555,6 +555,12 @@ runGreetz:
 	ld b, 10
 	ld c, 19
 	call    drawRenderLine
+	;; Write Blank
+	ld hl, BLANK
+	ld a, 15
+	ld b, 8
+	ld c, 20
+	call    drawRenderLine
 	ret
 
 delay:
@@ -614,6 +620,7 @@ runMenu:
 	ld b, 10
 	ld c, 19
 	call    drawRenderLine
+
 	ret
 ; END menu
 
