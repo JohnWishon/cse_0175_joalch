@@ -38,11 +38,18 @@ CCheck:
         RET
 
 MCheck:
-	LD BC,$7FFE	;Read keys B-N-M-Shift-Space
-	IN A,(C)
-	AND $04		;Keep only bit 0 of the result (ENTER, 0)
-	CP $04		;Reset the zero flag if ENTER or 0 is being pressed
-	RET
+    	LD BC,$7FFE	;Read keys B-N-M-Shift-Space
+    	IN A,(C)
+    	AND $04		;Keep only bit 0 of the result (ENTER, 0)
+    	CP $04		;Reset the zero flag if ENTER or 0 is being pressed
+    	RET
+
+EnterCheck:
+        LD BC, $AFFE
+        IN A, (C)
+        AND $01
+        CP $01
+        RET
 
 main:
         ;; ---------------------------------------------------------------------
@@ -64,6 +71,8 @@ mainLoadingScreenMusicPaused:
 	    JP  NZ, startGame
         CALL CCheck
         CALL NZ, runInstruction
+        CALL EnterCheck
+    	call nz, runMenu
 	    jp  mainLoadingScreenMusicPaused
 startGame:
 

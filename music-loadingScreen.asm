@@ -44,6 +44,8 @@ n96BE:
 	call nz, runGreetz
 	CALL CCheck
 	call nz, runInstruction
+	CALL EnterCheck
+	call nz, runMenu
 	pop hl
 	pop de
 	pop bc
