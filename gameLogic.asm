@@ -511,7 +511,7 @@ initShelfLife:
         ld b, botShelfMax
         sra b
         ld c, botShelfY
-        ld d, midRightShelfX
+        ld d, botRightShelfX
         call initShelf
         ret
 ; d - start x
@@ -531,7 +531,8 @@ initShelf:
         call getGameLevelAddr   ; hl now has gameLevel addr
 
         call random             ; pick a random shelf
-        and 2
+        and 3
+
         rra
         jr nc, shelf0           ; no carry -> 0 or 2
 
@@ -565,7 +566,6 @@ endShelfRand:
         pop bc
 
         push bc
-        ld hl, shelfItem0
         ld b, c
         ld c, d
 
