@@ -18,7 +18,24 @@ mainPlayer1WinPix:
  mainPlayer2WinPix:
         defb $78, $fc, $cc, $cd, $38, $70, $fc, $fc ; 2
 
-
+GCheck:
+        LD BC,$FDFE	;Read keys G-F-D-S-A
+        IN A,(C)
+        AND $10		;Keep only bit 0 of the result (ENTER, 0)
+        CP $10		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+SCheck:
+        LD BC,$FDFE	;Read keys G-F-D-S-A
+        IN A,(C)
+        AND $02		;Keep only bit 0 of the result (ENTER, 0)
+        CP $02		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+CCheck:
+        LD BC,$FEFE	;Read keys V-C-X-Z-Shift
+        IN A,(C)
+        AND $08		;Keep only bit 0 of the result (ENTER, 0)
+        CP $08		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
 main:
         ;; ---------------------------------------------------------------------
         ;; Setup program state, interrupt handling scheme
@@ -32,19 +49,25 @@ main:
 		;; TODO: should we keep this?
 
 		call runLoadingScreen
-waitSpaceKey:
-		ld a,(23560)        ; read keyboard.
-		cp 32               ; is SPACE pressed?
-		jr nz,waitSpaceKey  ; no, wait.
-		call startGame      ; play the game.
-		jr waitSpaceKey     ; SPACE to restart game.
+mainLoadingScreenMusicPaused:
+; 	    CALL GCheck     ;Check whether G is pressed
+; 	    JP  NZ, runGreetz ; Jump to greetz screen if so.
+	    CALL SCheck
+	    JP  NZ, startGame
+; 	    jp  mainLoadingScreenMusicPaused
+; waitSpaceKey:
+; 		ld a,(23560)        ; read keyboard.
+; 		cp 32               ; is SPACE pressed?
+; 		jr nz,waitSpaceKey  ; no, wait.
+; 		call startGame      ; play the game.
+; 		jr waitSpaceKey     ; SPACE to restart game.
 startGame:
 
         ld a, ($5c78)
         ld (seed), a
 
         call setupGraphics
-	call setupGameLogic
+	    call setupGameLogic
         call setupRenderer
 
         di                      ; disable interrupts

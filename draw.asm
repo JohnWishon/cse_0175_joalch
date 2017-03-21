@@ -14,7 +14,7 @@ setLoadingDisplay:
 ;	ld	de, $0106
 ;	call	$03b5	; BEEPER in ROM
 	;ret
-	
+
 ;	ld hl, 1460
 ;	ld de, 294
 ;	call 949
@@ -38,16 +38,30 @@ setLoadingDisplay:
 	ld de, $5800
 	ld bc, $0300
 	ldir
-	
+
 	ld hl,TitleName
 	ld de,$4000
 	ld bc,$17FF
-	ldir 
-	
+	ldir
+
 	call PlayMoonlightSonata
-	
+
 ret
 
+; runGreetz:
+    ;; Greetz drawing code
+    ; jp  runMenu
+; runMenu:
+    ;; Menu drawing code
+    ; call    CCheck
+    ; JP  nz, runInstruction
+    ; call    SCheck
+    ; JP  nz, startGame
+; runInstruction:
+;     ;; Instruction drawing code
+;     call    SCheck
+;     JP  nz, startGame
+;
 setupGraphics:
 
 clearFile:
