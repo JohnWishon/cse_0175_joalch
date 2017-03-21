@@ -514,7 +514,7 @@ initTopShelfItem:
         ld b, topShelfY
 
         push de
-        ld de, secondFramebufferLogicalOffset
+        ld de, 0
         call renderFrameWriteTile
         pop de
         pop bc          ; restore loop counter

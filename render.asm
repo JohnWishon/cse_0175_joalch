@@ -554,12 +554,12 @@ renderPrecomputeSprites:
 
         ;; initialize cat 2 scratch area
         ld de, secondFramebufferScratchCat2Left
-        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_2
         ld bc, 16
         ldir
 
         ld de, secondFramebufferScratchCat2Right
-        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_2
         ld bc, 16
         ldir
 
@@ -2245,11 +2245,11 @@ statusBarSetup:
         inc c
         inc c
 
-        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_2
         call renderFrameWriteTilePixels
 
         inc c
-        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1 + 8
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_2 + 8
         call renderFrameWriteTilePixels
 
         inc c
