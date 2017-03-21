@@ -261,7 +261,6 @@ mainEndGameWaitL3:
         include "draw.asm"
 		include "utilities.asm"
 		include "graphics-mainScreen.asm"
-		include "graphics-loadingScreen.asm"
         include "graphics-sprites.asm"
 		include "music-loadingScreen.asm"
         include "graphics-screens.asm"
