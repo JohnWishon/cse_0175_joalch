@@ -9,7 +9,7 @@ MOUSE_RIGHT_ONE:
 	defb $00, $01, $C1, $21, $1E, $10, $E0, $40
 
 MOUSE_RIGHT_TWO:
-	defb $02, $01, $07, $D8, $A8, $40, $FF, $08
+	defb $02, $01, $07, $D8, $A8, $40, $FF, $08, $32
 	defb $80, $01, $C1, $21, $1E, $10, $E0, $40
 
 MOUSE_RIGHT_THREE:

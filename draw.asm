@@ -1,5 +1,5 @@
 runLoadingScreen:
-
+;this is clear screen
 	ld hl,$4000
 	ld de,$4001
 	ld bc,$17FF
@@ -43,6 +43,16 @@ setLoadingDisplay:
 	ld de,$4000
 	ld bc,$17FF
 	ldir 
+
+	ld hl, MOUSE_RIGHT_TWO
+	ld de, $4000
+	ld b, 5
+	ld c, 9
+
+
+	call renderFrameWriteTile
+
+
 	
 	call PlayMoonlightSonata
 	
