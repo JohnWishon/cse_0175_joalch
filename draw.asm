@@ -52,353 +52,118 @@ runGreetz:
 
 	;; Write CSE 0175
 	ld hl, CSE_0175
+	ld a, 7
 	ld b, 10
 	ld c, 19
-cseLoop:
-	push bc
-	ld b, 7
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz cseLoop
-
+	call    drawRenderLine
 	;; Write Dev Line
 	ld hl, DEVELOPERS
+	ld a, 9
 	ld b, 10
 	ld c, 19
-devLoop:
-	push bc
-	ld b, 9
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz devLoop
-
+	call    drawRenderLine
 	;; Write Huajie
 	ld hl, HUAJIE
+	ld a, 11
 	ld b, 10
 	ld c, 19
-huajieLoop:
-	push bc
-	ld b, 11
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz huajieLoop
-
+	call    drawRenderLine
 	;; Write Chris
 	ld hl, CHRIS
+	ld a, 12
 	ld b, 10
 	ld c, 19
-chrisLoop:
-	push bc
-	ld b, 12
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz chrisLoop
-
+	call    drawRenderLine
 	;; Write Amanda
 	ld hl, AMANDA
+	ld a, 13
 	ld b, 10
 	ld c, 19
-amandaLoop:
-	push bc
-	ld b, 13
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz amandaLoop
-
+	call    drawRenderLine
 	;; Write John
 	ld hl, JOHN
+	ld a, 14
 	ld b, 10
 	ld c, 19
-johnLoop:
-	push bc
-	ld b, 14
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz johnLoop
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANK
+	ld a, 15
 	ld b, 8
 	ld c, 20
-devBlankLoop:
-	push bc
-	ld b, 15
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz devBlankLoop
-
+	call    drawRenderLine
 	call delay
 
 	;; Write CSE 0175
 	ld hl, CSE_0175
+	ld a, 7
 	ld b, 10
 	ld c, 19
-cseProfLoop:
-	push bc
-	ld b, 7
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz cseProfLoop
-
+	call    drawRenderLine
 	;; Write CSE 0175
 	ld hl, PROFESSOR
+	ld a, 9
 	ld b, 10
 	ld c, 19
-profLoop:
-	push bc
-	ld b, 9
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz profLoop
-
+	call    drawRenderLine
 	;; Write CSE 0175
 	ld hl, SHACHAM
+	ld a, 11
 	ld b, 10
 	ld c, 19
-shachamLoop:
-	push bc
-	ld b, 11
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz shachamLoop
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANK
+	ld a, 12
 	ld b, 8
 	ld c, 20
-profBlankLoop1:
-	push bc
-	ld b, 12
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz profBlankLoop1
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANK
+	ld a, 13
 	ld b, 8
 	ld c, 20
-profBlankLoop2:
-	push bc
-	ld b, 13
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz profBlankLoop2
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANK
+	ld a, 14
 	ld b, 8
 	ld c, 20
-profBlankLoop3:
-	push bc
-	ld b, 14
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz profBlankLoop3
-
+	call    drawRenderLine
 	call delay
 
 ;; Thanks page
 ;; Write CSE 0175
 	ld hl, CSE_0175
+	ld a, 7
 	ld b, 10
 	ld c, 19
-cseThanksLoop:
-	push bc
-	ld b, 7
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz cseThanksLoop
-
+	call    drawRenderLine
 	ld hl, THANKS
+	ld a, 9
 	ld b, 10
 	ld c, 19
-thanksLoop:
-	push bc
-	ld b, 9
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz thanksLoop
-
+	call    drawRenderLine
 	ld hl, WOS
+	ld a, 11
 	ld b, 10
 	ld c, 19
-wosLoop:
-	push bc
-	ld b, 11
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz wosLoop
-
+	call    drawRenderLine
 	ld hl, CAULDWELL
+	ld a, 12
 	ld b, 10
 	ld c, 19
-cauldLoop:
-	push bc
-	ld b, 12
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz cauldLoop
-
+	call    drawRenderLine
 	ld hl, DAVID
+	ld a, 13
 	ld b, 10
 	ld c, 19
-davidLoop:
-	push bc
-	ld b, 13
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz davidLoop
-
+	call    drawRenderLine
 	ld hl, CHUTNEY
+	ld a, 14
 	ld b, 10
 	ld c, 19
-chutneyLoop:
-	push bc
-	ld b, 14
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz chutneyLoop
+	call    drawRenderLine
 	ret
 
 delay:
@@ -412,156 +177,52 @@ delay0:
 runMenu:
 	;; Options Title
 	ld hl, OPTIONS
+	ld a, 7
 	ld b, 10
 	ld c, 19
-optionsLoop:
-	push bc
-	ld b, 7
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz optionsLoop
-
+	call    drawRenderLine
 	;; Starts Title
 	ld hl, STARTS
+	ld a, 9
 	ld b, 10
 	ld c, 19
-startsLoop:
-	push bc
-	ld b, 9
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz startsLoop
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANK
+	ld a, 10
 	ld b, 8
 	ld c, 20
-menuBlankLoop1:
-	push bc
-	ld b, 10
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz menuBlankLoop1
-
+	call    drawRenderLine
 	;; Music Title
 	ld hl, MUSIC
+	ld a, 11
 	ld b, 10
 	ld c, 19
-musicLoop:
-	push bc
-	ld b, 11
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz musicLoop
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANKCAULDWELL
+	ld a, 12
 	ld b, 10
 	ld c, 19
-menuBlankLoop2:
-	push bc
-	ld b, 12
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz menuBlankLoop2
-
+	call    drawRenderLine
 	;; Controls
 	ld hl, CONTROLS
+	ld a, 13
 	ld b, 10
 	ld c, 19
-contLoop:
-	push bc
-	ld b, 13
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz contLoop
-
+	call    drawRenderLine
 	;; Write Blank
 	ld hl, BLANKCHUTNEY
+	ld a, 14
 	ld b, 10
 	ld c, 19
-menuBlankLoop3:
-	push bc
-	ld b, 14
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz menuBlankLoop3
-
+	call    drawRenderLine
 	;; Starts Title
 	ld hl, GREETZ
+	ld a, 15
 	ld b, 10
 	ld c, 19
-greetzLoop:
-	push bc
-	ld b, 15
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz greetzLoop
-
+	call    drawRenderLine
 	ret
 ; END menu
 
@@ -569,99 +230,34 @@ greetzLoop:
 runInstruction:
 	;; Control Title
 	ld hl, CONTROLS_TITLE
+	ld a, 7
 	ld b, 10
 	ld c, 19
-controlLoop:
-	push bc
-	ld b, 7
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz controlLoop
-
+	call    drawRenderLine
 	;; Write Player One Text
 	ld hl, PLAYER_ONE
+	ld a, 9
 	ld b, 10
 	ld c, 19
-p1Loop:
-	push bc
-	ld b, 9
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz p1Loop
-
+	call    drawRenderLine
 	;; Write Player One Text
 	ld hl, CONTROLS_ONE
+	ld a, 11
 	ld b, 10
 	ld c, 19
-c1Loop:
-	push bc
-	ld b, 11
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz c1Loop
-
+	call    drawRenderLine
 	;; Write Player One Text
 	ld hl, PLAYER_TWO
+	ld a, 13
 	ld b, 10
 	ld c, 19
-p2Loop:
-	push bc
-	ld b, 13
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz p2Loop
-
+	call    drawRenderLine
 	;; Write Player One Text
 	ld hl, CONTROLS_TWO
+	ld a, 15
 	ld b, 10
 	ld c, 19
-c2Loop:
-	push bc
-	ld b, 15
-	ld de, 0
-	push hl
-	call renderFrameWriteTile
-	pop hl
-	pop bc
-
-	inc c
-	ld d, 0
-	ld e, 9
-	add hl, de
-	djnz c2Loop
-
+	call    drawRenderLine
 	ret
 ;     ;; Instruction drawing code
 ;     call    SCheck
@@ -699,3 +295,25 @@ drawBotScreen:
   call drawScreen
 
   RET
+
+;;  Input:
+;;      HL: points to the first tile to print
+;;      b:  # of tiles to print
+;;      a:  y of tile to print
+;;      b:  x of tile to print
+drawRenderLine:
+    push af
+	push bc
+	ld b, a
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	pop af
+	djnz drawRenderLine
+	ret

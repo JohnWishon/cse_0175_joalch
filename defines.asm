@@ -165,8 +165,8 @@ mouseHoleActive: defb $66, $99, $7E, $81, $A5, $81, $66, $18, $F0  ; tile - base
         defb 0, 0, 0
 couchTop: defb 0, 0, 0, 0, 0, 0, 0, 0, 0   ; Graphics data
         defb tgaStandable | tgaPassable| 1 ; Gameplay attribute
-        defw couchTopDamaged               ; graphics tile next
-        defb LOW(couchTopDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
+        defw couchCushionDamaged               ; graphics tile next
+        defb LOW(couchCushionDamaged - dynamicTileInstanceBase) | 3     ; gameLevel index next
         defb 0, 0, 0                       ; Padding to 16 bytes
 couchTopDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defb tgaStandable | tgaPassable | 16
@@ -178,7 +178,7 @@ couchCushion: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
         defw couchCushionDamaged
         defb LOW(couchCushionDamaged - dynamicTileInstanceBase) | 3
         defb 0, 0, 0
-couchCushionDamaged: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+couchCushionDamaged: defb $00, $06, $08, $10, $20, $40, $40, $00, %00$010$000
         defb tgaStandable | tgaPassable | 3
         defw staticTileCouchCushionDestroyed
         defb tgaStandable | tgaPassable
@@ -257,7 +257,7 @@ shelfItem2:
         ;;   |attr| -> graphics attribute
 staticTileInstanceBase:
 staticTileCouchTopDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
-staticTileCouchCushionDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
+staticTileCouchCushionDestroyed: defb $30, $46, $88, $90, $20, $40, $40, $00,  %00$010$000
 staticTileCouchSideDestroyed: defb 0, 0, 0, 0, 0, 0, 0, 0, 0
 staticTileBackground: defb $00, $00, $00, $00, $00, $00, $00, $00, $70
 staticTileTestImpassableDestroyed: defb $DE, 0, $AD, 0, $BE, 0, $EF, $0F, %00$010$001
