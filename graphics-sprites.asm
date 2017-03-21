@@ -80,6 +80,10 @@ CAT_LEFT_UPPERBODY_PLAYER_1:
 	defb $11, $31, $7F, $4E, $7B, $75, $3F, $1F
 	defb $30, $B8, $DC, $4E, $C6, $C6, $86, $7E
 
+CAT_LEFT_UPPERBODY_PLAYER_2:
+	defb $11, $31, $7F, $4E, $7B, $75, $3F, $1F
+	defb $30, $B8, $DC, $4E, $C6, $C6, $86, $7E
+
 
 CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP:
 	defb $3F, $3F, $3F, $3F, $77, $EE, $DC, $18
@@ -97,6 +101,10 @@ CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP:
 ;	defb $00, $11, $38, $00, $2A, $A4, $00, $4E, $62, $00, $80, $31, $00, $B1, $A9, $00, $84, $29, $00, $8A, $39, $00, $40, $41, $00, $20, $81, $14, $40, $02, $0B, $80, $02, $10, $10, $02, $10, $20, $02, $0B, $C7, $F2, $14, $48, $52, $00, $30, $6C
 
 CAT_RIGHT_UPPERBODY_PLAYER_1:
+	defb $0C, $1D, $3B, $72, $63, $63, $61, $7E
+	defb $88, $8C, $FE, $72, $DE, $AE, $FC, $F8
+
+CAT_RIGHT_UPPERBODY_PLAYER_2:
 	defb $0C, $1D, $3B, $72, $63, $63, $61, $7E
 	defb $88, $8C, $FE, $72, $DE, $AE, $FC, $F8
 ;;CAT_RIGHT_INWARD_STEP:;;

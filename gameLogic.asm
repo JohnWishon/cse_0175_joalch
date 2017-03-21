@@ -3,11 +3,7 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
-        call initShelfLife
-        call initGroundMouse
-        call initWallMouse
-
-	call setupGameLogicInitialState
+        call setupGameLogicInitialState
 
         ;; Flood the map with passable attr.
         ld  hl, gameLevel
@@ -138,6 +134,10 @@ setupGameLogic:
         ld  de, gameLevel + 0 + (21 * levelTileWidth)
         ld  bc, 1
         ldir
+
+        call initGroundMouse
+        call initWallMouse
+        call initShelfLife
         ret
 
 setupGameLogicInitialState:
@@ -481,48 +481,127 @@ initWallMouse:
 initShelfLife:
         ; init top shelf
         ld b, topShelfMax
-        ld e, 9
-initTopShelfItem:
-        call random                 ; Get a random 1 or 2
-        and 1
-        add a, 1
-
-        add a, e                    ; Get a space on the shelf
-        ld e, a
-
-        push bc                     ; save loop counter
-        ld b, levelTileWidth        ; set up for getGameLevelAddr
+        sra b
         ld c, topShelfY
-        ld d, e
+        ld d, topShelfX
+        call initShelf
 
-        call getGameLevelAddr       ; Get the addr for the tile
-        ld a, shelfItem0 - dynamicTileInstanceBase             ; tile OR'd with health
-        or 1
-        ld (hl), a                  ; add to gamelevel
-        ;
-        ; push de
-        ; ld b, h
-        ; ld c, l
-        ; call $2d2b                  ; print number
-        ; call $2de3
-        ; pop de
+        ; init midLeft shelf
+        ld b, midShelfMax
+        sra b
+        ld c, midShelfY
+        ld d, midLeftShelfX
+        call initShelf
 
-        ld hl, shelfItem0
+        ; init midRight shelf
+        ld b, midShelfMax
+        sra b
+        ld c, midShelfY
+        ld d, midRightShelfX
+        call initShelf
 
-        ld c, e
+        ; init midLeft shelf
+        ld b, fishShelfMax
+        sra b
+        ld c, botShelfY
+        ld d, fishShelfX
+        call initShelf
 
-        ld b, topShelfY
-
-        push de
-        ld de, secondFramebufferLogicalOffset
-        call renderFrameWriteTile
-        pop de
-        pop bc          ; restore loop counter
-
-        djnz initTopShelfItem       ; repeat for the number of squares available
+        ; init midLeft shelf
+        ld b, botShelfMax
+        sra b
+        ld c, botShelfY
+        ld d, botRightShelfX
+        call initShelf
         ret
 
-topShelfMax:            equ 7
+; d - start x
+; c - start y
+; b - number of slots
+initShelf:
+        call random             ; Get random 1 or 2
+        and 1
+        inc a
+
+        add a, d                ; Get space on shelf
+        ld d, a
+
+        push bc
+        push de
+        ld b, levelTileWidth    ; load tile width for gamelevel, c and d already set
+        dec c                   ; Need level coords
+        dec c
+        xor a                   ; Clear a
+
+
+        call getGameLevelAddr   ; hl now has gameLevel addr
+        pop de
+
+
+        push hl
+        call random             ; pick a random shelf
+        pop hl
+
+        and 3
+        rra
+        jr nc, shelf0           ; no carry -> 0 or 2
+
+        ;;  pick item 1
+        ld a, shelfItem1 - dynamicTileInstanceBase
+        or 1
+        ld (hl), a
+
+        ld hl, shelfItem1       ; load tile graphics
+
+        jr endShelfRand
+
+        ;; pick item 0
+shelf0:                         ; 0 or 2 from rand
+        rra
+        jr c, shelf2            ; carry -> 2
+
+        ld a, shelfItem0 - dynamicTileInstanceBase     ; get random here
+        or 1
+        ld (hl), a
+
+        ld hl, shelfItem0       ; load tile graphics
+
+        jr endShelfRand
+        ;; Pick item 2
+shelf2:
+        ld a, shelfItem2 - dynamicTileInstanceBase    ; get random here
+        or 1
+        ld (hl), a
+
+        ld hl, shelfItem2       ; load tile graphics
+
+endShelfRand:
+        pop bc
+
+        push bc
+        ld b, c                 ; load y for render
+        ld c, d                 ; load x for render
+
+        push de
+        ld de, 0
+        call renderFrameWriteTile
+        pop de
+        pop bc                  ; restore loop counter
+        djnz initShelf          ; repeat for the number of squares available
+        ret
+
+
+topShelfMax:            equ 14
 topShelfY:              equ 4
-mbShelfMax:             equ 4
-fishShelfMax:           equ 1
+topShelfX:              equ 7
+
+midShelfMax:            equ 6
+midShelfY:              equ 8
+midLeftShelfX:          equ 2
+midRightShelfX:         equ 20
+
+botShelfY:              equ 12
+fishShelfMax:           equ 3
+fishShelfX:             equ 9
+botShelfMax:            equ 6
+botRightShelfX:         equ 17
