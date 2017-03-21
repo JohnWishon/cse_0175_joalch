@@ -4,6 +4,8 @@
 
 ;; mouse moving right ;;
 
+blanks: defb $00,$00,$00,$00,$00,$00,$00,$00
+
 MOUSE_RIGHT_ONE:
 	defb $01, $01, $07, $D8, $A8, $40, $FF, $08
 	defb $00, $01, $C1, $21, $1E, $10, $E0, $40
@@ -43,6 +45,15 @@ MOUSE_NOT_SHOWING_IN_HOLE:
 	; line based output of attribute data:
 	defb $70
 
+blanks: defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+	defb $00,$00,$00,$00,$00,$00,$00,$00,$78
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;			CAT SPRITES
@@ -81,13 +92,15 @@ CAT_LEFT_UPPERBODY_PLAYER_1:
 	defb $30, $B8, $DC, $4E, $C6, $C6, $86, $7E
 
 CAT_LEFT_UPPERBODY_PLAYER_2:
+	defb $20, $51, $7F, $4E, $7B, $75, $3F, $1F
+	defb $80, $78, $DC, $4E, $C6, $C6, $86, $7E
 
-	defb $01, $1E, $3B, $72, $63, $63, $61, $7E
-	defb $04, $8A, $FE, $72, $DE, $AE, $FC, $F8
+
 
 CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP:
-	defb $3F, $3F, $3F, $3F, $77, $EE, $DC, $18
-	defb $FC, $FC, $FC, $FC, $FC, $6E, $37, $1B
+
+	defb $3F, $3F, $FF, $FF, $3F, $F0, $E0, $00
+	defb $FC, $FC, $FC, $FE, $FE, $1C, $0E, $06
 
 ;CAT_LEFT_NEUTRAL_STEP:
 ;	defb $3F, $3F, $3F, $3F, $3F, $36, $76, $0E
@@ -105,15 +118,17 @@ CAT_RIGHT_UPPERBODY_PLAYER_1:
 	defb $88, $8C, $FE, $72, $DE, $AE, $FC, $F8
 
 CAT_RIGHT_UPPERBODY_PLAYER_2:
-	defb $0C, $1D, $3B, $72, $63, $63, $61, $7E
-	defb $88, $8C, $FE, $72, $DE, $AE, $FC, $F8
+	defb $01, $1E, $3B, $72, $63, $63, $61, $7E
+	defb $04, $8A, $FE, $72, $DE, $AE, $FC, $F8
+
 ;;CAT_RIGHT_INWARD_STEP:;;
 	; line based output of pixel data:
 ;;	defb $1C, $88, $25, $54, $46, $72, $8C, $01, $95, $8D, $94, $21, $9C, $51, $82, $02, $81, $04, $40, $02, $40, $02, $40, $02, $44, $92, $23, $12, $12, $B4, $0C, $58
 
 CAT_RIGHT_LEAP_LEFT_LAND_OUTWARD_STEP_OR_JUMP:
-	defb $3F, $3F, $3F, $3F, $3F, $76, $EC, $D8
-	defb $FC, $FC, $FC, $FC, $EE, $77, $3B, $18
+	defb $3F, $3F, $3F, $7F, $7F, $38, $70, $60
+	defb $FC, $FC, $FF, $FF, $FC, $0F, $07, $00
+
 
 ;;CAT_RIGHT_NEUTRAL_STEP:
 ;;	defb $3F, $3F, $3F, $3F, $3F, $36, $37, $38
