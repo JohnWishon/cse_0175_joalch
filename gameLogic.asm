@@ -3,11 +3,7 @@ logicNextTileGXOffset: equ 10
 logicNextTileGLOffset: equ 12
 
 setupGameLogic:
-        call initShelfLife
-        call initGroundMouse
-        call initWallMouse
-
-	call setupGameLogicInitialState
+        call setupGameLogicInitialState
 
         ;; Flood the map with passable attr.
         ld  hl, gameLevel
@@ -138,6 +134,10 @@ setupGameLogic:
         ld  de, gameLevel + 0 + (21 * levelTileWidth)
         ld  bc, 1
         ldir
+
+        call initGroundMouse
+        call initWallMouse
+        call initShelfLife
         ret
 
 setupGameLogicInitialState:
@@ -511,9 +511,10 @@ initShelfLife:
         ld b, botShelfMax
         sra b
         ld c, botShelfY
-        ld d, midRightShelfX
+        ld d, botRightShelfX
         call initShelf
         ret
+
 ; d - start x
 ; c - start y
 ; b - number of slots
@@ -526,55 +527,67 @@ initShelf:
         ld d, a
 
         push bc
+        push de
         ld b, levelTileWidth    ; load tile width for gamelevel, c and d already set
+        dec c                   ; Need level coords
+        dec c
+        xor a                   ; Clear a
+
 
         call getGameLevelAddr   ; hl now has gameLevel addr
+        pop de
 
+
+        push hl
         call random             ; pick a random shelf
-        and 2
+        pop hl
+
+        and 3
         rra
         jr nc, shelf0           ; no carry -> 0 or 2
 
-        ;;  pick item 0
+        ;;  pick item 1
         ld a, shelfItem1 - dynamicTileInstanceBase
         or 1
         ld (hl), a
 
-        ld hl, shelfItem1
+        ld hl, shelfItem1       ; load tile graphics
 
         jr endShelfRand
+
+        ;; pick item 0
 shelf0:                         ; 0 or 2 from rand
         rra
         jr c, shelf2            ; carry -> 2
 
-        ld a, shelfItem0 - dynamicTileInstanceBase      ; get random here
+        ld a, shelfItem0 - dynamicTileInstanceBase     ; get random here
         or 1
         ld (hl), a
 
-        ld hl, shelfItem0
+        ld hl, shelfItem0       ; load tile graphics
 
         jr endShelfRand
+        ;; Pick item 2
 shelf2:
-        ld a, shelfItem2 - dynamicTileInstanceBase      ; get random here
+        ld a, shelfItem2 - dynamicTileInstanceBase    ; get random here
         or 1
         ld (hl), a
 
-        ld hl, shelfItem2
+        ld hl, shelfItem2       ; load tile graphics
 
 endShelfRand:
         pop bc
 
         push bc
-        ld hl, shelfItem0
-        ld b, c
-        ld c, d
+        ld b, c                 ; load y for render
+        ld c, d                 ; load x for render
 
         push de
         ld de, 0
         call renderFrameWriteTile
         pop de
-        pop bc          ; restore loop counter
-        djnz initShelf       ; repeat for the number of squares available
+        pop bc                  ; restore loop counter
+        djnz initShelf          ; repeat for the number of squares available
         ret
 
 

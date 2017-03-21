@@ -479,14 +479,25 @@ random:
 ; d = mouseX
 ; hl -> return addr into gameLevel
 getGameLevelAddr:
-    add a, c
-    djnz getGameLevelAddr      ; a = tile width * mouseY
+    ld a, d
+    ld d, 0
+    ld e, c
+    ld h, 0
+    ld l, 0
+gameLevelAddrLoop:
+    add hl, de
+    djnz gameLevelAddrLoop      ; a = tile width * mouseY
 
-    add a, d                        ; a = (tileWidth * mouseY) + mouseX
+    ld d, 0
+    ld e, a
+    add hl, de                       ; a = (tileWidth * mouseY) + mouseX
 
-    ld c, a
-    ld hl, gameLevel
-    add hl,bc
+    ; ld b, 0
+    ; ld c, a
+    ld bc, gameLevel
+    add hl, bc
+
+    ; add hl,bc
 
     ret
 
