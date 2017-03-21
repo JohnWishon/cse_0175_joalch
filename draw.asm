@@ -57,22 +57,79 @@ setLoadingDisplay:
 ;    pop bc
 ;    inc c
 ;    djnz loop
-ld b, 10 ; 7
-    ld hl, CSE_0175
-    ld c, 20
-loop:
-    push bc
-    ld b, 10
-    ld de, 0
-    call renderFrameWriteTile
-    pop bc
-    inc c
-    ld d, 0
-    ld e, 9
-    add hl, de
-    djnz loop
 
+
+
+; Return character cell address of block at (b, c).
+	ld  b, 10
+	ld hl, CSE_0175
+	ld c, 19
+	;push bc
 	
+loop:
+	push bc
+	call char
+    	;push bc
+    	;ld b, 7
+    	;ld de, 0
+	;call char
+	pop bc
+	djnz loop
+ret
+
+
+
+chadd  ld a,b              ; vertical position.
+       and 24              ; which segment, 0, 1 or 2?
+       add a,64            ; 64*256 = 16384, Spectrum's screen memory.
+       ld d,a              ; this is our high byte.
+       ld a,b              ; what was that vertical position again?
+       and 7               ; which row within segment?
+       rrca                ; multiply row by 32.
+       rrca
+       rrca
+       ld e,a              ; low byte.
+       ld a,c              ; add on y coordinate.
+       add a,e             ; mix with low byte.
+       ld e,a              ; address of screen position in de.
+       ret
+; Display character hl at (b, c).
+
+char   call chadd          ; find screen address for char.
+       ld b,8              ; number of pixels high.
+char0  ld a,(hl)           ; source graphic.
+       ld (de),a           ; transfer to screen.
+       inc hl              ; next piece of data.
+       inc d               ; next pixel line.
+       djnz char0          ; repeat
+       ret
+
+
+;loop:
+;    push bc
+;    ld b, 7
+;    ld de, 0
+;exx;
+;	ld hl, TitleAttributes
+;	ld de, $5800
+;	ld bc, $0300
+;	ldir
+;
+;	ld hl,$4000
+;	ld de,$4001
+;	ld bc,$17FF
+;	ld (hl),$00
+;	ldir
+;exx
+ ;   call renderFrameWriteTile
+;    pop bc
+;    inc c
+;    ld d, 0
+;    ld e, 8
+;    add hl, de
+;    djnz loop
+
+
 ;	ld hl, CSE_0175
 ;	ld de, 0	
 ;	ld b, 10
