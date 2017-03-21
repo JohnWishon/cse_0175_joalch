@@ -2,6 +2,57 @@
         jp main
         include "defines.asm"
 
+
+mainPlayer1WinPix:
+        defb $f8, $fc, $cc, $cc, $fc, $f8, $c0, $c0 ; P
+             ;$c0, $c0, $c0, $c0, $c0, $c0, $fc, $fc, ; L
+             ;$78, $fc, $cc, $cc, $fc, $fc, $cc, $cc, ; A
+             ;$cc, $cc, $cc, $fc, $78, $30, $30, $30, ; Y
+             ;$fc, $fc, $c0, $fc, $fc, $c0, $fc, $fc, ; E
+             ;$f8, $fc, $cc, $cc, $fc, $f8, $cd, $cc, ; R
+        defb $30, $70, $f0, $30, $30, $30, $fc, $fc ; 1
+        defb $00, $00, $00, $00, $00, $00, $00, $00 ; Space
+        defb $84, $84, $84, $b4, $b4, $fc, $78, $48 ; W
+        defb $fc, $fc, $30, $30, $30, $30, $fc, $fc ; I
+        defb $cc, $cc, $ec, $fc, $fc, $cd, $cc, $cc ; N
+        defb $7c, $fc, $c0, $f8, $7c, $0c, $fc, $f8 ; S
+ mainPlayer2WinPix:
+        defb $78, $fc, $cc, $cd, $38, $70, $fc, $fc ; 2
+
+GCheck:
+        LD BC,$FDFE	;Read keys G-F-D-S-A
+        IN A,(C)
+        AND $10		;Keep only bit 0 of the result (ENTER, 0)
+        CP $10		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+SCheck:
+        LD BC,$FDFE	;Read keys G-F-D-S-A
+        IN A,(C)
+        AND $02		;Keep only bit 0 of the result (ENTER, 0)
+        CP $02		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+CCheck:
+        LD BC,$FEFE	;Read keys V-C-X-Z-Shift
+        IN A,(C)
+        AND $08		;Keep only bit 0 of the result (ENTER, 0)
+        CP $08		;Reset the zero flag if ENTER or 0 is being pressed
+        RET
+
+MCheck:
+    	LD BC,$7FFE	;Read keys B-N-M-Shift-Space
+    	IN A,(C)
+    	AND $04		;Keep only bit 0 of the result (ENTER, 0)
+    	CP $04		;Reset the zero flag if ENTER or 0 is being pressed
+    	RET
+
+EnterCheck:
+        LD BC, $AFFE
+        IN A, (C)
+        AND $01
+        CP $01
+        RET
+
+
 main:
         ;; ---------------------------------------------------------------------
         ;; Setup program state, interrupt handling scheme
@@ -15,18 +66,25 @@ main:
 		;; TODO: should we keep this?
 
 		call runLoadingScreen
-waitSpaceKey:
-		ld a,(23560)        ; read keyboard.
-		cp 32               ; is SPACE pressed?
-		jr nz,waitSpaceKey  ; no, wait.
-		call startGame      ; play the game.
-		jr waitSpaceKey     ; SPACE to restart game.
+mainLoadingScreenMusicPaused:
+	    CALL GCheck     ;Check whether G is pressed
+	    CALL NZ, runGreetz ; Jump to greetz screen if so.
+	    CALL SCheck
+	    JP  NZ, startGame
+        CALL CCheck
+        CALL NZ, runInstruction
+        CALL EnterCheck
+    	call nz, runMenu
+	    jp  mainLoadingScreenMusicPaused
 startGame:
         ld a, ($5c78)
         ld (seed), a
 
         call setupGameLogic
         call setupGraphics
+
+	    call setupGameLogic
+
         call setupRenderer
 
 
@@ -141,6 +199,6 @@ pretim:
         include "graphics-screens.asm"
 		include "utilities.asm"
 		include "graphics-mainScreen.asm"
-		include "graphics-loadingScreen.asm"
         include "graphics-sprites.asm"
 		include "music-loadingScreen.asm"
+        include "graphics-screens.asm"

@@ -14,7 +14,7 @@ setLoadingDisplay:
 ;	ld	de, $0106
 ;	call	$03b5	; BEEPER in ROM
 	;ret
-	
+
 ;	ld hl, 1460
 ;	ld de, 294
 ;	call 949
@@ -38,172 +38,635 @@ setLoadingDisplay:
 	ld de, $5800
 	ld bc, $0300
 	ldir
-	
+
 	ld hl,TitleName
 	ld de,$4000
 	ld bc,$17FF
-	ldir 
+	ldir
+
+	call PlayMoonlightSonata
+	ret
 
 
+runGreetz:
 
-;ld b, boxWidth ; 7
-;    ld hl, CSE_0175
-;    ld de, 0
-;    ld c, 20
-;loop:
-;    push bc
-;    ld b, 10
-;    call renderFrameWriteTile
-;    pop bc
-;    inc c
-;    djnz loop
-
-
-
-; Return character cell address of block at (b, c).
-	ld  b, 10
+	;; Write CSE 0175
 	ld hl, CSE_0175
+	ld b, 10
 	ld c, 19
-	;push bc
-	
-loop:
+cseLoop:
 	push bc
-	call char
-    	;push bc
-    	;ld b, 7
-    	;ld de, 0
-	;call char
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
 	pop bc
-	inc hl
-	djnz loop
-ret
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz cseLoop
+
+	;; Write Dev Line
+	ld hl, DEVELOPERS
+	ld b, 10
+	ld c, 19
+devLoop:
+	push bc
+	ld b, 9
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz devLoop
+
+	;; Write Huajie
+	ld hl, HUAJIE
+	ld b, 10
+	ld c, 19
+huajieLoop:
+	push bc
+	ld b, 11
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz huajieLoop
+
+	;; Write Chris
+	ld hl, CHRIS
+	ld b, 10
+	ld c, 19
+chrisLoop:
+	push bc
+	ld b, 12
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz chrisLoop
+
+	;; Write Amanda
+	ld hl, AMANDA
+	ld b, 10
+	ld c, 19
+amandaLoop:
+	push bc
+	ld b, 13
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz amandaLoop
+
+	;; Write John
+	ld hl, JOHN
+	ld b, 10
+	ld c, 19
+johnLoop:
+	push bc
+	ld b, 14
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz johnLoop
+
+	;; Write Blank
+	ld hl, BLANK
+	ld b, 8
+	ld c, 20
+devBlankLoop:
+	push bc
+	ld b, 15
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz devBlankLoop
+
+	call delay
+
+	;; Write CSE 0175
+	ld hl, CSE_0175
+	ld b, 10
+	ld c, 19
+cseProfLoop:
+	push bc
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz cseProfLoop
+
+	;; Write CSE 0175
+	ld hl, PROFESSOR
+	ld b, 10
+	ld c, 19
+profLoop:
+	push bc
+	ld b, 9
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz profLoop
+
+	;; Write CSE 0175
+	ld hl, SHACHAM
+	ld b, 10
+	ld c, 19
+shachamLoop:
+	push bc
+	ld b, 11
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz shachamLoop
+
+	;; Write Blank
+	ld hl, BLANK
+	ld b, 8
+	ld c, 20
+profBlankLoop1:
+	push bc
+	ld b, 12
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz profBlankLoop1
+
+	;; Write Blank
+	ld hl, BLANK
+	ld b, 8
+	ld c, 20
+profBlankLoop2:
+	push bc
+	ld b, 13
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz profBlankLoop2
+
+	;; Write Blank
+	ld hl, BLANK
+	ld b, 8
+	ld c, 20
+profBlankLoop3:
+	push bc
+	ld b, 14
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz profBlankLoop3
+
+	call delay
+
+;; Thanks page
+;; Write CSE 0175
+	ld hl, CSE_0175
+	ld b, 10
+	ld c, 19
+cseThanksLoop:
+	push bc
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz cseThanksLoop
+
+	ld hl, THANKS
+	ld b, 10
+	ld c, 19
+thanksLoop:
+	push bc
+	ld b, 9
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz thanksLoop
+
+	ld hl, WOS
+	ld b, 10
+	ld c, 19
+wosLoop:
+	push bc
+	ld b, 11
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz wosLoop
+
+	ld hl, CAULDWELL
+	ld b, 10
+	ld c, 19
+cauldLoop:
+	push bc
+	ld b, 12
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz cauldLoop
+
+	ld hl, DAVID
+	ld b, 10
+	ld c, 19
+davidLoop:
+	push bc
+	ld b, 13
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz davidLoop
+
+	ld hl, CHUTNEY
+	ld b, 10
+	ld c, 19
+chutneyLoop:
+	push bc
+	ld b, 14
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz chutneyLoop
+	ret
+
+delay:
+	ld b,50         ; length of delay.
+delay0:
+ 	halt            ; wait for an interrupt.
+	djnz delay0     ; loop.
+	ret
+; END GREETZ
+
+runMenu:
+	;; Options Title
+	ld hl, OPTIONS
+	ld b, 10
+	ld c, 19
+optionsLoop:
+	push bc
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz optionsLoop
+
+	;; Starts Title
+	ld hl, STARTS
+	ld b, 10
+	ld c, 19
+startsLoop:
+	push bc
+	ld b, 9
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz startsLoop
+
+	;; Write Blank
+	ld hl, BLANK
+	ld b, 8
+	ld c, 20
+menuBlankLoop1:
+	push bc
+	ld b, 10
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz menuBlankLoop1
+
+	;; Music Title
+	ld hl, MUSIC
+	ld b, 10
+	ld c, 19
+musicLoop:
+	push bc
+	ld b, 11
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz musicLoop
+
+	;; Write Blank
+	ld hl, BLANKCAULDWELL
+	ld b, 10
+	ld c, 19
+menuBlankLoop2:
+	push bc
+	ld b, 12
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz menuBlankLoop2
+
+	;; Controls
+	ld hl, CONTROLS
+	ld b, 10
+	ld c, 19
+contLoop:
+	push bc
+	ld b, 13
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz contLoop
+
+	;; Write Blank
+	ld hl, BLANKCHUTNEY
+	ld b, 10
+	ld c, 19
+menuBlankLoop3:
+	push bc
+	ld b, 14
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz menuBlankLoop3
+
+	;; Starts Title
+	ld hl, GREETZ
+	ld b, 10
+	ld c, 19
+greetzLoop:
+	push bc
+	ld b, 15
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz greetzLoop
+
+	ret
+; END menu
 
 
+runInstruction:
+	;; Control Title
+	ld hl, CONTROLS_TITLE
+	ld b, 10
+	ld c, 19
+controlLoop:
+	push bc
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
 
-chadd  ld a,b              ; vertical position.
-       and 24              ; which segment, 0, 1 or 2?
-       add a,64            ; 64*256 = 16384, Spectrum's screen memory.
-       ld d,a              ; this is our high byte.
-       ld a,b              ; what was that vertical position again?
-       and 7               ; which row within segment?
-       rrca                ; multiply row by 32.
-       rrca
-       rrca
-       ld e,a              ; low byte.
-       ld a,c              ; add on y coordinate.
-       add a,e             ; mix with low byte.
-       ld e,a              ; address of screen position in de.
-       ret
-; Display character hl at (b, c).
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz controlLoop
 
-char   call chadd          ; find screen address for char.
-       ld b,8              ; number of pixels high.
-char0  ld a,(hl)           ; source graphic.
-       ld (de),a           ; transfer to screen.
-       inc hl              ; next piece of data.
-       inc d               ; next pixel line.
-       djnz char0          ; repeat
-       ret
+	;; Write Player One Text
+	ld hl, PLAYER_ONE
+	ld b, 10
+	ld c, 19
+p1Loop:
+	push bc
+	ld b, 9
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
 
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz p1Loop
 
-;loop:
-;    push bc
-;    ld b, 7
-;    ld de, 0
-;exx;
-;	ld hl, TitleAttributes
-;	ld de, $5800
-;	ld bc, $0300
-;	ldir
+	;; Write Player One Text
+	ld hl, CONTROLS_ONE
+	ld b, 10
+	ld c, 19
+c1Loop:
+	push bc
+	ld b, 11
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz c1Loop
+
+	;; Write Player One Text
+	ld hl, PLAYER_TWO
+	ld b, 10
+	ld c, 19
+p2Loop:
+	push bc
+	ld b, 13
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz p2Loop
+
+	;; Write Player One Text
+	ld hl, CONTROLS_TWO
+	ld b, 10
+	ld c, 19
+c2Loop:
+	push bc
+	ld b, 15
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz c2Loop
+
+	ret
+;     ;; Instruction drawing code
+;     call    SCheck
+;     JP  nz, startGame
 ;
-;	ld hl,$4000
-;	ld de,$4001
-;	ld bc,$17FF
-;	ld (hl),$00
-;	ldir
-;exx
- ;   call renderFrameWriteTile
-;    pop bc
-;    inc c
-;    ld d, 0
-;    ld e, 8
-;    add hl, de
-;    djnz loop
-
-
-;	ld hl, CSE_0175
-;	ld de, 0	
-;	ld b, 10
-;	ld c, 20 
-;loop:
-;	push bc
-;	ld b, 7 
-;	call renderFrameWriteTile
-;	;inc hl
-;	pop bc
-;	inc c
-;	djnz loop
-ret
-
-;intro:
-
-;	ld ix, 
-;	ld b, 7
-;	ld c, 20
-;loop:
-
-;	ld ix, CONTROLS_TITLE
-;	ld hl, 
-;	ld ix, PLAYER_ONE
-;	ld ix, CONTROLS_ONE
-;	ld ix, PLAYER_TWO
-;	ld ix, CONTROLS_TWO
-;
-;	ld ix, OPTIONS
-;	ld ix, STARTS
-;	ld ix, MUSIC
-;	ld ix, CONTROLS
-;	ld ix, GREETZ
-	
-;	ld ix, CSE_0175
-;	
-;	ld ix, PROFESSOR
-;	ld ix, SHACHAM
-;	
-;endloop:
-
-
-;	ld ix, THANKS
-;	ld ix,
-;	ld ix, WOS
-;	ld ix, CAULDWELL
-;	ld ix, DAVID
-;	ld ix, CHUTNEY
-;	
-;	ld ix, DEVELOPERS
-;	ld ix, HUAJIE
-;	ld ix, CHRIS
-;	ld ix, AMANDA
-;	ld ix, JOHN
-;	
-;	ld ix, CONTROLS_TITLE
-;	ld ix, 
-;
- ; 	inc hl                         
- ; 	inc de
-  ;	dec bc
-
-;	endloop:
-
-
-
-;	call renderFrameWriteTile
-
-
-	
-	;call PlayMoonlightSonata
-	
-;ret
 
 setupGraphics:
 
