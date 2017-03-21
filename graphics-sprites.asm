@@ -76,6 +76,23 @@ CAT_CLAW:
         defb %00100100
         defb %00101000
         defb %00001000
+
+
+DAMAGE_3:
+	defb $30, $46, $88, $90, $23, $44, $48, $08
+DAMAGE_2:
+	defb $30, $46, $88, $90, $20, $40, $40, $00
+DAMAGE_1:
+	defb $00, $06, $08, $10, $20, $40, $40, $00
+
+CAT_STANDING_STILL_RIGHT:
+	defb $3F, $3F, $3F, $3F, $3F, $36, $37, $38
+	defb $FC, $FC, $FC, $FC, $FC, $6C, $6E, $70
+
+CAT_STANDING_STILL_LEFT:
+	defb $3F, $3F, $3F, $3F, $3F, $36, $76, $0E
+	defb $FC, $FC, $FC, $FC, $FC, $6C, $EC, $1C
+
 	;; defb $00, $00, $28, $F0, $F8, $F0, $08, $00
 
 CAT_STEP_ONE:
@@ -92,15 +109,15 @@ CAT_LEFT_UPPERBODY_PLAYER_1:
 	defb $30, $B8, $DC, $4E, $C6, $C6, $86, $7E
 
 CAT_LEFT_UPPERBODY_PLAYER_2:
+
 	defb $20, $51, $7F, $4E, $7B, $75, $3F, $1F
-	defb $80, $78, $DC, $4E, $C6, $C6, $86, $7E
-
-
+	defb $80, $58, $DC, $4E, $C6, $C6, $86, $7E
 
 CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP:
 
 	defb $3F, $3F, $FF, $FF, $3F, $F0, $E0, $00
 	defb $FC, $FC, $FC, $FE, $FE, $1C, $0E, $06
+
 
 ;CAT_LEFT_NEUTRAL_STEP:
 ;	defb $3F, $3F, $3F, $3F, $3F, $36, $76, $0E
