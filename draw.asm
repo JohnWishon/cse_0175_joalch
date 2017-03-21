@@ -46,15 +46,15 @@ setLoadingDisplay:
 
 	ld hl, MOUSE_RIGHT_TWO
 	ld de, $4000
-	ld b, 5
-	ld c, 9
+	ld b, 10
+	ld c, 20
 
 
 	call renderFrameWriteTile
 
 
 	
-	call PlayMoonlightSonata
+	;call PlayMoonlightSonata
 	
 ret
 
