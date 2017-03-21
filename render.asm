@@ -554,12 +554,12 @@ renderPrecomputeSprites:
 
         ;; initialize cat 2 scratch area
         ld de, secondFramebufferScratchCat2Left
-        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_2
         ld bc, 16
         ldir
 
         ld de, secondFramebufferScratchCat2Right
-        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_1
+        ld hl, CAT_RIGHT_UPPERBODY_PLAYER_2
         ld bc, 16
         ldir
 
@@ -1868,164 +1868,252 @@ renderFrameBuildMouseOrBGLoop:
         ret
 
 renderFrameSwapBuffers:
+	ld b, 0 ; b contains y offset
+	ld c, 0 ; c contains x offset
+	jp renderFrameSwapBuffersTileLoopFirst
+renderFrameSwapBuffersTileLoop:
+	inc b ; b contains y + 1
+	ld c, 0 ; c contains x = 0
+renderFrameSwapBuffersTileLoopFirst:
+	push bc
+	call renderFrameTileAddress
 
-        ;; TODO: massive 7000 line fast transfer function
-        ;;  https://chuntey.wordpress.com/tag/double-buffering/
+	;; de contains address into front buffer
+	ld h, d
+	ld l, e
 
-        ld de, $4000             ; front buffer address
-        ld hl, secondFramebuffer ; back buffer address
-        ld bc, 32 * 24 * 8
-renderFrameSwapBuffersCopyLoop:
-        ;; try not to throw up
-        ;; 128 ldi's
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	ld bc, secondFramebufferLogicalOffset
+	add hl, bc
+	ld a, 8
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	; hl contains back buffer row
+	; de contains front buffer row
+	jp renderFrameSwapBuffersInnerLoopFirst
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+renderFrameSwapBuffersInnerLoop:
+	pop de
+	pop hl
+	inc h
+	inc d
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+renderFrameSwapBuffersInnerLoopFirst:
+	push hl
+	push de
+	ld bc, 32
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	; hl contains current pixel row of back buffer
+	; de contains current pixel row of front buffer
+	; bc contains 32
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
+	ldi
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	dec a
+	cp 0
+	jp nz, renderFrameSwapBuffersInnerLoop
+	; todo: back jump
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	pop de
+	pop hl
+	pop bc
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+	ld a, b
+	cp 23
+	jp nz, renderFrameSwapBuffersTileLoop
+	ret
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
+;renderFrameSwapBuffers:
+;
+;        ;; TODO: massive 7000 line fast transfer function
+;        ;;  https://chuntey.wordpress.com/tag/double-buffering/;
+;
+;        ld de, $4000             ; front buffer address
+;        ld hl, secondFramebuffer ; back buffer address
+;        ld bc, 32 * 24 * 8
+;renderFrameSwapBuffersCopyLoop:
+;        ;; try not to throw up
+;        ;; 128 ldi's
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
 
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-        ldi
-
-        ld a, b
-        or c
-        jp nz, renderFrameSwapBuffersCopyLoop
-        ret
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;        ldi
+;
+;        ld a, b
+;        or c
+;        ;jp nz, renderFrameSwapBuffersCopyLoop
+;        ret
 
 
 ;;; ----------------------------------------------------------------------------
@@ -2157,11 +2245,11 @@ statusBarSetup:
         inc c
         inc c
 
-        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_2
         call renderFrameWriteTilePixels
 
         inc c
-        ld hl, CAT_LEFT_UPPERBODY_PLAYER_1 + 8
+        ld hl, CAT_LEFT_UPPERBODY_PLAYER_2 + 8
         call renderFrameWriteTilePixels
 
         inc c
