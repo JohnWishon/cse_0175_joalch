@@ -44,19 +44,108 @@ setLoadingDisplay:
 	ld bc,$17FF
 	ldir 
 
-	ld hl, MOUSE_RIGHT_TWO
-	ld de, $4000
-	ld b, 10
-	ld c, 20
 
 
-	call renderFrameWriteTile
+;ld b, boxWidth ; 7
+;    ld hl, CSE_0175
+;    ld de, 0
+;    ld c, 20
+;loop:
+;    push bc
+;    ld b, 10
+;    call renderFrameWriteTile
+;    pop bc
+;    inc c
+;    djnz loop
+ld b, 10 ; 7
+    ld hl, CSE_0175
+    ld c, 20
+loop:
+    push bc
+    ld b, 10
+    ld de, 0
+    call renderFrameWriteTile
+    pop bc
+    inc c
+    ld d, 0
+    ld e, 9
+    add hl, de
+    djnz loop
+
+	
+;	ld hl, CSE_0175
+;	ld de, 0	
+;	ld b, 10
+;	ld c, 20 
+;loop:
+;	push bc
+;	ld b, 7 
+;	call renderFrameWriteTile
+;	;inc hl
+;	pop bc
+;	inc c
+;	djnz loop
+ret
+
+;intro:
+
+;	ld ix, 
+;	ld b, 7
+;	ld c, 20
+;loop:
+
+;	ld ix, CONTROLS_TITLE
+;	ld hl, 
+;	ld ix, PLAYER_ONE
+;	ld ix, CONTROLS_ONE
+;	ld ix, PLAYER_TWO
+;	ld ix, CONTROLS_TWO
+;
+;	ld ix, OPTIONS
+;	ld ix, STARTS
+;	ld ix, MUSIC
+;	ld ix, CONTROLS
+;	ld ix, GREETZ
+	
+;	ld ix, CSE_0175
+;	
+;	ld ix, PROFESSOR
+;	ld ix, SHACHAM
+;	
+;endloop:
+
+
+;	ld ix, THANKS
+;	ld ix,
+;	ld ix, WOS
+;	ld ix, CAULDWELL
+;	ld ix, DAVID
+;	ld ix, CHUTNEY
+;	
+;	ld ix, DEVELOPERS
+;	ld ix, HUAJIE
+;	ld ix, CHRIS
+;	ld ix, AMANDA
+;	ld ix, JOHN
+;	
+;	ld ix, CONTROLS_TITLE
+;	ld ix, 
+;
+ ; 	inc hl                         
+ ; 	inc de
+  ;	dec bc
+
+;	endloop:
+
+
+
+;	call renderFrameWriteTile
 
 
 	
 	;call PlayMoonlightSonata
 	
-ret
+;ret
 
 setupGraphics:
 

@@ -138,6 +138,7 @@ pretim:
         include "gameLogic.asm"
         include "render.asm"
         include "draw.asm"
+        include "graphics-screens.asm"
 		include "utilities.asm"
 		include "graphics-mainScreen.asm"
 		include "graphics-loadingScreen.asm"
