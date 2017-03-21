@@ -74,6 +74,7 @@ loop:
     	;ld de, 0
 	;call char
 	pop bc
+	inc hl
 	djnz loop
 ret
 
