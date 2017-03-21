@@ -25,12 +25,37 @@ n96BE:
 	EX AF,AF'		; Restore the value of A
 	DEC C			;Decrement the short note counter in C
 	JR NZ,n96AC		;Jump back unless we've finished playing 50 short notes at the lower frequency
-	; CALL EnterCheck	;Check whether ENTER, 0 or the fire button is being pressed
-	; RET NZ			;Return (with the zero flag reset) if it is
+
 	CALL MCheck     ;Check whether M is being pressed
 	RET NZ			;Return (with the zero flag reset) if it is
-	; CALL GCheck     ;Check whether G is pressed
-	; JP  NZ, runGreetz ; Jump to greetz screen if so.
+
+	push af                 ; save all registers
+	push bc
+	push de
+	push hl
+	push ix
+	exx
+	ex af, af'
+	push af
+	push bc
+	push de
+	push hl
+	CALL GCheck     ;Check whether G is pressed
+	call nz, runGreetz
+	CALL CCheck
+	call nz, runInstruction
+	pop hl
+	pop de
+	pop bc
+	pop af
+	exx
+	ex af, af'
+	pop ix
+	pop hl
+	pop de
+	pop bc
+	pop af
+
 	CALL SCheck
 	JP  NZ, startGame
 	INC HL			;Move HL along to the next byte of tune data
@@ -44,17 +69,3 @@ MoonlightSonata:
 	DEFB $36,$2D,$51,$36,$2D,$28,$36,$28,$28,$3C,$33,$51,$3C,$33,$26,$3C
 	DEFB $2D,$4C,$3C,$2D,$28,$40,$33,$51,$40,$33,$2D,$40,$36,$20,$40,$36
 	DEFB $3D,$79,$3D,$FF
-
-EnterCheck:
-	LD BC,$AFFE	;Read keys H-J-K-L-ENTER and 6-7-8-9-0
-	IN A,(C)
-	AND $01		;Keep only bit 0 of the result (ENTER, 0)
-	CP $01		;Reset the zero flag if ENTER or 0 is being pressed
-	RET
-
-MCheck:
-	LD BC,$7FFE	;Read keys B-N-M-Shift-Space
-	IN A,(C)
-	AND $04		;Keep only bit 0 of the result (ENTER, 0)
-	CP $04		;Reset the zero flag if ENTER or 0 is being pressed
-	RET

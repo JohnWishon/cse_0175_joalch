@@ -36,6 +36,14 @@ CCheck:
         AND $08		;Keep only bit 0 of the result (ENTER, 0)
         CP $08		;Reset the zero flag if ENTER or 0 is being pressed
         RET
+
+MCheck:
+	LD BC,$7FFE	;Read keys B-N-M-Shift-Space
+	IN A,(C)
+	AND $04		;Keep only bit 0 of the result (ENTER, 0)
+	CP $04		;Reset the zero flag if ENTER or 0 is being pressed
+	RET
+
 main:
         ;; ---------------------------------------------------------------------
         ;; Setup program state, interrupt handling scheme
@@ -50,17 +58,13 @@ main:
 
 		call runLoadingScreen
 mainLoadingScreenMusicPaused:
-; 	    CALL GCheck     ;Check whether G is pressed
-; 	    JP  NZ, runGreetz ; Jump to greetz screen if so.
+	    CALL GCheck     ;Check whether G is pressed
+	    CALL NZ, runGreetz ; Jump to greetz screen if so.
 	    CALL SCheck
 	    JP  NZ, startGame
-; 	    jp  mainLoadingScreenMusicPaused
-; waitSpaceKey:
-; 		ld a,(23560)        ; read keyboard.
-; 		cp 32               ; is SPACE pressed?
-; 		jr nz,waitSpaceKey  ; no, wait.
-; 		call startGame      ; play the game.
-; 		jr waitSpaceKey     ; SPACE to restart game.
+        CALL CCheck
+        CALL NZ, runInstruction
+	    jp  mainLoadingScreenMusicPaused
 startGame:
 
         ld a, ($5c78)
@@ -260,3 +264,4 @@ mainEndGameWaitL3:
 		include "graphics-loadingScreen.asm"
         include "graphics-sprites.asm"
 		include "music-loadingScreen.asm"
+        include "graphics-screens.asm"

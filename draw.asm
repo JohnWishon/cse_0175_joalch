@@ -45,19 +45,73 @@ setLoadingDisplay:
 	ldir
 
 	call PlayMoonlightSonata
+	ret
 
-ret
 
-; runGreetz:
-    ;; Greetz drawing code
-    ; jp  runMenu
+; 	ld hl, DEVELOPERS
+; 	ld b, 10
+; 	ld c, 19
+; devLoop:
+; 	push bc
+; 	ld b, 9
+; 	ld de, 0
+; 	push hl
+; 	call renderFrameWriteTile
+; 	pop hl
+; 	pop bc
+;
+; 	inc c
+; 	ld d, 0
+; 	ld e, 9
+; 	add hl, de
+; 	djnz devLoop
+
+
+runGreetz:
+; Greetz drawing code
+	ld hl, CSE_0175
+	ld b, 10
+	ld c, 19
+cseLoop:
+	push bc
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz cseLoop
+	ret
 ; runMenu:
     ;; Menu drawing code
     ; call    CCheck
     ; JP  nz, runInstruction
     ; call    SCheck
     ; JP  nz, startGame
-; runInstruction:
+runInstruction:
+	ld hl, CSE_0175
+	ld b, 10
+	ld c, 19
+controlLoop:
+	push bc
+	ld b, 7
+	ld de, 0
+	push hl
+	call renderFrameWriteTile
+	pop hl
+	pop bc
+
+	inc c
+	ld d, 0
+	ld e, 9
+	add hl, de
+	djnz controlLoop
+	ret
 ;     ;; Instruction drawing code
 ;     call    SCheck
 ;     JP  nz, startGame
