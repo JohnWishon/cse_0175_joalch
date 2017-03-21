@@ -481,48 +481,114 @@ initWallMouse:
 initShelfLife:
         ; init top shelf
         ld b, topShelfMax
-        ld e, 9
-initTopShelfItem:
-        call random                 ; Get a random 1 or 2
-        and 1
-        add a, 1
-
-        add a, e                    ; Get a space on the shelf
-        ld e, a
-
-        push bc                     ; save loop counter
-        ld b, levelTileWidth        ; set up for getGameLevelAddr
+        sra b
         ld c, topShelfY
-        ld d, e
+        ld d, topShelfX
+        call initShelf
 
-        call getGameLevelAddr       ; Get the addr for the tile
-        ld a, shelfItem0 - dynamicTileInstanceBase             ; tile OR'd with health
+        ; init midLeft shelf
+        ld b, midShelfMax
+        sra b
+        ld c, midShelfY
+        ld d, midLeftShelfX
+        call initShelf
+
+        ; init midRight shelf
+        ld b, midShelfMax
+        sra b
+        ld c, midShelfY
+        ld d, midRightShelfX
+        call initShelf
+
+        ; init midLeft shelf
+        ld b, fishShelfMax
+        sra b
+        ld c, botShelfY
+        ld d, fishShelfX
+        call initShelf
+
+        ; init midLeft shelf
+        ld b, botShelfMax
+        sra b
+        ld c, botShelfY
+        ld d, midRightShelfX
+        call initShelf
+        ret
+; d - start x
+; c - start y
+; b - number of slots
+initShelf:
+        call random             ; Get random 1 or 2
+        and 1
+        inc a
+
+        add a, d                ; Get space on shelf
+        ld d, a
+
+        push bc
+        ld b, levelTileWidth    ; load tile width for gamelevel, c and d already set
+
+        call getGameLevelAddr   ; hl now has gameLevel addr
+
+        call random             ; pick a random shelf
+        and 2
+        rra
+        jr nc, shelf0           ; no carry -> 0 or 2
+
+        ;;  pick item 0
+        ld a, shelfItem1 - dynamicTileInstanceBase
         or 1
-        ld (hl), a                  ; add to gamelevel
-        ;
-        ; push de
-        ; ld b, h
-        ; ld c, l
-        ; call $2d2b                  ; print number
-        ; call $2de3
-        ; pop de
+        ld (hl), a
+
+        ld hl, shelfItem1
+
+        jr endShelfRand
+shelf0:                         ; 0 or 2 from rand
+        rra
+        jr c, shelf2            ; carry -> 2
+
+        ld a, shelfItem0 - dynamicTileInstanceBase      ; get random here
+        or 1
+        ld (hl), a
 
         ld hl, shelfItem0
 
-        ld c, e
+        jr endShelfRand
+shelf2:
+        ld a, shelfItem2 - dynamicTileInstanceBase      ; get random here
+        or 1
+        ld (hl), a
 
-        ld b, topShelfY
+        ld hl, shelfItem2
+
+endShelfRand:
+        pop bc
+
+        push bc
+        ld hl, shelfItem0
+        ld b, c
+        ld c, d
 
         push de
         ld de, 0
         call renderFrameWriteTile
         pop de
         pop bc          ; restore loop counter
-
-        djnz initTopShelfItem       ; repeat for the number of squares available
+        djnz initShelf       ; repeat for the number of squares available
         ret
 
-topShelfMax:            equ 7
+
+topShelfMax:            equ 14
 topShelfY:              equ 4
-mbShelfMax:             equ 4
-fishShelfMax:           equ 1
+topShelfX:              equ 7
+
+midShelfMax:            equ 6
+midShelfY:              equ 8
+midLeftShelfX:          equ 2
+midRightShelfX:         equ 20
+
+botShelfY:              equ 12
+fishShelfMax:           equ 3
+fishShelfX:             equ 9
+botShelfMax:            equ 6
+botRightShelfX:         equ 17
