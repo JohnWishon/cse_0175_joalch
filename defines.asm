@@ -198,17 +198,17 @@ dynamicTileTestImpassableOneHealth: defb 255, 127, 63, 31, 15, 7, 3, 1, %00$100$
         defw staticTileTestImpassableDestroyed
         defb tgaStandable
         defb 0, 0, 0
-shelfItem0: defb $FF, $FF, $FF, $FF, $00, $FF, $FF, $FF, $F0
+shelfItem0: defb $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $01     ; green
         defb tgaPassable | 1
         defw staticTileBackground
         defb tgaPassable
         defb 0, 0, 0
-shelfItem1: defb $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+shelfItem1: defb $FF, $FF, $FF, $FF, $00, $FF, $FF, $FF, $04     ; blue
         defb tgaPassable | 1
         defw staticTileBackground
         defb tgaPassable
         defb 0, 0, 0
-shelfItem2: defb $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+shelfItem2: defb $FF, $FF, $FF, $FF, $00, $FF, $FF, $FF, $02    ; red
         defb tgaPassable | 1
         defw staticTileBackground
         defb tgaPassable
