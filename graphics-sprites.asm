@@ -81,9 +81,9 @@ CAT_LEFT_UPPERBODY_PLAYER_1:
 	defb $30, $B8, $DC, $4E, $C6, $C6, $86, $7E
 
 CAT_LEFT_UPPERBODY_PLAYER_2:
-	defb $11, $31, $7F, $4E, $7B, $75, $3F, $1F
-	defb $30, $B8, $DC, $4E, $C6, $C6, $86, $7E
 
+	defb $01, $1E, $3B, $72, $63, $63, $61, $7E
+	defb $04, $8A, $FE, $72, $DE, $AE, $FC, $F8
 
 CAT_LEFT_LEAP_RIGHT_LAND_OUTWARD_STEP_OR_JUMP:
 	defb $3F, $3F, $3F, $3F, $77, $EE, $DC, $18
