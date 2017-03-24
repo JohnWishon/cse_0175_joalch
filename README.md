@@ -1,20 +1,26 @@
-# cse_0175_joalch
+# Cat-astrophe!
 
-Test Bench:
+1. Keyboard control:
+- P1: SZXC for directions, A for jump, D for punch
+- P2: 9IOP for directions, 8 for jump, 0 for punch
 
-1. Compile: `make build_test`
+2. Additional dependencies:
+- Fuse emulator
+- pasmo assembler
+- make build system
+- a computer
 
-2. Files:
+3. Building and running:
+- clone the repo
+- open the directory in the command line and execute `make` to produce `catastrophe.tap` in the current directory
+- exectute `fuse catastrophe.tap`
 
-  1. keyboardTest.asm: Press SZXC or neighboring keys to display a direction word (North, Southwest, etc.); press A to display "Jump"; press direction keys and D for "Punch [direction]". Conflicting direction keys (say, up and down, or more than two direction keys), when pressed, shall not be recorded. If it does, and "Error!" will be shown.
+4. Additional Greetz:
 
-  2. physicsTest.asm: Prints register values for the physics state machines for both players. For each player, display value: X-axis speed, Y-axis speed, air state.
-
-3. Keyboard control:
-
-  P1: SZXC for directions, A for jump, D for punch
-  
-  P2: 9IOP for directions, 8 for jump, 0 for punch 
-  
- Theme Tune:
-   This song was adopted from a dissassembly of Jet Set Willy with Skoolkit. 
+- Theme Tune: This song was adopted from a dissassembly of Jet Set Willy with Skoolkit.
+- [z80.info](http://www.z80.info/): For providing details on how to program the spectrum
+- [World of Spectrum](http://www.worldofspectrum.org/): For documentation and software
+- Jonathan Cauldwell’s How to Write ZX Spectrum Games hosted at [Bytes: Chuntey](https://chuntey.wordpress.com/2012/12/18/how-to-write-zx-spectrum-games-chapter-1/): For showing us how people _actually_ program the spectrum
+- David Webb’s Advanced Spectrum Machine Language: For algorithm support
+- [Skoolkid's Spectrum ROM disassembly](https://skoolkid.github.io/rom/): For telling us what these random hex values we keep `call`ing are
+- [ZX Paintbursh](http://www.zx-modules.de/zxpaintbrush/zxpaintbrush.html): For keeping us from having to draw by typing hex literals into Emacs.
