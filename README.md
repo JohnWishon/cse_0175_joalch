@@ -1,21 +1,23 @@
 # Cat-astrophe!
 
-1. Keyboard control:
+1. [Download](https://github.com/JohnWishon/cse_0175_joalch/releases/tag/1.0)
+
+2. Keyboard control:
 - P1: SZXC for directions, A for jump, D for punch
 - P2: 9IOP for directions, 8 for jump, 0 for punch
 
-2. Additional dependencies:
+3. Additional dependencies:
 - Fuse emulator
 - pasmo assembler
 - make build system
 - a computer
 
-3. Building and running:
+4. Building and running:
 - clone the repo
 - open the directory in the command line and execute `make` to produce `catastrophe.tap` in the current directory
 - exectute `fuse catastrophe.tap`
 
-4. Additional Greetz:
+5. Additional Greetz:
 
 - Theme Tune: This song was adopted from a dissassembly of Jet Set Willy with Skoolkit.
 - [z80.info](http://www.z80.info/): For providing details on how to program the spectrum
