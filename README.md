@@ -15,3 +15,6 @@ Test Bench:
   P1: SZXC for directions, A for jump, D for punch
   
   P2: 9IOP for directions, 8 for jump, 0 for punch 
+  
+ Theme Tune:
+   This song was adopted from a dissassembly of Jet Set Willy with Skoolkit. 
